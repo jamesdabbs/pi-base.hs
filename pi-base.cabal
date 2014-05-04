@@ -72,6 +72,8 @@ library
                  , fast-logger                   >= 2.1.4      && < 2.2
                  , wai-logger                    >= 2.1        && < 2.2
                  , time                          >= 1.4        && < 1.5
+                 , unordered-containers          >= 0.2.4      && < 0.3
+                 , heroku                        >= 0.1.1      && < 0.2
 
 executable         pi-base
     if flag(library-only)

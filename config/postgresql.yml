@@ -17,3 +17,8 @@ Staging:
   database: brubeck_staging
   poolsize: 100
   <<: *defaults
+
+Production:
+  database: brubeck_production
+  poolsize: 100
+  <<: *defaults
