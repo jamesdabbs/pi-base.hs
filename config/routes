@@ -4,7 +4,7 @@
 /favicon.ico FaviconR GET
 /robots.txt RobotsR GET
 
-/ HomeR GET POST
+/ HomeR GET
 
 /spaces          SpacesR GET
 /spaces/#SpaceId SpaceR  GET
