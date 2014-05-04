@@ -15,6 +15,10 @@ library
     exposed-modules: Application
                      Foundation
                      Import
+                     Util
+                     DB
+                     Logic.Types
+                     Logic
                      Model
                      Settings
                      Settings.StaticFiles
@@ -22,6 +26,7 @@ library
                      Handler.Home
                      Handler.Properties
                      Handler.Resource
+                     Handler.Search
                      Handler.Spaces
                      Handler.Theorems
 
@@ -74,6 +79,9 @@ library
                  , time                          >= 1.4        && < 1.5
                  , unordered-containers          >= 0.2.4      && < 0.3
                  , heroku                        >= 0.1.1      && < 0.2
+                 , containers                    >= 0.5        && < 0.6
+                 , vector                        >= 0.10.9     && < 0.11
+                 , esqueleto                     >= 1.3.12     && < 1.4
 
 executable         pi-base
     if flag(library-only)

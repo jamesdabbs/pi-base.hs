@@ -14,3 +14,5 @@
 
 /theorems            TheoremsR GET
 /theorems/#TheoremId TheoremR  GET
+
+/search SearchR GET
