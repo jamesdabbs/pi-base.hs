@@ -5,3 +5,12 @@
 /robots.txt RobotsR GET
 
 / HomeR GET POST
+
+/spaces          SpacesR GET
+/spaces/#SpaceId SpaceR  GET
+
+/properties             PropertiesR GET
+/properties/#PropertyId PropertyR   GET
+
+/theorems            TheoremsR GET
+/theorems/#TheoremId TheoremR  GET

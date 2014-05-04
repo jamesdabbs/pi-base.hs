@@ -21,14 +21,14 @@ TValue sql=values
   createdAt UTCTime
   updatedAt UTCTime
 
-Space sql=spaces
+Space json sql=spaces
   name Text
   description Text
   createdAt UTCTime
   updatedAt UTCTime
-  proofOfTopology Text
+  proofOfTopology Text Maybe
 
-Property sql=properties
+Property json sql=properties
   name Text
   description Text
   valueSetId ValueSetId
@@ -44,7 +44,7 @@ Trait sql=traits
   updatedAt UTCTime
   deduced Bool
 
-Theorem sql=theorems
+Theorem json sql=theorems
   description Text
   createdAt UTCTime
   updatedAt UTCTime

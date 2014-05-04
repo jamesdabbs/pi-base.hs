@@ -20,6 +20,10 @@ library
                      Settings.StaticFiles
                      Settings.Development
                      Handler.Home
+                     Handler.Properties
+                     Handler.Resource
+                     Handler.Spaces
+                     Handler.Theorems
 
     if flag(dev) || flag(library-only)
         cpp-options:   -DDEVELOPMENT

@@ -28,6 +28,8 @@ import Yesod.Core.Types (loggerSet, Logger (Logger))
 -- Import all relevant handler modules here.
 -- Don't forget to add new modules to your cabal file!
 import Handler.Home
+import Handler.Properties
+import Handler.Spaces
 
 -- This line actually creates our YesodDispatch instance. It is the second half
 -- of the call to mkYesodData which occurs in Foundation.hs. Please see the
@@ -85,9 +87,9 @@ makeFoundation conf = do
         foundation = App conf s p manager dbconf logger
 
     -- Perform database migration using our application's logging settings.
-    runLoggingT
-        (Database.Persist.runPool dbconf (runMigration migrateAll) p)
-        (messageLoggerSource foundation logger)
+    -- runLoggingT
+    --     (Database.Persist.runPool dbconf (runMigration migrateAll) p)
+    --     (messageLoggerSource foundation logger)
 
     return foundation
 

@@ -1,3 +1,4 @@
+{-# LANGUAGE FlexibleInstances #-}
 module Model where
 
 import Prelude
