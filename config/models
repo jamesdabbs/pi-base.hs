@@ -1,0 +1,80 @@
+-- TODO: Figure out auth vs. Rails users
+User
+    ident Text
+    password Text Maybe
+    UniqueUser ident
+    deriving Typeable
+Email
+    email Text
+    user UserId Maybe
+    verkey Text Maybe
+    UniqueEmail email
+
+ValueSet sql=value_sets
+  name Text
+  createdAt UTCTime
+  updatedAt UTCTime
+
+TValue sql=values
+  name Text
+  valueSetId ValueSetId
+  createdAt UTCTime
+  updatedAt UTCTime
+
+Space sql=spaces
+  name Text
+  description Text
+  createdAt UTCTime
+  updatedAt UTCTime
+  proofOfTopology Text
+
+Property sql=properties
+  name Text
+  description Text
+  valueSetId ValueSetId
+  createdAt UTCTime
+  updatedAt UTCTime
+
+Trait sql=traits
+  spaceId SpaceId
+  propertyId PropertyId
+  valueId TValueId
+  description Text
+  createdAt UTCTime
+  updatedAt UTCTime
+  deduced Bool
+
+Theorem sql=theorems
+  description Text
+  createdAt UTCTime
+  updatedAt UTCTime
+  antecedent Text
+  consequent Text
+
+TheoremProperty sql=theorem_properties
+  theoremId TheoremId
+  propertyId PropertyId
+
+Proof sql=proofs
+  traitId TraitId
+  theoremId TheoremId
+  theoremIndex Int
+  createdAt UTCTime
+  updatedAt UTCTime
+
+Assumption sql=assumptions
+  proofId ProofId
+  traitId TraitId
+
+Supporter sql=supporters
+  assumedId TraitId
+  impliedId TraitId
+
+Version sql=versions
+  itemType Text
+  itemId Int
+  event Text
+  whodunnit Text
+  object Text
+  createdAt UTCTime
+  objectChanges Text
