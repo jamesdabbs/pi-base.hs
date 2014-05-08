@@ -21,6 +21,9 @@ import Network.HTTP.Client.Conduit (newManager)
 import Control.Monad.Logger (runLoggingT)
 import Control.Concurrent (forkIO, threadDelay)
 import System.Log.FastLogger (newStdoutLoggerSet, defaultBufSize, flushLogStr)
+import Network.HTTP.Types.Header (ResponseHeaders)
+import Network.Wai (Middleware)
+import Network.Wai.Internal (Response(..))
 import Network.Wai.Logger (clockDateCacher)
 import Data.Default (def)
 import Yesod.Core.Types (loggerSet, Logger (Logger))
@@ -44,6 +47,21 @@ import qualified Web.Heroku
 -- comments there for more details.
 mkYesodDispatch "App" resourcesApp
 
+
+addHeaders :: ResponseHeaders -> Middleware
+addHeaders hs app env = do
+    res <- app env
+    return $ case res of
+        ResponseFile s rhs f mfp -> ResponseFile s (fix rhs) f mfp
+        ResponseBuilder s rhs b -> ResponseBuilder s (fix rhs) b
+        ResponseSource s rhs src -> ResponseSource s (fix rhs) src
+        r -> r
+  where fix rhs = rhs ++ hs
+
+cors :: Middleware
+cors = addHeaders [("Access-Control-Allow-Origin", "http://localhost:8000")]
+
+
 -- This function allocates resources (such as a database connection pool),
 -- performs initialization and creates a WAI application. This is also the
 -- place to put your migrate statements to have automatic database
@@ -64,7 +82,7 @@ makeApplication conf = do
     -- Create the WAI application and apply middlewares
     app <- toWaiAppPlain foundation
     let logFunc = messageLoggerSource foundation (appLogger foundation)
-    return (logWare $ defaultMiddlewaresNoLogging app, logFunc)
+    return (cors . logWare $ defaultMiddlewaresNoLogging app, logFunc)
 
 
 #ifndef DEVELOPMENT
