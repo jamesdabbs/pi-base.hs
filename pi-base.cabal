@@ -29,6 +29,7 @@ library
                      Handler.Search
                      Handler.Spaces
                      Handler.Theorems
+                     Handler.Traits
 
     if flag(dev) || flag(library-only)
         cpp-options:   -DDEVELOPMENT

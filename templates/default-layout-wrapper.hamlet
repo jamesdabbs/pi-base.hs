@@ -22,13 +22,40 @@ $newline never
 
         <script>
           document.documentElement.className = document.documentElement.className.replace(/\bno-js\b/,'js');
+
+        <link href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css" media="screen" rel="stylesheet">
+        <link href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css" media="screen" rel="stylesheet">
+
     <body>
+        <nav.navbar.navbar-default>
+          <.container>
+            <.navbar-header>
+              <a.navbar-brand href=@{HomeR}> 𝜋-Base
+
+            <.collapse.navbar-collapse>
+              <ul.nav.navbar-nav>
+                <li>
+                  <a href=@{SpacesR}> Spaces
+                <li>
+                  <a href=@{PropertiesR}> Properties
+                <li>
+                  <a href=@{TheoremsR}> Theorems
+
+              <ul.nav.navbar-nav.pull-right>
+                $maybe (Entity aid a) <- ma
+                  <li>
+                    <a>#{userIdent a}
+                  <li>
+                    <a href=@{AuthR LogoutR}>Logout
+                $nothing
+                  <li>
+                    <a href=@{AuthR LoginR}>Login
+
         <div class="container">
-            <header>
-            <div id="main" role="main">
-              ^{pageBody pc}
-            <footer>
-                #{extraCopyright $ appExtra $ settings master}
+            ^{pageBody pc}
+
+        <footer>
+            #{extraCopyright $ appExtra $ settings master}
 
         $maybe analytics <- extraAnalytics $ appExtra $ settings master
             <script>

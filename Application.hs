@@ -35,6 +35,7 @@ import Handler.Properties
 import Handler.Search
 import Handler.Spaces
 import Handler.Theorems
+import Handler.Traits
 
 import qualified Data.HashMap.Strict as M
 import qualified Data.Aeson.Types as AT

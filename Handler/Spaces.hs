@@ -4,10 +4,14 @@ import Import
 
 import Handler.Resource
 
-getSpacesR :: Handler Value
+getSpacesR :: Handler Html
 getSpacesR = do
   spaces <- page 0 10
-  returnJson $ (spaces :: [Entity Space])
+  defaultLayout $ do
+    $(widgetFile "spaces/index")
 
-getSpaceR :: SpaceId -> Handler Value
-getSpaceR = getJson
+getSpaceR :: SpaceId -> Handler Html
+getSpaceR _id = do
+  space <- runDB $ get404 _id
+  defaultLayout $ do
+    $(widgetFile "spaces/show")

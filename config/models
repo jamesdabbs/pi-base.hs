@@ -1,10 +1,11 @@
--- TODO: Figure out auth vs. Rails users
-User
+User sql=remote_users
     ident Text
     password Text Maybe
+    name Text Maybe
+    admin Bool
     UniqueUser ident
     deriving Typeable
-Email
+Email sql=emails
     email Text
     user UserId Maybe
     verkey Text Maybe

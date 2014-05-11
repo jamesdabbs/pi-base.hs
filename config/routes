@@ -12,6 +12,10 @@
 /properties             PropertiesR GET
 /properties/#PropertyId PropertyR   GET
 
+/trait/#TraitId        TraitR       GET
+/trait/#TraitId/delete DeleteTraitR GET POST
+/trait/#TraitId/check  CheckTraitR  POST
+
 /theorems            TheoremsR GET
 /theorems/#TheoremId TheoremR  GET
 

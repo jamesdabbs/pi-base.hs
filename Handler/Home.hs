@@ -3,6 +3,6 @@ module Handler.Home where
 
 import Import
 
-getHomeR :: Handler Value
-getHomeR = do
-  returnJson $ object []
+getHomeR :: Handler Html
+getHomeR = defaultLayout $ do
+    $(widgetFile "homepage")

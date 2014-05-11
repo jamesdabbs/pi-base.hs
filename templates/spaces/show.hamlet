@@ -1,0 +1,8 @@
+<h1> #{spaceName space}
+
+<.well>
+  <div>#{spaceDescription space}
+  $maybe proof <- spaceProofOfTopology space
+    <hr>
+    <h4> Proof of Topology
+    <div>#{proof}

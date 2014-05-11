@@ -1,0 +1,6 @@
+<h1> Spaces
+<dl>
+  $forall (Entity _id space) <- spaces
+    <dt>
+      <a href=@{SpaceR _id}> #{spaceName space}
+    <dd> #{spaceDescription space}

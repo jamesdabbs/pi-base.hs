@@ -50,6 +50,13 @@ mkYesodData "App" $(parseRoutesFile "config/routes")
 
 type Form x = Html -> MForm (HandlerT App IO) (FormResult x, Widget)
 
+isAdmin = do
+  ma <- maybeAuth
+  return $ case fmap (userAdmin . entityVal) ma of
+    Nothing    -> AuthenticationRequired
+    Just True  -> Authorized
+    Just False -> Unauthorized "You must be an admin"
+
 -- Please see the documentation for the Yesod typeclass. There are a number
 -- of settings which can be configured by overriding methods here.
 instance Yesod App where
@@ -64,6 +71,7 @@ instance Yesod App where
     defaultLayout widget = do
         master <- getYesod
         mmsg <- getMessage
+        ma   <- maybeAuth
 
         -- We break up the default layout into two components:
         -- default-layout is the contents of the body tag, and
@@ -87,6 +95,10 @@ instance Yesod App where
 
     -- The page to be redirected to when authentication is required.
     authRoute _ = Just $ AuthR LoginR
+
+    -- TODO: allow writes to non-logic-related fields / resources
+    isAuthorized _ True = isAdmin
+    isAuthorized _ _    = return Authorized
 
     -- This function creates static content files in the static folder
     -- and names them based on a hash of their content. This allows
@@ -133,6 +145,8 @@ instance YesodAuth App where
                 fmap Just $ insert User
                     { userIdent = credsIdent creds
                     , userPassword = Nothing
+                    , userName = Nothing
+                    , userAdmin = False
                     }
 
     -- You can add other plugins like BrowserID, email or OAuth here
