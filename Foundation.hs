@@ -50,6 +50,7 @@ mkYesodData "App" $(parseRoutesFile "config/routes")
 
 type Form x = Html -> MForm (HandlerT App IO) (FormResult x, Widget)
 
+isAdmin :: Handler AuthResult
 isAdmin = do
   ma <- maybeAuth
   return $ case fmap (userAdmin . entityVal) ma of
@@ -80,10 +81,7 @@ instance Yesod App where
         -- you to use normal widget features in default-layout.
 
         pc <- widgetToPageContent $ do
-            $(combineStylesheets 'StaticR
-                [ css_normalize_css
-                , css_bootstrap_css
-                ])
+            $(combineStylesheets 'StaticR [])
             $(widgetFile "default-layout")
         giveUrlRenderer $(hamletFile "templates/default-layout-wrapper.hamlet")
 
