@@ -2,7 +2,7 @@ module Handler.Spaces where
 
 import Import
 
-import Form.Space (createSpaceForm)
+import Form.Spaces (createSpaceForm)
 import Handler.Resource (page)
 
 

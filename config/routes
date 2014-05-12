@@ -11,8 +11,10 @@
 /spaces/#SpaceId        SpaceR       GET
 /spaces/#SpaceId/delete DeleteSpaceR GET POST
 
-/properties             PropertiesR GET
-/properties/#PropertyId PropertyR   GET
+/properties                    PropertiesR     GET
+/properties/!new               CreatePropertyR GET POST
+/properties/#PropertyId        PropertyR       GET
+/properties/#PropertyId/delete DeletePropertyR GET POST
 
 /traits                 TraitsR      GET
 /traits/!new            CreateTraitR GET POST
@@ -20,7 +22,8 @@
 /traits/#TraitId/delete DeleteTraitR GET POST
 /traits/#TraitId/check  CheckTraitR  POST
 
-/theorems                   TheoremsR      GET POST
+/theorems                   TheoremsR      GET
+/theorems/!new              CreateTheoremR GET POST
 /theorems/#TheoremId        TheoremR       GET
 /theorems/#TheoremId/delete DeleteTheoremR GET POST
 /theorems/#TheoremId/check  CheckTheoremR  POST

@@ -1,6 +1,6 @@
-<a.btn.btn-default href=@{TraitR _id}> Back
+<a.btn.btn-default href=@{TheoremR _id}> Back
 
-<h1>Checked ^{traitName trait}
+<h1>Checked ^{theoremName theorem}
 
 $if null traits
   <p>No new traits found.

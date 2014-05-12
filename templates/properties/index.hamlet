@@ -1,0 +1,6 @@
+<h1>Properties
+<dl>
+  $forall (Entity _id property) <- properties
+    <dt>
+      <a href=@{PropertyR _id}> #{propertyName property}
+    <dd> #{propertyDescription property}

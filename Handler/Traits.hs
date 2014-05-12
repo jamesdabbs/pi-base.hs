@@ -2,8 +2,8 @@ module Handler.Traits where
 
 import Import
 
-import DB (traitConsequences, deleteTraitConsequences)
-import Form.Trait (createTraitForm)
+import DB (traitConsequences, deleteTrait)
+import Form.Traits (createTraitForm)
 import Handler.Resource (page)
 
 
@@ -63,7 +63,7 @@ getDeleteTraitR _id = do
 
 postDeleteTraitR :: TraitId -> Handler Html
 postDeleteTraitR _id = do
-  _ <- deleteTraitConsequences _id
+  _ <- deleteTrait _id
   setMessage "Deleted trait"
   redirect TraitsR
 

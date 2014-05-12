@@ -2,11 +2,13 @@ module DB
 ( matches'
 , supportedTraits
 , traitConsequences
-, deleteTraitConsequences
 , theoremConsequences
+, deleteTrait
+, deleteTheorem
 ) where
 
 import Import hiding ((==.), (!=.), delete)
+import qualified Import as I (delete)
 
 import Data.Int (Int64)
 import Database.Esqueleto
@@ -47,12 +49,6 @@ supportedTraits _ids = runDB . select $
 traitConsequences :: TraitId -> Handler [Entity Trait]
 traitConsequences _id = supportedTraits [_id]
 
-deleteTraitConsequences :: TraitId -> Handler Int64
-deleteTraitConsequences _id = do
-  consequences <- traitConsequences _id
-  runDB . deleteCount $ from $ \t ->
-    where_ (t ^. TraitId `in_` (valList . map entityKey $ consequences))
-
 theoremConsequences :: TheoremId -> Handler [Entity Trait]
 theoremConsequences _id = do
   proved <- runDB . select $
@@ -61,3 +57,19 @@ theoremConsequences _id = do
     where_ (proofs ^. ProofTheoremId ==. (val _id))
     return traits
   supportedTraits $ map entityKey proved
+
+deleteConsequences :: [Entity Trait] -> Handler Int64
+deleteConsequences _ids = runDB . deleteCount $ from $ \t ->
+  where_ (t ^. TraitId `in_` (valList . map entityKey $ _ids))
+
+deleteTrait :: TraitId -> Handler Int64
+deleteTrait _id = do
+  consequences <- traitConsequences _id
+  runDB $ I.delete _id
+  deleteConsequences consequences
+
+deleteTheorem :: TheoremId -> Handler Int64
+deleteTheorem _id = do
+  consequences <- theoremConsequences _id
+  runDB $ I.delete _id
+  deleteConsequences consequences

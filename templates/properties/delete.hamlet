@@ -1,0 +1,8 @@
+<a.btn.btn-default href=@{PropertyR _id}>Back
+
+<h1>Deleting #{propertyName property}
+$# TODO: pluralize
+<p>with #{traits} traits
+
+<form method=post action=@{DeletePropertyR _id}>
+  <button.btn.btn-danger>Delete

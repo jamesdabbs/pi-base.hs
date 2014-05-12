@@ -23,8 +23,10 @@ library
                      Settings
                      Settings.StaticFiles
                      Settings.Development
-                     Form.Space
-                     Form.Trait
+                     Form.Properties
+                     Form.Spaces
+                     Form.Theorems
+                     Form.Traits
                      Form
                      Handler.Home
                      Handler.Properties

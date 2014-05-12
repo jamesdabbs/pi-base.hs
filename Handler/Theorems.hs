@@ -2,22 +2,44 @@ module Handler.Theorems where
 
 import Import
 
-import Handler.Resource
+import DB (theoremConsequences, deleteTheorem)
+import Form.Theorems (createTheoremForm)
+import Handler.Resource (page)
 
-import DB (theoremConsequences)
 
+import Handler.Traits (traitName)
 
 theoremName :: Theorem -> Widget
 theoremName theorem = do
   toWidget [whamlet|<span> TODO: write theorem name widget|]
 
-getTheoremsR :: Handler Value
+queueCheckTheorem :: TheoremId -> Handler ()
+queueCheckTheorem = undefined
+
+checkTheorem :: TheoremId -> Handler [Entity Trait]
+checkTheorem = undefined
+
+
+getTheoremsR :: Handler Html
 getTheoremsR = do
   theorems <- page 0 10
-  returnJson $ (theorems :: [Entity Theorem])
+  defaultLayout $(widgetFile "theorems/index")
 
-postTheoremsR :: Handler Html
-postTheoremsR = undefined
+getCreateTheoremR :: Handler Html
+getCreateTheoremR = do
+  (widget, enctype) <- generateFormPost createTheoremForm
+  defaultLayout $(widgetFile "theorems/new")
+
+postCreateTheoremR :: Handler Html
+postCreateTheoremR = do
+  ((result, widget), enctype) <- runFormPost createTheoremForm
+  case result of
+    FormSuccess theorem -> do
+      _id <- runDB $ insert theorem
+      queueCheckTheorem _id
+      setMessage "Created theorem"
+      redirect $ TheoremR _id
+    _ -> defaultLayout $(widgetFile "theorems/new")
 
 getTheoremR :: TheoremId -> Handler Html
 getTheoremR _id = do
@@ -32,8 +54,12 @@ getDeleteTheoremR _id = do
 
 postDeleteTheoremR :: TheoremId -> Handler Html
 postDeleteTheoremR _id = do
-  consequences <- theoremConsequences _id
-  undefined
+  _ <- deleteTheorem _id
+  setMessage "Deleted theorem"
+  redirect TheoremsR
 
 postCheckTheoremR :: TheoremId -> Handler Html
-postCheckTheoremR = undefined
+postCheckTheoremR _id = do
+  theorem <- runDB $ get404 _id
+  traits <- checkTheorem _id
+  defaultLayout $(widgetFile "theorems/check")

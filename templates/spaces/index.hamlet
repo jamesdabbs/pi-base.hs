@@ -1,4 +1,4 @@
-<h1> Spaces
+<h1>Spaces
 <dl>
   $forall (Entity _id space) <- spaces
     <dt>

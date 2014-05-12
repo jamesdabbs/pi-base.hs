@@ -1,4 +1,4 @@
-module Form.Trait
+module Form.Traits
 ( createTraitForm
 ) where
 

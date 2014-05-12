@@ -1,8 +1,9 @@
 <a.btn.btn-default href=@{CreateTraitR}>New
 
-<h1> Traits
+<h1>Traits
 <dl>
   $forall (Entity _id trait) <- traits
     <dt>
+      $# FIXME: n+1
       <a href=@{TraitR _id}> ^{traitName trait}
     <dd> #{traitDescription trait}

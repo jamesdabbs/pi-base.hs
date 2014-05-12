@@ -1,0 +1,9 @@
+<a.btn.btn-default href=@{CreateTheoremR}>New
+
+<h1>Theorems
+<dl>
+  $forall (Entity _id theorem) <- theorems
+    <dt>
+      $# FIXME: n+1
+      <a href=@{TheoremR _id}> ^{theoremName theorem}
+    <dd> #{theoremDescription theorem}

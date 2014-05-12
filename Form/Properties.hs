@@ -1,5 +1,5 @@
-module Form.Space
-( createSpaceForm
+module Form.Properties
+( createPropertyForm
 ) where
 
 import Import
@@ -9,11 +9,13 @@ import Control.Applicative ((<*))
 import Data.Time (getCurrentTime)
 import Yesod.Form.Bootstrap3
 
-createSpaceForm :: Html -> MForm Handler (FormResult Space, Widget)
-createSpaceForm = renderBootstrap3 fLayout $ Space
+boolean = undefined
+
+createPropertyForm :: Html -> MForm Handler (FormResult Property, Widget)
+createPropertyForm = renderBootstrap3 fLayout $ Property
   <$> areq textField (fs "Name")        Nothing
   <*> areq textField (fs "Description") Nothing
+  <*> lift (boolean)
   <*> lift (liftIO getCurrentTime)
   <*> lift (liftIO getCurrentTime)
-  <*> aopt textField (fs "Proof of Topology") Nothing
   <*  bootstrapSubmit ("Save" :: BootstrapSubmit Text)
