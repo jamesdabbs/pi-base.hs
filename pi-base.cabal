@@ -23,6 +23,7 @@ library
                      Settings
                      Settings.StaticFiles
                      Settings.Development
+                     Form.Space
                      Form.Trait
                      Form
                      Handler.Home

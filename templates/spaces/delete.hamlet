@@ -1,0 +1,8 @@
+<a.btn.btn-default href=@{SpaceR _id}>Back
+
+<h1>Deleting #{spaceName space}
+$# TODO: pluralize
+<p>with #{traits} traits
+
+<form method=post action=@{DeleteSpaceR _id}>
+  <button.btn.btn-danger>Delete

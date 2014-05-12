@@ -1,4 +1,4 @@
-<a.btn.btn-default href=@{TraitR _id}> Back
+<a.btn.btn-default href=@{TraitR _id}>Back
 
 <h1>Deleting ^{traitName trait}
 
@@ -9,5 +9,5 @@ $if not $ null consequences
       $# FIXME: n+1
       <li> ^{traitName t}
 
-<form method="post" action=@{DeleteTraitR _id}>
+<form method=post action=@{DeleteTraitR _id}>
   <button.btn.btn-danger>Delete

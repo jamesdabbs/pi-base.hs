@@ -3,11 +3,12 @@ module Form
 , propertyField
 , valueField
 , fs
+, fLayout
 ) where
 
 import Import
 
-import Yesod.Form.Bootstrap3 (bfs)
+import Yesod.Form.Bootstrap3
 
 
 choices :: (PersistEntity val, YesodPersist site, RenderMessage site msg,
@@ -32,3 +33,11 @@ valueField = selectField (choices TValueId tValueName)
 
 fs :: Text -> FieldSettings App
 fs = bfs
+
+fLayout :: BootstrapFormLayout
+fLayout = BootstrapHorizontalForm {
+  bflLabelOffset = ColMd 0,
+  bflLabelSize   = ColMd 4,
+  bflInputOffset = ColMd 0,
+  bflInputSize   = ColMd 8
+}

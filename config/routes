@@ -6,8 +6,10 @@
 
 / HomeR GET
 
-/spaces          SpacesR GET
-/spaces/#SpaceId SpaceR  GET
+/spaces                 SpacesR      GET
+/spaces/!new            CreateSpaceR GET POST
+/spaces/#SpaceId        SpaceR       GET
+/spaces/#SpaceId/delete DeleteSpaceR GET POST
 
 /properties             PropertiesR GET
 /properties/#PropertyId PropertyR   GET
