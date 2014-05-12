@@ -11,7 +11,7 @@ import Handler.Traits (traitName)
 
 theoremName :: Theorem -> Widget
 theoremName theorem = do
-  toWidget [whamlet|<span> TODO: write theorem name widget|]
+  toWidget [whamlet|<span>#{show $ theoremAntecedent theorem} => #{show $ theoremConsequent theorem}|]
 
 queueCheckTheorem :: TheoremId -> Handler ()
 queueCheckTheorem = undefined

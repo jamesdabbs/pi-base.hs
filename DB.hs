@@ -5,6 +5,11 @@ module DB
 , theoremConsequences
 , deleteTrait
 , deleteTheorem
+, traitMap
+, TraitMap
+, addTrait
+, theoremImplication
+, propertyTheorems
 ) where
 
 import Import hiding ((==.), (!=.), delete)
@@ -12,6 +17,9 @@ import qualified Import as I (delete)
 
 import Data.Int (Int64)
 import Database.Esqueleto
+import qualified Data.Map as M
+import qualified Data.Set as S
+import Data.Time (getCurrentTime)
 
 import Logic.Types
 
@@ -58,6 +66,7 @@ theoremConsequences _id = do
     return traits
   supportedTraits $ map entityKey proved
 
+
 deleteConsequences :: [Entity Trait] -> Handler Int64
 deleteConsequences _ids = runDB . deleteCount $ from $ \t ->
   where_ (t ^. TraitId `in_` (valList . map entityKey $ _ids))
@@ -73,3 +82,38 @@ deleteTheorem _id = do
   consequences <- theoremConsequences _id
   runDB $ I.delete _id
   deleteConsequences consequences
+
+type TraitMap p = M.Map p (TraitId, TValueId)
+
+traitMap :: SpaceId -> S.Set PropertyId -> Handler (TraitMap PropertyId)
+traitMap sid ps = runDB $ do
+  ets <- select $
+    from $ \t -> do
+    where_ $ (t ^. TraitSpaceId ==. val sid &&. t ^. TraitPropertyId `in_` (valList . S.toList $ ps))
+    return t
+  return . M.fromList . map (\(Entity tid t) -> (traitPropertyId t, (tid, traitValueId t))) $ ets
+
+addTrait :: SpaceId -> PropertyId -> TValueId -> Text -> Handler (TraitId)
+addTrait s p v d = do
+  now <- liftIO getCurrentTime
+  _id <- runDB . insert $ Trait
+      { traitSpaceId         = s
+      , traitPropertyId      = p
+      , traitValueId         = v
+      , traitDescription     = d
+      , traitDeduced         = True
+      , traitCreatedAt       = now
+      , traitUpdatedAt       = now
+      }
+  _ <- error "Need to create node inline here"
+  return _id
+
+theoremImplication :: Theorem -> Implication PropertyId
+theoremImplication t = (Key . PersistInt64) <$> Implication (theoremAntecedent t) (theoremConsequent t)
+
+propertyTheorems :: PropertyId -> Handler [Entity Theorem]
+propertyTheorems pid = runDB . select $
+  from $ \(t `InnerJoin` pt) -> do
+  on (t ^. TheoremId ==. pt ^. TheoremPropertyTheoremId)
+  where_ (pt ^. TheoremPropertyPropertyId ==. val pid)
+  return t

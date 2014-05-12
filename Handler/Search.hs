@@ -6,7 +6,7 @@ import Data.Aeson
 import qualified Data.ByteString.Lazy as LBS
 import Data.Text.Encoding (encodeUtf8)
 
-import Logic.Types (Formula(..), MatchType(..))
+import Logic.Types (MatchType(..))
 import Logic (matches)
 
 jsonError :: Text -> Handler Value

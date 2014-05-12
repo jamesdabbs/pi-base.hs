@@ -1,6 +1,5 @@
 module Handler.Resource
 ( page
-, getJson
 ) where
 
 import Import
@@ -20,7 +19,3 @@ page from size = do
   _size <- intParam "size" size
   objects <- runDB $ selectList [] [OffsetBy _from, LimitTo _size]
   return objects
-
-getJson _id = do
-  obj <- runDB $ get404 _id
-  returnJson $ obj

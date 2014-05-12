@@ -50,8 +50,8 @@ Theorem json sql=theorems
   description Text
   createdAt UTCTime
   updatedAt UTCTime
-  antecedent Text
-  consequent Text
+  antecedent (Formula Int64)
+  consequent (Formula Int64)
 
 -- This table is here simply to make it easier to
 --   execute the common "what theorems involve this
@@ -66,6 +66,7 @@ TheoremProperty sql=theorem_properties
 Proof sql=proofs
   traitId TraitId
   theoremId TheoremId
+  -- FIXME: this field should be made accurate or removed
   theoremIndex Int
   createdAt UTCTime
   updatedAt UTCTime

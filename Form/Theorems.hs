@@ -9,8 +9,12 @@ import Control.Applicative ((<*))
 import Data.Time (getCurrentTime)
 import Yesod.Form.Bootstrap3
 
+import Data.Int (Int64)
+import Logic.Types (Formula(..))
+
 -- FIXME: add validation / coercion
-formulaField = textField
+formulaField :: Field Handler (Formula Int64)
+formulaField = undefined
 
 createTheoremForm :: Html -> MForm Handler (FormResult Theorem, Widget)
 createTheoremForm = renderBootstrap3 fLayout $ Theorem
