@@ -1,0 +1,8 @@
+<h1> Deleting ^{theoremName theorem}
+
+$if not $ null consequences
+  <ul>
+    $forall (Entity _id t) <- consequences
+      <li> #{show _id}
+
+<p> Are you sure

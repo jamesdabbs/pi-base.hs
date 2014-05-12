@@ -1,0 +1,8 @@
+<a.btn.btn-default href=@{CreateTraitR}>New
+
+<h1> Traits
+<dl>
+  $forall (Entity _id trait) <- traits
+    <dt>
+      <a href=@{TraitR _id}> ^{traitName trait}
+    <dd> #{traitDescription trait}

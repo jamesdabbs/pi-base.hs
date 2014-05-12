@@ -44,6 +44,7 @@ Trait sql=traits
   createdAt UTCTime
   updatedAt UTCTime
   deduced Bool
+  TraitSP spaceId propertyId
 
 Theorem json sql=theorems
   description Text
@@ -52,10 +53,16 @@ Theorem json sql=theorems
   antecedent Text
   consequent Text
 
+-- This table is here simply to make it easier to
+--   execute the common "what theorems involve this
+--   property?" query
 TheoremProperty sql=theorem_properties
   theoremId TheoremId
   propertyId PropertyId
 
+-- Each deduced trait has a proof, which consists of
+--   a single assumed theorem (`theoremId`) and a
+--   collection of assumed traits (`Assumptions`)
 Proof sql=proofs
   traitId TraitId
   theoremId TheoremId
@@ -67,6 +74,7 @@ Assumption sql=assumptions
   proofId ProofId
   traitId TraitId
 
+-- Supporters trace the _root_ assumed traits for
 Supporter sql=supporters
   assumedId TraitId
   impliedId TraitId

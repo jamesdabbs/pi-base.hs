@@ -1,0 +1,13 @@
+<a.btn.btn-default href=@{TraitR _id}> Back
+
+<h1>Checked ^{traitName trait}
+
+$if null traits
+  <p>No new traits found.
+$else
+  $# TODO: pluralize
+  <p>Found #{length traits} new traits.
+  <ul>
+    $forall (Entity _id t) <- traits
+      $# FIXME: n+1
+      <li> ^{traitName t}

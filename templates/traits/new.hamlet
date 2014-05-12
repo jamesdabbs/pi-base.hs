@@ -1,0 +1,2 @@
+<form.form.form-horizontal role=form method=post action=@{CreateTraitR} enctype=#{enctype}>
+  ^{widget}

@@ -1,0 +1,7 @@
+<a.btn.btn-default href=@{DeleteTraitR _id}> Delete
+<form method="post" action=@{CheckTraitR _id}>
+  <button.btn.btn-default>Check
+
+<h1> ^{traitName trait}
+
+<.well> #{traitDescription trait}

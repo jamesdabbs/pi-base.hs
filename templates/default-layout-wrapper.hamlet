@@ -40,6 +40,8 @@ $newline never
                   <a href=@{PropertiesR}> Properties
                 <li>
                   <a href=@{TheoremsR}> Theorems
+                <li>
+                  <a href=@{TraitsR}> Traits
 
               <ul.nav.navbar-nav.pull-right>
                 $maybe (Entity aid a) <- ma

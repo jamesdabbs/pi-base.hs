@@ -23,6 +23,8 @@ library
                      Settings
                      Settings.StaticFiles
                      Settings.Development
+                     Form.Trait
+                     Form
                      Handler.Home
                      Handler.Properties
                      Handler.Resource
