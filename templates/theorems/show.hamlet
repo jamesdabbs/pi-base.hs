@@ -1,4 +1,4 @@
-<h1> Theorem
+<h1>^{theoremName theorem}
 
 <.well>
   <div> #{theoremDescription theorem}

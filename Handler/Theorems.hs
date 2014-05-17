@@ -2,22 +2,17 @@ module Handler.Theorems where
 
 import Import
 
+import Control.Monad (void)
 import DB (theoremConsequences, deleteTheorem)
+import Explore (checkTheorem)
 import Form.Theorems (createTheoremForm)
+import Handler.Partials (traitName, theoremName)
 import Handler.Resource (page)
 
 
-import Handler.Traits (traitName)
-
-theoremName :: Theorem -> Widget
-theoremName theorem = do
-  toWidget [whamlet|<span>#{show $ theoremAntecedent theorem} => #{show $ theoremConsequent theorem}|]
-
+-- FIXME
 queueCheckTheorem :: TheoremId -> Handler ()
-queueCheckTheorem = undefined
-
-checkTheorem :: TheoremId -> Handler [Entity Trait]
-checkTheorem = undefined
+queueCheckTheorem = void . checkTheorem
 
 
 getTheoremsR :: Handler Html

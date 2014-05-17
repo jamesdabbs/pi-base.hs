@@ -1,3 +1,5 @@
+<a.btn.btn-default href=@{CreateSpaceR}>New
+
 <h1>Spaces
 <dl>
   $forall (Entity _id space) <- spaces

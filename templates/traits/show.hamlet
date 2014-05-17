@@ -1,7 +1,12 @@
 <a.btn.btn-default href=@{DeleteTraitR _id}> Delete
-<form method="post" action=@{CheckTraitR _id}>
-  <button.btn.btn-default>Check
 
-<h1> ^{traitName trait}
+<h1> ^{linkedTraitName trait}
 
 <.well> #{traitDescription trait}
+$if not $ null consequences
+  <p>Deduced traits
+  <ul>
+    $forall (Entity tid t) <- consequences
+      $# FIXME: n+1
+      <li>
+        <a href=@{TraitR tid}> ^{traitName t}

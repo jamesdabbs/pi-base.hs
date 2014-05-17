@@ -22,7 +22,7 @@ import qualified Data.Set as S
 import qualified Data.Text as Text
 import Data.Time (getCurrentTime)
 
-import DB (matches', traitMap, TraitMap, addTrait, theoremImplication, propertyTheorems)
+import DB (matches', traitMap, TraitMap, addTrait, addSupports, theoremImplication, propertyTheorems)
 import Logic.Types
 import Util (intersectionN, unionN, encodeText)
 
@@ -78,7 +78,7 @@ check' ts (Atom p e) = case M.lookup p ts of
     then Just . S.singleton $ t
     else Nothing
 
-apply :: TheoremId -> Implication PropertyId -> SpaceId -> Handler [TraitId]
+apply :: TheoremId -> Implication PropertyId -> SpaceId -> Handler [Entity Trait]
 apply a i s = do
   $(logDebug) $ "Applying " <> Text.pack (show i) <> " to space " <> encodeText s
   ts <- traitMap s (implicationProperties i)
@@ -119,14 +119,15 @@ force ts as (Atom p v) = case M.lookup p ts of
   Just _  -> [] -- Forced value is already known
   Nothing -> [(p, (boolToValueId v), as)]
 
-addProof :: SpaceId -> ProofData PropertyId -> Handler TraitId
+addProof :: SpaceId -> ProofData PropertyId -> Handler (Entity Trait)
 addProof s (p,v,(thrm,ts)) = do
-  _id <- addTrait s p v ""
+  trait@(Entity _id _) <- addTrait s p v ""
   now <- liftIO getCurrentTime
   pid <- runDB . insert $ Proof _id thrm 0 now now
   mapM_ (runDB . insert . Assumption pid) . S.toList $ ts
+  addSupports _id ts
   $(logDebug) $ "Added trait " <> (encodeText _id)
-  return _id
+  return trait
 
 imatch :: MatchType -> MatchType -> Implication PropertyId -> Handler (S.Set SpaceId)
 imatch at ct = \(Implication ant cons) -> do

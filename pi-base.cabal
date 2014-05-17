@@ -31,8 +31,9 @@ library
                      Form.Traits
                      Form
                      Handler.Home
-                     Handler.Properties
+                     Handler.Partials
                      Handler.Resource
+                     Handler.Properties
                      Handler.Search
                      Handler.Spaces
                      Handler.Theorems

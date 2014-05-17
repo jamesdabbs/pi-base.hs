@@ -15,6 +15,7 @@ ValueSet sql=value_sets
   name Text
   createdAt UTCTime
   updatedAt UTCTime
+  UValueSetName name
 
 TValue sql=values
   name Text
@@ -70,6 +71,7 @@ Proof sql=proofs
   theoremIndex Int
   createdAt UTCTime
   updatedAt UTCTime
+  UProofTrait traitId
 
 Assumption sql=assumptions
   proofId ProofId

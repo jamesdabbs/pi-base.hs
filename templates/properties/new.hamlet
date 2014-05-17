@@ -1,2 +1,2 @@
-<form.form.form-horizontal role=form method=post action=@{CreateSpaceR} enctype=#{enctype}>
+<form.form.form-horizontal role=form method=post action=@{CreatePropertyR} enctype=#{enctype}>
   ^{widget}

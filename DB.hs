@@ -8,8 +8,13 @@ module DB
 , traitMap
 , TraitMap
 , addTrait
+, addSupports
 , theoremImplication
 , propertyTheorems
+, proofTraits
+, proofTheorem
+, derivedTraits
+, spaceManualTraits
 ) where
 
 import Import hiding ((==.), (!=.), delete)
@@ -17,6 +22,7 @@ import qualified Import as I (delete)
 
 import Data.Int (Int64)
 import Database.Esqueleto
+import Data.List (partition, nub)
 import qualified Data.Map as M
 import qualified Data.Set as S
 import Data.Time (getCurrentTime)
@@ -93,10 +99,10 @@ traitMap sid ps = runDB $ do
     return t
   return . M.fromList . map (\(Entity tid t) -> (traitPropertyId t, (tid, traitValueId t))) $ ets
 
-addTrait :: SpaceId -> PropertyId -> TValueId -> Text -> Handler (TraitId)
+addTrait :: SpaceId -> PropertyId -> TValueId -> Text -> Handler (Entity Trait)
 addTrait s p v d = do
   now <- liftIO getCurrentTime
-  _id <- runDB . insert $ Trait
+  create $ Trait
       { traitSpaceId         = s
       , traitPropertyId      = p
       , traitValueId         = v
@@ -105,8 +111,10 @@ addTrait s p v d = do
       , traitCreatedAt       = now
       , traitUpdatedAt       = now
       }
-  _ <- error "Need to create node inline here"
-  return _id
+  where
+    create trait = do
+      _id <- runDB . insert $ trait
+      return $ Entity _id trait
 
 theoremImplication :: Theorem -> Implication PropertyId
 theoremImplication t = (Key . PersistInt64) <$> Implication (theoremAntecedent t) (theoremConsequent t)
@@ -117,3 +125,51 @@ propertyTheorems pid = runDB . select $
   on (t ^. TheoremId ==. pt ^. TheoremPropertyTheoremId)
   where_ (pt ^. TheoremPropertyPropertyId ==. val pid)
   return t
+
+proofTraits :: ProofId -> Handler [Entity Trait]
+proofTraits pid = runDB . select $
+  from $ \(assumptions `InnerJoin` traits) -> do
+  on (assumptions ^. AssumptionTraitId ==. traits ^. TraitId)
+  where_ (assumptions ^. AssumptionProofId ==. val pid)
+  return traits
+
+proofTheorem :: Proof -> Handler Theorem
+proofTheorem proof = do
+  theorem <- runDB . get404 . proofTheoremId $ proof
+  return theorem
+
+derivedTraits :: TraitId -> Handler [Entity Trait]
+derivedTraits _id = runDB . select $
+  from $ \(assumptions `InnerJoin` proofs `InnerJoin` traits) -> do
+  on (proofs ^. ProofTraitId ==. traits ^. TraitId)
+  on (assumptions ^. AssumptionProofId ==. proofs ^. ProofId)
+  where_ (assumptions ^. AssumptionTraitId ==. val _id)
+  return traits
+
+-- Supports are manually added traits used as assumptions, plus the supports of
+--   any automatically added traits used as assumptions
+addSupports :: TraitId -> S.Set TraitId -> Handler ()
+addSupports _id assumedIds = do
+  traits <- runDB . select $
+    from $ \(trait) -> do
+    where_ (trait ^. TraitId `in_` (valList . S.toList $ assumedIds))
+    return trait
+  let (deduced, manual) = partition (traitDeduced . entityVal) traits
+  supports <- runDB . selectDistinct $
+    from $ \(supporters) -> do
+    where_ (supporters ^. SupporterImpliedId `in_` (valList . ids $ deduced))
+    return supporters
+  let manualIds = ids manual
+  let supportIds = map (supporterAssumedId . entityVal) supports
+  runDB . mapM_ addSupport . nub $ manualIds ++ supportIds
+  where
+    ids = map entityKey
+    addSupport aid = insert $ Supporter { supporterAssumedId = aid, supporterImpliedId = _id }
+
+spaceManualTraits :: SpaceId -> Handler [TraitId]
+spaceManualTraits _id = do
+  traits <- runDB . select $
+    from $ \(traits) -> do
+    where_ (traits ^. TraitSpaceId ==. (val _id) &&. traits ^. TraitDeduced ==. (val False))
+    return traits
+  return . map entityKey $ traits

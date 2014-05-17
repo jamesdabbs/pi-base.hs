@@ -1,0 +1,16 @@
+<h1> ^{linkedTraitName trait}
+
+<.well>
+  <ul>
+    $# FIXME: n+1
+    $forall (Entity _ptid pt) <- assumedTraits
+      <li>
+        <a href=@{TraitR _ptid}> ^{traitName pt}
+    <li>
+      <a href=@{TheoremR $ proofTheoremId proof}> ^{theoremName assumedTheorem}
+
+<ul>
+  $# FIXME: n+1
+  $forall (Entity _dtid dt) <- derived
+    <li>
+      <a href=@{TraitR _dtid}> ^{traitName dt}

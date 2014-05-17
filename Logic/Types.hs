@@ -10,7 +10,7 @@ module Logic.Types
 import Prelude
 
 import Control.Applicative ((<*>))
-import Control.Monad (mzero)
+import Control.Monad (liftM, mzero)
 import Data.Aeson
 import Data.Functor ((<$>))
 import Data.List (intercalate)
@@ -37,15 +37,20 @@ instance Show a => Show (Formula a) where
   show (Or   fs     ) = "(" ++ (intercalate " | " . map show $ fs) ++ ")"
 
 instance ToJSON a => ToJSON (Formula a) where
-  toJSON (Atom p v) = object ["type" .= ("atom"::String), "property" .= p, "value" .= v]
-  toJSON (And  sf ) = object ["type" .= ("conjunction"::String), "subformulae" .= sf]
-  toJSON (Or   sf ) = object ["type" .= ("disjunction"::String), "subformulae" .= sf]
+  toJSON (Atom p v) = object ["_type" .= ("atom"::String), "property" .= p, "value" .= v]
+  toJSON (And  sf ) = object ["_type" .= ("conjunction"::String), "subformulae" .= sf]
+  toJSON (Or   sf ) = object ["_type" .= ("disjunction"::String), "subformulae" .= sf]
+
+valueIdToBool :: Int -> Bool
+valueIdToBool 1 = True
+valueIdToBool 2 = False
+valueIdToBool _ = error "Unrecognized value"
 
 instance FromJSON a => FromJSON (Formula a) where
   parseJSON (Object v) = do
-    klass <- v .: "type"
+    klass <- v .: "_type"
     case (klass::Text) of
-      "atom"        -> Atom <$> v .: "property" <*> v .: "value"
+      "atom"        -> Atom <$> v .: "property" <*> liftM valueIdToBool (v .: "value")
       "conjunction" -> And  <$> v .: "subformulae"
       "disjunction" -> Or   <$> v .: "subformulae"
       _             -> mzero

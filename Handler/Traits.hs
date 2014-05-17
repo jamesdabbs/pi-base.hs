@@ -2,25 +2,17 @@ module Handler.Traits where
 
 import Import
 
-import DB (traitConsequences, deleteTrait)
+import DB (traitConsequences, deleteTrait, proofTraits, proofTheorem, derivedTraits)
+import Explore (checkTrait, checkSpace)
 import Form.Traits (createTraitForm)
+import Handler.Partials (traitName, linkedTraitName, theoremName)
 import Handler.Resource (page)
 
-
-traitName :: Trait -> Widget
-traitName trait = do
-  s <- wget . traitSpaceId $ trait
-  p <- wget . traitPropertyId $ trait
-  v <- wget . traitValueId $ trait
-  toWidget [whamlet|<span>#{spaceName s}: #{propertyName p}=#{tValueName v}|]
-  where
-    wget = handlerToWidget . runDB . get404
-
+-- FIXME
 queueCheckTrait :: TraitId -> Handler ()
-queueCheckTrait = undefined
-
-checkTrait :: TraitId -> Handler [Entity Trait]
-checkTrait = undefined
+queueCheckTrait _id = do
+  _ <- checkTrait "queueCheckTrait" _id
+  return ()
 
 
 getTraitsR :: Handler Html
@@ -53,8 +45,18 @@ postCreateTraitR = do
 getTraitR :: TraitId -> Handler Html
 getTraitR _id = do
   trait <- runDB $ get404 _id
-  defaultLayout $(widgetFile "traits/show")
+  case traitDeduced trait of
+    True -> do
+      (Entity proofId proof) <- runDB . getBy404 $ UProofTrait _id
+      assumedTraits  <- proofTraits  proofId
+      assumedTheorem <- proofTheorem proof
+      derived <- derivedTraits _id
+      defaultLayout $(widgetFile "traits/show_deduced")
+    False -> do
+      consequences <- traitConsequences _id
+      defaultLayout $(widgetFile "traits/show")
 
+-- FIXME: only allow deleting manually added traits
 getDeleteTraitR :: TraitId -> Handler Html
 getDeleteTraitR _id = do
   trait <- runDB $ get404 _id
@@ -63,12 +65,14 @@ getDeleteTraitR _id = do
 
 postDeleteTraitR :: TraitId -> Handler Html
 postDeleteTraitR _id = do
+  trait <- runDB . get404 $ _id
   _ <- deleteTrait _id
-  setMessage "Deleted trait"
+  _ <- checkSpace "postDeleteTraitR" (traitSpaceId trait)
+  setMessage "Deleted trait" -- TODO: show deleted / re-added counts
   redirect TraitsR
 
 postCheckTraitR :: TraitId -> Handler Html
 postCheckTraitR _id = do
-  trait <- runDB $ get404 _id
-  traits <- checkTrait _id
-  defaultLayout $(widgetFile "traits/check")
+  _ <- checkTrait "postCheckTraitR" _id -- TODO: better log name
+  setMessage "Checked trait" -- TODO: show found count?
+  redirect $ TraitR _id
