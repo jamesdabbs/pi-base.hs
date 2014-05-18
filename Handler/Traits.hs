@@ -70,9 +70,3 @@ postDeleteTraitR _id = do
   _ <- checkSpace "postDeleteTraitR" (traitSpaceId trait)
   setMessage "Deleted trait" -- TODO: show deleted / re-added counts
   redirect TraitsR
-
-postCheckTraitR :: TraitId -> Handler Html
-postCheckTraitR _id = do
-  _ <- checkTrait "postCheckTraitR" _id -- TODO: better log name
-  setMessage "Checked trait" -- TODO: show found count?
-  redirect $ TraitR _id

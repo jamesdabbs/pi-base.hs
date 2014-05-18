@@ -2,17 +2,18 @@ module Handler.Theorems where
 
 import Import
 
-import Control.Monad (void)
 import DB (theoremConsequences, deleteTheorem)
 import Explore (checkTheorem)
 import Form.Theorems (createTheoremForm)
-import Handler.Partials (traitName, theoremName)
+import Handler.Partials (theoremName)
 import Handler.Resource (page)
 
 
 -- FIXME
 queueCheckTheorem :: TheoremId -> Handler ()
-queueCheckTheorem = void . checkTheorem
+queueCheckTheorem _id = do
+  _ <- checkTheorem "queueCheckTheorem" _id
+  return ()
 
 
 getTheoremsR :: Handler Html
@@ -52,9 +53,3 @@ postDeleteTheoremR _id = do
   _ <- deleteTheorem _id
   setMessage "Deleted theorem"
   redirect TheoremsR
-
-postCheckTheoremR :: TheoremId -> Handler Html
-postCheckTheoremR _id = do
-  theorem <- runDB $ get404 _id
-  traits <- checkTheorem _id
-  defaultLayout $(widgetFile "theorems/check")

@@ -3,6 +3,7 @@ module Handler.Resource
 ) where
 
 import Import
+
 import Yesod.Paginator hiding (paginate)
 
 paginationConfig :: PageWidget App
@@ -15,4 +16,5 @@ paginationConfig = paginationWidget $ PageWidgetConfig
   , listClasses  = ["pagination", "pagination-centered"]
   }
 
-page count = runDB $ selectPaginatedWith paginationConfig 10 [] []
+-- TODO: type signature
+page size = runDB $ selectPaginatedWith paginationConfig (size::Int) [] []

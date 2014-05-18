@@ -21,6 +21,11 @@ checkSpace desc _id = do
   traitIds <- spaceManualTraits _id
   runQueue desc traitIds
 
+checkTheorem :: Text -> TheoremId -> Handler Int
+checkTheorem desc _id = do
+  traits <- checkTheoremStep _id
+  runQueue desc $ map entityKey traits
+
 runQueue :: Text -> [TraitId] -> Handler Int
 runQueue name (t:ts) = do
     nts <- checkTraitStep t
@@ -47,9 +52,8 @@ checkRelevantTheorems trait = do
   let proofs = concat . map (\(tid,i) -> apply' tid i tmap) $ pairs
   mapM (addProof . traitSpaceId $ trait) proofs
 
--- FIXME: update signature to match Trait, Space check
-checkTheorem :: TheoremId -> Handler [Entity Trait]
-checkTheorem _id = do
+checkTheoremStep :: TheoremId -> Handler [Entity Trait]
+checkTheoremStep _id = do
   t' <- runDB $ get _id
   case t' of
     Nothing -> do
