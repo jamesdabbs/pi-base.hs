@@ -2,7 +2,7 @@ Default: &defaults
   host: "*4" # any IPv4 host
   port: 3000
   approot: "http://localhost:3000"
-  copyright: Insert copyright statement here
+  copyright: © James Dabbs 2012-2014
   #analytics: UA-YOURCODE
 
 Development:
