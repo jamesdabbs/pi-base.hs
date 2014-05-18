@@ -1,6 +1,7 @@
 <a.btn.btn-default href=@{CreateTraitR}>New
 
 <h1>Traits
+^{pageWidget}
 <dl>
   $forall (Entity _id trait) <- traits
     <dt>

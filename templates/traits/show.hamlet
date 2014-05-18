@@ -4,7 +4,7 @@
 
 <.well> #{traitDescription trait}
 $if not $ null consequences
-  <p>Deduced traits
+  <p>Traits which depend on this fact
   <ul>
     $forall (Entity tid t) <- consequences
       $# FIXME: n+1

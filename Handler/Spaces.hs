@@ -8,7 +8,7 @@ import Handler.Resource (page)
 
 getSpacesR :: Handler Html
 getSpacesR = do
-  spaces <- page 0 10
+  (spaces, pageWidget) <- page 10
   defaultLayout $(widgetFile "spaces/index")
 
 getCreateSpaceR :: Handler Html

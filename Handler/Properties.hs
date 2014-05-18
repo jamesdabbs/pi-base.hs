@@ -8,7 +8,7 @@ import Handler.Resource (page)
 
 getPropertiesR :: Handler Html
 getPropertiesR = do
-  properties <- page 0 10
+  (properties, pageWidget) <- page 10
   defaultLayout $(widgetFile "properties/index")
 
 getCreatePropertyR :: Handler Html

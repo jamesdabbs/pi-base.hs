@@ -17,7 +17,7 @@ queueCheckTheorem = void . checkTheorem
 
 getTheoremsR :: Handler Html
 getTheoremsR = do
-  theorems <- page 0 10
+  (theorems, pageWidget) <- page 10
   defaultLayout $(widgetFile "theorems/index")
 
 getCreateTheoremR :: Handler Html

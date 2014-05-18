@@ -17,7 +17,7 @@ queueCheckTrait _id = do
 
 getTraitsR :: Handler Html
 getTraitsR = do
-  traits <- page 0 10
+  (traits, pageWidget) <- page 10
   defaultLayout $(widgetFile "traits/index")
 
 getCreateTraitR :: Handler Html

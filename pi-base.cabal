@@ -93,6 +93,7 @@ library
                  , esqueleto                     >= 1.3.12     && < 1.4
                  , wai                           >= 2.1.0      && < 2.2
                  , http-types                    >= 0.8.4      && < 0.9
+                 , yesod-paginator               >= 0.9.1      && < 0.10
 
 executable         pi-base
     if flag(library-only)

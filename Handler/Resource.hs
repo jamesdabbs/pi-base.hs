@@ -3,19 +3,16 @@ module Handler.Resource
 ) where
 
 import Import
+import Yesod.Paginator hiding (paginate)
 
-import Data.Text (unpack)
+paginationConfig :: PageWidget App
+paginationConfig = paginationWidget $ PageWidgetConfig
+  { prevText     = "«"
+  , nextText     = "»"
+  , pageCount    = 2
+  , ascending    = True
+  , showEllipsis = True
+  , listClasses  = ["pagination", "pagination-centered"]
+  }
 
-
-intParam :: Text -> Int -> Handler Int
-intParam name def = do
-  val <- lookupGetParam name
-  case val of
-    Nothing   -> return def
-    Just text -> return . read . unpack $ text
-
-page from size = do
-  _from <- intParam "from" from
-  _size <- intParam "size" size
-  objects <- runDB $ selectList [] [OffsetBy _from, LimitTo _size]
-  return objects
+page count = runDB $ selectPaginatedWith paginationConfig 10 [] []

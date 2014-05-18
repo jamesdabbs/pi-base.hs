@@ -1,6 +1,7 @@
 <a.btn.btn-default href=@{CreateSpaceR}>New
 
 <h1>Spaces
+^{pageWidget}
 <dl>
   $forall (Entity _id space) <- spaces
     <dt>
