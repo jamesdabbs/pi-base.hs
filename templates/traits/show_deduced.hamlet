@@ -7,7 +7,7 @@
       <li>
         <a href=@{TraitR _ptid}> ^{traitName pt}
     <li>
-      <a href=@{TheoremR $ proofTheoremId proof}> ^{theoremName assumedTheorem}
+      <a href=@{TheoremR $ proofTheoremId proof}> ^{theoremName $ entityVal assumedTheorem}
 
 <ul>
   $# FIXME: n+1

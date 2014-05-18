@@ -2,9 +2,17 @@ module Handler.Partials
 ( traitName
 , linkedTraitName
 , theoremName
+, linkedTheoremName
 ) where
 
 import Import
+
+import qualified Data.Map as M
+import qualified Data.Set as S
+
+import DB (theoremImplication)
+import Logic.Types (implicationProperties)
+
 
 traitTuple :: Trait -> Handler (Space, Property, TValue)
 traitTuple trait = do
@@ -23,6 +31,17 @@ linkedTraitName trait = do
   (space, property, value) <- handlerToWidget . traitTuple $ trait
   $(widgetFile "traits/linked_name")
 
+renderTheorem :: Show a => (Property -> a) -> Theorem -> Widget
+renderTheorem f theorem = do
+  let i = theoremImplication theorem
+  props <- handlerToWidget . runDB $ selectList [PropertyId <-. (S.toList $ implicationProperties i)] []
+  let lookup = M.fromList . map (\(Entity pid p) -> (pid, p)) $ props
+  let f' = f . (M.!) lookup
+  toWidget [whamlet|<span>#{show $ fmap f' i}|]
+
 theoremName :: Theorem -> Widget
-theoremName theorem = do
-  toWidget [whamlet|<span>#{show $ theoremAntecedent theorem} => #{show $ theoremConsequent theorem}|]
+theoremName = renderTheorem propertyName
+
+-- FIXME: figure out how to HTML escape this
+linkedTheoremName :: Theorem -> Widget
+linkedTheoremName = theoremName

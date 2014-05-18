@@ -50,7 +50,7 @@ getTraitR _id = do
       (Entity proofId proof) <- runDB . getBy404 $ UProofTrait _id
       assumedTraits  <- proofTraits  proofId
       assumedTheorem <- proofTheorem proof
-      derived <- derivedTraits _id
+      derived        <- derivedTraits _id
       defaultLayout $(widgetFile "traits/show_deduced")
     False -> do
       consequences <- traitConsequences _id

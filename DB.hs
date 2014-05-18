@@ -133,10 +133,11 @@ proofTraits pid = runDB . select $
   where_ (assumptions ^. AssumptionProofId ==. val pid)
   return traits
 
-proofTheorem :: Proof -> Handler Theorem
+proofTheorem :: Proof -> Handler (Entity Theorem)
 proofTheorem proof = do
-  theorem <- runDB . get404 . proofTheoremId $ proof
-  return theorem
+  let _id = proofTheoremId proof
+  theorem <- runDB . get404 $ _id
+  return $ Entity _id theorem
 
 derivedTraits :: TraitId -> Handler [Entity Trait]
 derivedTraits _id = runDB . select $

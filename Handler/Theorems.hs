@@ -5,7 +5,7 @@ import Import
 import DB (theoremConsequences, deleteTheorem)
 import Explore (checkTheorem)
 import Form.Theorems (createTheoremForm)
-import Handler.Partials (theoremName)
+import Handler.Partials (linkedTheoremName, theoremName, traitName)
 import Handler.Resource (page)
 
 
