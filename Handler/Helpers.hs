@@ -1,5 +1,6 @@
 module Handler.Helpers
 ( page
+, paged
 , preview
 ) where
 
@@ -22,7 +23,8 @@ paginationConfig = paginationWidget $ PageWidgetConfig
   }
 
 -- TODO: type signature
-page size = runDB $ selectPaginatedWith paginationConfig (size::Int) [] []
+paged q size = runDB $ selectPaginatedWith paginationConfig (size::Int) q []
+page = paged []
 
 preview :: Text -> Text
 preview t = case T.lines t of

@@ -6,3 +6,11 @@
     <hr>
     <h4> Proof of Topology
     <.markdown>#{proof}
+
+<h3> Traits
+^{pageWidget}
+<ul>
+  $forall (Entity tid trait) <- traits
+    <li>
+      $# FIXME: n+1
+      <a href=@{TraitR tid}> ^{traitName trait}
