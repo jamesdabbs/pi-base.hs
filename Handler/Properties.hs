@@ -3,7 +3,7 @@ module Handler.Properties where
 import Import
 
 import Form.Properties (createPropertyForm)
-import Handler.Resource (page)
+import Handler.Helpers (page, preview)
 
 
 getPropertiesR :: Handler Html

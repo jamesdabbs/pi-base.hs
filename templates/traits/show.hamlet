@@ -2,7 +2,9 @@
 
 <h1> ^{linkedTraitName trait}
 
-<.well> #{traitDescription trait}
+<.well>
+  <.markdown> #{traitDescription trait}
+
 $if not $ null consequences
   <p>Traits which depend on this fact
   <ul>

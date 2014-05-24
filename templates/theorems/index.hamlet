@@ -7,4 +7,4 @@
     <dt>
       $# FIXME: n+1
       <a href=@{TheoremR _id}> ^{theoremName theorem}
-    <dd> #{theoremDescription theorem}
+    <dd.markdown> #{preview $ theoremDescription theorem}

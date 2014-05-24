@@ -6,7 +6,7 @@ import DB (traitConsequences, deleteTrait, proofTraits, proofTheorem, derivedTra
 import Explore (checkTrait, checkSpace)
 import Form.Traits (createTraitForm)
 import Handler.Partials (traitName, linkedTraitName, theoremName)
-import Handler.Resource (page)
+import Handler.Helpers (page, preview)
 
 -- FIXME
 queueCheckTrait :: TraitId -> Handler ()

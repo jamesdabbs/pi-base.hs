@@ -1,4 +1,4 @@
 <h1>^{linkedTheoremName theorem}
 
 <.well>
-  <div> #{theoremDescription theorem}
+  <.markdown> #{theoremDescription theorem}

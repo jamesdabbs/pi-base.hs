@@ -3,7 +3,7 @@ module Handler.Spaces where
 import Import
 
 import Form.Spaces (createSpaceForm)
-import Handler.Resource (page)
+import Handler.Helpers (page, preview)
 
 
 getSpacesR :: Handler Html

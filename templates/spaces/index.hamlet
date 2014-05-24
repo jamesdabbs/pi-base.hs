@@ -6,4 +6,4 @@
   $forall (Entity _id space) <- spaces
     <dt>
       <a href=@{SpaceR _id}> #{spaceName space}
-    <dd> #{spaceDescription space}
+    <dd.markdown> #{preview $ spaceDescription space}

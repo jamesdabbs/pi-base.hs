@@ -1,0 +1,14 @@
+var converter = new Markdown.Converter();
+var markdown = function(text) {
+  text = text.replace(/\$(.*?)\$/g, '<mathjax>$1</mathjax>');
+  text = converter.makeHtml(text);
+  text = text.replace(/<mathjax>(.*?)<\/mathjax>/g, '\\($1\\)');
+  return text;
+}
+
+$(function() {
+  $(".markdown").each(function(i, el) {
+    var $el = $(el);
+    $el.html(markdown($el.html()));
+  });
+});

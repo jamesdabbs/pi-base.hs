@@ -1,4 +1,4 @@
 <h1> #{propertyName property}
 
 <.well>
-  <div>#{propertyDescription property}
+  <.markdown>#{propertyDescription property}

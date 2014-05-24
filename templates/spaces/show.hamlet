@@ -1,8 +1,8 @@
 <h1> #{spaceName space}
 
 <.well>
-  <div>#{spaceDescription space}
+  <.markdown>#{spaceDescription space}
   $maybe proof <- spaceProofOfTopology space
     <hr>
     <h4> Proof of Topology
-    <div>#{proof}
+    <.markdown>#{proof}
