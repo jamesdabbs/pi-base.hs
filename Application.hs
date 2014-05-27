@@ -16,9 +16,9 @@ import Network.Wai.Middleware.RequestLogger
     )
 import qualified Network.Wai.Middleware.RequestLogger as RequestLogger
 import qualified Database.Persist
--- import Database.Persist.Sql (runMigration)
+import Database.Persist.Sql (runMigration)
 import Network.HTTP.Client.Conduit (newManager)
--- import Control.Monad.Logger (runLoggingT)
+import Control.Monad.Logger (runLoggingT)
 import Control.Concurrent (forkIO, threadDelay)
 import System.Log.FastLogger (newStdoutLoggerSet, defaultBufSize, flushLogStr)
 import Network.HTTP.Types.Header (ResponseHeaders)
@@ -137,9 +137,9 @@ makeFoundation conf = do
         foundation = App conf s p manager dbconf logger
 
     -- Perform database migration using our application's logging settings.
-    -- runLoggingT
-    --     (Database.Persist.runPool dbconf (runMigration migrateAll) p)
-    --     (messageLoggerSource foundation logger)
+    runLoggingT
+        (Database.Persist.runPool dbconf (runMigration migrateAll) p)
+        (messageLoggerSource foundation logger)
 
     return foundation
 

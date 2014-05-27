@@ -7,9 +7,15 @@ User sql=remote_users
     deriving Typeable
 Email sql=emails
     email Text
-    user UserId Maybe
+    userId UserId Maybe
     verkey Text Maybe
     UniqueEmail email
+
+Revision sql=revisions
+  text Text
+  parent RevisionId Maybe
+  userId UserId
+  createdAt UTCTime
 
 ValueSet sql=value_sets
   name Text
@@ -86,7 +92,7 @@ Version sql=versions
   itemType Text
   itemId Int
   event Text
-  whodunnit Text
-  object Text
+  whodunnit Text Maybe
+  object Text Maybe
   createdAt UTCTime
-  objectChanges Text
+  objectChanges Text Maybe
