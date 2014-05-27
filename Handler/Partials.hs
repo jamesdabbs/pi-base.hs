@@ -3,6 +3,7 @@ module Handler.Partials
 , linkedTraitName
 , theoremName
 , linkedTheoremName
+, filteredTraits
 ) where
 
 import Import
@@ -12,6 +13,7 @@ import qualified Data.Set as S
 
 import DB (theoremImplication)
 import Logic.Types (implicationProperties)
+import Handler.Helpers (paged)
 
 
 traitTuple :: Trait -> Handler (Space, Property, TValue)
@@ -45,3 +47,15 @@ theoremName = renderTheorem propertyName
 -- FIXME: figure out how to HTML escape this
 linkedTheoremName :: Theorem -> Widget
 linkedTheoremName = theoremName
+
+paramToFilter :: Maybe Text -> [Filter Trait]
+paramToFilter param = case param of
+    (Just "deduced")  -> [TraitDeduced ==. True]
+    (Just "unproven") -> [TraitDeduced ==. False, TraitDescription ==. ""]
+    _                 -> [TraitDeduced ==. False]
+
+filteredTraits :: [Filter Trait] -> Widget
+filteredTraits fs = do
+  param <- lookupGetParam "traits"
+  (traits, pageWidget) <- handlerToWidget $ paged (paramToFilter param ++ fs) 10
+  $(widgetFile "traits/_filtered")

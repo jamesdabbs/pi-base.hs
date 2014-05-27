@@ -2,3 +2,6 @@
 
 <.well>
   <.markdown>#{propertyDescription property}
+
+<h3> Traits
+^{filteredTraits [TraitPropertyId ==. _id]}

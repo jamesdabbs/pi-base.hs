@@ -4,6 +4,7 @@ import Import
 
 import Form.Properties (createPropertyForm)
 import Handler.Helpers (page, preview)
+import Handler.Partials (filteredTraits)
 
 
 getPropertiesR :: Handler Html

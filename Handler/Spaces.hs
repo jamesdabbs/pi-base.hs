@@ -3,17 +3,9 @@ module Handler.Spaces where
 import Import
 
 import Form.Spaces (createSpaceForm)
-import Handler.Helpers (page, paged, preview)
-import Handler.Partials (traitName)
+import Handler.Helpers (page, preview)
+import Handler.Partials (filteredTraits)
 
--- TODO: filter widget
-traitFilter :: Handler [Filter Trait]
-traitFilter = do
-  f <- lookupGetParam "traits"
-  return $ case f of
-    (Just "deduced")  -> [TraitDeduced ==. True]
-    (Just "unproven") -> [TraitDeduced ==. False, TraitDescription ==. ""]
-    _                 -> [TraitDeduced ==. False]
 
 getSpacesR :: Handler Html
 getSpacesR = do
@@ -38,8 +30,6 @@ postCreateSpaceR = do
 getSpaceR :: SpaceId -> Handler Html
 getSpaceR _id = do
   space <- runDB $ get404 _id
-  tf <- traitFilter
-  (traits, pageWidget) <- paged ([TraitSpaceId ==. _id] ++ tf) 10
   defaultLayout $(widgetFile "spaces/show")
 
 getDeleteSpaceR :: SpaceId -> Handler Html
