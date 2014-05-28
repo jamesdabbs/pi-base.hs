@@ -1,2 +1,5 @@
-<form action=@{CheckLogicR} method=post>
-  <button.btn.btn-default type=submit>Check Logic
+<form action=@{ExploreR} method=post>
+  <button.btn.btn-default type=submit> Explore Theorems
+
+<form action=@{CounterexamplesR} method=post>
+  <button.btn.btn-default type=submit> Check Counterexamples

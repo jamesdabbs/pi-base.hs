@@ -17,7 +17,7 @@ import Prelude (head)
 
 import Control.Monad (join, liftM2)
 import qualified Data.Map as M
-import Data.Maybe (fromJust, isJust, isNothing, listToMaybe)
+import Data.Maybe (fromJust, isJust, isNothing, listToMaybe, catMaybes)
 import qualified Data.Set as S
 import qualified Data.Text as Text
 import Data.Time (getCurrentTime)
@@ -84,7 +84,7 @@ apply a i s = do
   ts <- traitMap s (implicationProperties i)
   let found = apply' a i ts
   mids <- mapM (addProof s) found
-  return . map fromJust . filter isJust $ mids
+  return $ catMaybes mids
 
 type Assumptions = (TheoremId, S.Set TraitId)
 type ProofData p = (p, TValueId, Assumptions)

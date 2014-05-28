@@ -1,0 +1,6 @@
+$forall ((Entity _ t), cxs) <- pairs
+  <h5> ^{theoremName t}
+  <ul>
+    $forall c <- S.toList cxs
+      <li>
+        <a href=@{SpaceR c}> #{show c}

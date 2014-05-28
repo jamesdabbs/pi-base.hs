@@ -6,7 +6,7 @@ module Explore
 
 import Import
 
-import Data.Maybe (fromJust, isJust)
+import Data.Maybe (catMaybes)
 import qualified Data.Set as S
 
 import DB (theoremImplication, traitMap, spaceManualTraits)
@@ -52,7 +52,7 @@ checkRelevantTheorems trait = do
   tmap <- traitMap (traitSpaceId trait) (unionN . map implicationProperties $ implications)
   let proofs = concat . map (\(tid,i) -> apply' tid i tmap) $ pairs
   mids <- mapM (addProof . traitSpaceId $ trait) proofs
-  return . map fromJust . filter isJust $ mids
+  return $ catMaybes mids
 
 checkTheoremStep :: TheoremId -> Handler [TraitId]
 checkTheoremStep _id = do
