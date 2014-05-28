@@ -120,26 +120,34 @@ force ts as (Atom p v) = case M.lookup p ts of
   Just _  -> [] -- Forced value is already known
   Nothing -> [(p, (boolToValueId v), as)]
 
+-- TODO: there is a bit of a race condition here, if another request
+--   sets the trait between the getBy check and the insert.
+-- It might be better to catch the insert error and then raise a 500
+--   if the DB state differs from the thing we tried to assert.
 addProof :: SpaceId -> ProofData PropertyId -> Handler (Maybe TraitId)
 addProof s (p,v,(thrm,ts)) = do
-  now <- liftIO getCurrentTime
-  mid <- runDB . insertUnique $ Trait
-      { traitSpaceId         = s
-      , traitPropertyId      = p
-      , traitValueId         = v
-      , traitDescription     = ""
-      , traitDeduced         = True
-      , traitCreatedAt       = now
-      , traitUpdatedAt       = now
-      }
-  case mid of
-    Nothing  -> return Nothing
-    Just _id -> do
+  mt <- runDB . getBy $ TraitSP s p
+  case mt of
+    Just (Entity _id t) -> do
+      if traitValueId t == v
+        then return Nothing
+        else error $ "Conflicting assertions for (" <> (show s) <> "," <> (show p) <> ")"
+    Nothing -> do
+      now <- liftIO getCurrentTime
+      _id <- runDB . insert $ Trait
+          { traitSpaceId         = s
+          , traitPropertyId      = p
+          , traitValueId         = v
+          , traitDescription     = ""
+          , traitDeduced         = True
+          , traitCreatedAt       = now
+          , traitUpdatedAt       = now
+          }
       pid <- runDB . insert $ Proof _id thrm 0 now now
       mapM_ (runDB . insert . Assumption pid) . S.toList $ ts
       addSupports _id ts
       $(logDebug) $ "Added trait " <> (encodeText _id)
-      return mid
+      return $ Just _id
 
 imatch :: MatchType -> MatchType -> Implication PropertyId -> Handler (S.Set SpaceId)
 imatch at ct = \(Implication ant cons) -> do
