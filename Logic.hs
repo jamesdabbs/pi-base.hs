@@ -22,7 +22,7 @@ import qualified Data.Set as S
 import qualified Data.Text as Text
 import Data.Time (getCurrentTime)
 
-import DB (matches', traitMap, TraitMap, addTrait, addSupports, theoremImplication, propertyTheorems)
+import DB (matches', traitMap, TraitMap, addSupports, theoremImplication, propertyTheorems)
 import Logic.Types
 import Util (intersectionN, unionN, encodeText)
 
@@ -78,12 +78,13 @@ check' ts (Atom p e) = case M.lookup p ts of
     then Just . S.singleton $ t
     else Nothing
 
-apply :: TheoremId -> Implication PropertyId -> SpaceId -> Handler [Entity Trait]
+apply :: TheoremId -> Implication PropertyId -> SpaceId -> Handler [TraitId]
 apply a i s = do
   $(logDebug) $ "Applying " <> Text.pack (show i) <> " to space " <> encodeText s
   ts <- traitMap s (implicationProperties i)
   let found = apply' a i ts
-  mapM (addProof s) $ found
+  mids <- mapM (addProof s) found
+  return . map fromJust . filter isJust $ mids
 
 type Assumptions = (TheoremId, S.Set TraitId)
 type ProofData p = (p, TValueId, Assumptions)
@@ -119,15 +120,26 @@ force ts as (Atom p v) = case M.lookup p ts of
   Just _  -> [] -- Forced value is already known
   Nothing -> [(p, (boolToValueId v), as)]
 
-addProof :: SpaceId -> ProofData PropertyId -> Handler (Entity Trait)
+addProof :: SpaceId -> ProofData PropertyId -> Handler (Maybe TraitId)
 addProof s (p,v,(thrm,ts)) = do
-  trait@(Entity _id _) <- addTrait s p v ""
   now <- liftIO getCurrentTime
-  pid <- runDB . insert $ Proof _id thrm 0 now now
-  mapM_ (runDB . insert . Assumption pid) . S.toList $ ts
-  addSupports _id ts
-  $(logDebug) $ "Added trait " <> (encodeText _id)
-  return trait
+  mid <- runDB . insertUnique $ Trait
+      { traitSpaceId         = s
+      , traitPropertyId      = p
+      , traitValueId         = v
+      , traitDescription     = ""
+      , traitDeduced         = True
+      , traitCreatedAt       = now
+      , traitUpdatedAt       = now
+      }
+  case mid of
+    Nothing  -> return Nothing
+    Just _id -> do
+      pid <- runDB . insert $ Proof _id thrm 0 now now
+      mapM_ (runDB . insert . Assumption pid) . S.toList $ ts
+      addSupports _id ts
+      $(logDebug) $ "Added trait " <> (encodeText _id)
+      return mid
 
 imatch :: MatchType -> MatchType -> Implication PropertyId -> Handler (S.Set SpaceId)
 imatch at ct = \(Implication ant cons) -> do

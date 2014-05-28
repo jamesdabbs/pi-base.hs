@@ -7,7 +7,6 @@ module DB
 , deleteTheorem
 , traitMap
 , TraitMap
-, addTrait
 , addSupports
 , theoremImplication
 , propertyTheorems
@@ -25,7 +24,6 @@ import Database.Esqueleto
 import Data.List (partition, nub)
 import qualified Data.Map as M
 import qualified Data.Set as S
-import Data.Time (getCurrentTime)
 
 import Logic.Types
 
@@ -98,23 +96,6 @@ traitMap sid ps = runDB $ do
     where_ $ (t ^. TraitSpaceId ==. val sid &&. t ^. TraitPropertyId `in_` (valList . S.toList $ ps))
     return t
   return . M.fromList . map (\(Entity tid t) -> (traitPropertyId t, (tid, traitValueId t))) $ ets
-
-addTrait :: SpaceId -> PropertyId -> TValueId -> Text -> Handler (Entity Trait)
-addTrait s p v d = do
-  now <- liftIO getCurrentTime
-  create $ Trait
-      { traitSpaceId         = s
-      , traitPropertyId      = p
-      , traitValueId         = v
-      , traitDescription     = d
-      , traitDeduced         = True
-      , traitCreatedAt       = now
-      , traitUpdatedAt       = now
-      }
-  where
-    create trait = do
-      _id <- runDB . insert $ trait
-      return $ Entity _id trait
 
 theoremImplication :: Theorem -> Implication PropertyId
 theoremImplication t = (Key . PersistInt64) <$> Implication (theoremAntecedent t) (theoremConsequent t)

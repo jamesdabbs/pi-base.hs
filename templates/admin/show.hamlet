@@ -1,0 +1,2 @@
+<form action=@{CheckLogicR} method=post>
+  <button.btn.btn-default type=submit>Check Logic

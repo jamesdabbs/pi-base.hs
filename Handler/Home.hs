@@ -5,4 +5,4 @@ import Import
 
 getHomeR :: Handler Html
 getHomeR = defaultLayout $ do
-    $(widgetFile "homepage")
+  $(widgetFile "homepage")

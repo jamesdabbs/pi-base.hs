@@ -37,8 +37,8 @@ renderTheorem :: Show a => (Property -> a) -> Theorem -> Widget
 renderTheorem f theorem = do
   let i = theoremImplication theorem
   props <- handlerToWidget . runDB $ selectList [PropertyId <-. (S.toList $ implicationProperties i)] []
-  let lookup = M.fromList . map (\(Entity pid p) -> (pid, p)) $ props
-  let f' = f . (M.!) lookup
+  let _lookup = M.fromList . map (\(Entity pid p) -> (pid, p)) $ props
+  let f' = f . (M.!) _lookup
   toWidget [whamlet|<span>#{show $ fmap f' i}|]
 
 theoremName :: Theorem -> Widget

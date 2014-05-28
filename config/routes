@@ -27,3 +27,6 @@
 /theorems/#TheoremId/delete DeleteTheoremR GET POST
 
 /search SearchR GET
+
+/admin       AdminR      GET
+/admin/check CheckLogicR POST

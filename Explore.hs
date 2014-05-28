@@ -6,6 +6,7 @@ module Explore
 
 import Import
 
+import Data.Maybe (fromJust, isJust)
 import qualified Data.Set as S
 
 import DB (theoremImplication, traitMap, spaceManualTraits)
@@ -23,19 +24,19 @@ checkSpace desc _id = do
 
 checkTheorem :: Text -> TheoremId -> Handler Int
 checkTheorem desc _id = do
-  traits <- checkTheoremStep _id
-  runQueue desc $ map entityKey traits
+  tids <- checkTheoremStep _id
+  runQueue desc tids
 
 runQueue :: Text -> [TraitId] -> Handler Int
 runQueue name (t:ts) = do
     nts <- checkTraitStep t
-    found <- runQueue name $ ts <> (map entityKey nts)
+    found <- runQueue name $ ts <> nts
     return $ (length nts) + found
 runQueue name _ = do
   $(logInfo) $ "Done with queue for " <> name
   return 0
 
-checkTraitStep :: TraitId -> Handler [Entity Trait]
+checkTraitStep :: TraitId -> Handler [TraitId]
 checkTraitStep _id = do
    t' <- runDB $ get _id
    case t' of
@@ -44,15 +45,16 @@ checkTraitStep _id = do
        return []
      Just t -> checkRelevantTheorems t
 
-checkRelevantTheorems :: Trait -> Handler [Entity Trait]
+checkRelevantTheorems :: Trait -> Handler [TraitId]
 checkRelevantTheorems trait = do
   pairs <- relevantTheorems trait
   let implications = map snd pairs
   tmap <- traitMap (traitSpaceId trait) (unionN . map implicationProperties $ implications)
   let proofs = concat . map (\(tid,i) -> apply' tid i tmap) $ pairs
-  mapM (addProof . traitSpaceId $ trait) proofs
+  mids <- mapM (addProof . traitSpaceId $ trait) proofs
+  return . map fromJust . filter isJust $ mids
 
-checkTheoremStep :: TheoremId -> Handler [Entity Trait]
+checkTheoremStep :: TheoremId -> Handler [TraitId]
 checkTheoremStep _id = do
   t' <- runDB $ get _id
   case t' of
@@ -64,7 +66,7 @@ checkTheoremStep _id = do
       contra <- checkCandidates _id (contrapositive . theoremImplication $ t)
       return $ direct <> contra
 
-checkCandidates :: TheoremId -> Implication PropertyId -> Handler [Entity Trait]
+checkCandidates :: TheoremId -> Implication PropertyId -> Handler [TraitId]
 checkCandidates _id i = do
   ss <- candidates i
   tls <- mapM (apply _id i) . S.toList $ ss
