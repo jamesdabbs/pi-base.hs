@@ -1,5 +1,8 @@
 <form action=@{ExploreR} method=post>
   <button.btn.btn-default type=submit> Explore Theorems
 
-<form action=@{CounterexamplesR} method=post>
-  <button.btn.btn-default type=submit> Check Counterexamples
+<form action=@{ContradictionsR} method=post>
+  <button.btn.btn-default type=submit> Check Contradictions
+
+<form action=@{ResetR} method=post>
+  <button.btn.btn-default type=submit> Reset Deductions

@@ -1,3 +1,4 @@
+{-# LANGUAGE ScopedTypeVariables #-}
 module DB
 ( matches'
 , supportedTraits
@@ -14,6 +15,7 @@ module DB
 , proofTheorem
 , derivedTraits
 , spaceManualTraits
+, flushDeductions
 ) where
 
 import Import hiding ((==.), (!=.), delete)
@@ -155,3 +157,20 @@ spaceManualTraits _id = do
     where_ (traits ^. TraitSpaceId ==. (val _id) &&. traits ^. TraitDeduced ==. (val False))
     return traits
   return . map entityKey $ traits
+
+-- TODO: there's got to be a more concise way to express this ...
+flushDeductions :: Handler ()
+flushDeductions = do
+  runDB . delete $
+    from $ \(_ :: SqlExpr (Entity Supporter)) ->
+    return ()
+  runDB . delete $
+    from $ \(_ :: SqlExpr (Entity Assumption)) ->
+    return ()
+  runDB . delete $
+    from $ \(_ :: SqlExpr (Entity Proof)) ->
+    return ()
+  runDB . delete $
+    from $ \(table) ->
+    where_ (table ^. TraitDeduced ==. (val True))
+  return ()

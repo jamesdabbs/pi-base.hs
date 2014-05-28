@@ -28,6 +28,7 @@
 
 /search SearchR GET
 
-/admin                 AdminR           GET
-/admin/counterexamples CounterexamplesR POST
-/admin/explore         ExploreR         POST
+/admin                AdminR          GET
+/admin/contradictions ContradictionsR POST
+/admin/explore        ExploreR        POST
+/admin/reset          ResetR          POST
