@@ -95,6 +95,8 @@ library
                  , wai                           >= 2.1.0      && < 2.2
                  , http-types                    >= 0.8.4      && < 0.9
                  , yesod-paginator               >= 0.9.1      && < 0.10
+                 , rollbar                       >= 0.3        && < 0.4
+                 , network                       >= 2.4.1.2    && < 2.5
 
 executable         pi-base
     if flag(library-only)

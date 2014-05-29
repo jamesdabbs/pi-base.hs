@@ -20,6 +20,14 @@ import Text.Jasmine (minifym)
 import Text.Hamlet (hamletFile)
 import Yesod.Core.Types (Logger)
 
+import Control.Concurrent (forkIO)
+import Control.Monad (unless, void)
+import Control.Monad.Logger (runStderrLoggingT)
+import Data.Text
+import Rollbar
+import System.Environment (getEnv)
+
+
 -- | The site argument for your application. This can be a good place to
 -- keep settings and values requiring initialization before your application
 -- starts running, such as database connections. Every handler will have
@@ -119,6 +127,24 @@ instance Yesod App where
         development || level == LevelWarn || level == LevelError
 
     makeLogger = return . appLogger
+
+    errorHandler err@(InternalError e) = do
+      app <- getYesod
+      rollbarToken <- liftIO $ getEnv "ROLLBAR_TOKEN"
+      unless development $ void $ liftIO $ forkIO $ runStderrLoggingT $
+        rollbarLogger (pack rollbarToken) "errorHandler" $logWarnS e
+      defaultErrorHandler err
+    errorHandler err = defaultErrorHandler err
+
+rollbarLogger :: (MonadIO m, MonadBaseControl IO m) => Text -> Text -> (Text -> Text -> m ()) -> Text -> m ()
+rollbarLogger t = reportLoggerErrorS settings' options
+  where
+    settings' = Settings
+      { environment = Environment "production" -- FIXME
+      , token       = ApiToken t
+      , hostName    = "pi-base.hs"
+      }
+    options = Options Nothing Nothing
 
 -- How to run database actions.
 instance YesodPersist App where
