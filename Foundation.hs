@@ -130,7 +130,7 @@ instance Yesod App where
 
     errorHandler err@(InternalError e) = do
       app <- getYesod
-      rollbarToken <- liftIO $ getEnv "ROLLBAR_TOKEN"
+      rollbarToken <- liftIO $ getEnv "ROLLBAR_ACCESS_TOKEN"
       unless development $ void $ liftIO $ forkIO $ runStderrLoggingT $
         rollbarLogger (pack rollbarToken) "errorHandler" $logWarnS e
       defaultErrorHandler err
