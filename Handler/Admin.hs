@@ -36,6 +36,3 @@ postResetR = do
   setMessage "Can only reset in development mode"
 #endif
   redirect AdminR
-
-getErrorR :: Handler Html
-getErrorR = error "Well ... what did you expect?"

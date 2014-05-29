@@ -32,4 +32,3 @@
 /admin/contradictions ContradictionsR POST
 /admin/explore        ExploreR        POST
 /admin/reset          ResetR          POST
-/admin/error          ErrorR          GET
