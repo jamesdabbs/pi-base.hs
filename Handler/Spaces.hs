@@ -3,13 +3,13 @@ module Handler.Spaces where
 import Import
 
 import Form.Spaces (createSpaceForm)
-import Handler.Helpers (page, preview)
+import Handler.Helpers
 import Handler.Partials (filteredTraits)
 
 
 getSpacesR :: Handler Html
 getSpacesR = do
-  (spaces, pageWidget) <- page 10
+  (spaces, total, pageWidget) <- page 10
   defaultLayout $(widgetFile "spaces/index")
 
 getCreateSpaceR :: Handler Html

@@ -6,7 +6,7 @@ import DB (traitConsequences, deleteTrait, proofTraits, proofTheorem, derivedTra
 import Explore (checkTrait, checkSpace)
 import Form.Traits (createTraitForm)
 import Handler.Partials (traitName, linkedTraitName, theoremName)
-import Handler.Helpers (page, preview)
+import Handler.Helpers
 
 -- FIXME
 queueCheckTrait :: TraitId -> Handler ()
@@ -17,7 +17,7 @@ queueCheckTrait _id = do
 
 getTraitsR :: Handler Html
 getTraitsR = do
-  (traits, pageWidget) <- page 10
+  (traits, total, pageWidget) <- page 10
   defaultLayout $(widgetFile "traits/index")
 
 getCreateTraitR :: Handler Html

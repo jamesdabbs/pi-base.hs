@@ -3,13 +3,13 @@ module Handler.Properties where
 import Import
 
 import Form.Properties (createPropertyForm)
-import Handler.Helpers (page, preview)
+import Handler.Helpers
 import Handler.Partials (filteredTraits)
 
 
 getPropertiesR :: Handler Html
 getPropertiesR = do
-  (properties, pageWidget) <- page 10
+  (properties, total, pageWidget) <- page 10
   defaultLayout $(widgetFile "properties/index")
 
 getCreatePropertyR :: Handler Html

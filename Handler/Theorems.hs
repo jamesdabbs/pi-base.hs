@@ -6,7 +6,7 @@ import DB (theoremConsequences, deleteTheorem)
 import Explore (checkTheorem)
 import Form.Theorems (createTheoremForm)
 import Handler.Partials (linkedTheoremName, theoremName, traitName)
-import Handler.Helpers (page, preview)
+import Handler.Helpers
 
 
 -- FIXME
@@ -18,7 +18,7 @@ queueCheckTheorem _id = do
 
 getTheoremsR :: Handler Html
 getTheoremsR = do
-  (theorems, pageWidget) <- page 10
+  (theorems, total, pageWidget) <- page 10
   defaultLayout $(widgetFile "theorems/index")
 
 getCreateTheoremR :: Handler Html

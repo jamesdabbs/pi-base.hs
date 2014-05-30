@@ -1,6 +1,6 @@
 <a.btn.btn-default href=@{CreateTheoremR}>New
 
-<h1>Theorems
+<h1>#{plural total "Theorems" "Theorem"}
 ^{pageWidget}
 <dl>
   $forall ent@(Entity _id theorem) <- theorems

@@ -60,6 +60,9 @@ $newline never
                 $maybe (Entity aid a) <- ma
                   <li>
                     <a>#{userIdent a}
+                  $if userAdmin a
+                    <li>
+                      <a href=@{AdminR}>Admin
                   <li>
                     <a href=@{AuthR LogoutR}>Logout
                 $nothing

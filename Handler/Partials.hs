@@ -57,5 +57,5 @@ paramToFilter param = case param of
 filteredTraits :: [Filter Trait] -> Widget
 filteredTraits fs = do
   param <- lookupGetParam "traits"
-  (traits, pageWidget) <- handlerToWidget $ paged (paramToFilter param ++ fs) 10
+  (traits, _, pageWidget) <- handlerToWidget $ paged (paramToFilter param ++ fs) 10
   $(widgetFile "traits/_filtered")
