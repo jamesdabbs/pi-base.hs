@@ -9,9 +9,8 @@ import Import
 import Data.Maybe (catMaybes)
 import qualified Data.Set as S
 
-import DB (theoremImplication, traitMap, spaceManualTraits)
-import Logic.Types
 import Logic
+import Models
 import Util (unionN, encodeText)
 
 checkTrait :: Text -> TraitId -> Handler Int
@@ -49,7 +48,7 @@ checkRelevantTheorems :: Trait -> Handler [TraitId]
 checkRelevantTheorems trait = do
   pairs <- relevantTheorems trait
   let implications = map snd pairs
-  tmap <- traitMap (traitSpaceId trait) (unionN . map implicationProperties $ implications)
+  tmap <- spaceTraitMap (traitSpaceId trait) (unionN . map implicationProperties $ implications)
   let proofs = concat . map (\(tid,i) -> apply' tid i tmap) $ pairs
   mids <- mapM (addProof . traitSpaceId $ trait) proofs
   return $ catMaybes mids

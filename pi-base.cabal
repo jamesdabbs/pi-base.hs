@@ -22,6 +22,12 @@ library
                      Logic
                      Explore
                      Model
+                     Model.Proof
+                     Model.Property
+                     Model.Space
+                     Model.Theorem
+                     Model.Trait
+                     Models
                      Settings
                      Settings.StaticFiles
                      Settings.Development

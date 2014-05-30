@@ -22,8 +22,8 @@ import qualified Data.Set as S
 import qualified Data.Text as Text
 import Data.Time (getCurrentTime)
 
-import DB (matches', traitMap, TraitMap, addSupports, theoremImplication, propertyTheorems)
-import Logic.Types
+import DB (matches', addSupports)
+import Models
 import Util (intersectionN, unionN, encodeText)
 
 
@@ -49,7 +49,7 @@ contrapositive :: Implication p -> Implication p
 contrapositive = negation . converse
 
 -- Find (ids of) spaces matching a formula
-matches :: MatchType -> Formula PropertyId -> Handler (S.Set SpaceId)
+matches :: MatchType -> Formula PropertyId -> Handler (Set SpaceId)
 
 -- A conjunction is true if all its parts are true and unknown or false if any
 --   parts are unknown, respectively
@@ -64,12 +64,12 @@ matches e (Or sf) = unionN <$> mapM (matches e) sf
 matches e (Atom p v) = S.fromList <$> matches' p (boolToValueId v) e
 
 
-check :: SpaceId -> Formula PropertyId -> Handler (Maybe (S.Set TraitId))
+check :: SpaceId -> Formula PropertyId -> Handler (Maybe (Set TraitId))
 check s f = do
-  ts <- traitMap s (formulaProperties f)
+  ts <- spaceTraitMap s (formulaProperties f)
   return $ check' ts f
 
-check' :: (Ord p) => TraitMap p -> Formula p -> Maybe (S.Set TraitId)
+check' :: (Ord p) => TraitMap p -> Formula p -> Maybe (Set TraitId)
 check' ts (And  sf ) = foldl1 (liftM2 S.union) $ map (check' ts) sf
 check' ts (Or   sf ) = join . listToMaybe . filter isJust . map (check' ts) $ sf
 check' ts (Atom p e) = case M.lookup p ts of
@@ -81,12 +81,12 @@ check' ts (Atom p e) = case M.lookup p ts of
 apply :: TheoremId -> Implication PropertyId -> SpaceId -> Handler [TraitId]
 apply a i s = do
   $(logDebug) $ "Applying " <> Text.pack (show i) <> " to space " <> encodeText s
-  ts <- traitMap s (implicationProperties i)
+  ts <- spaceTraitMap s (implicationProperties i)
   let found = apply' a i ts
   mids <- mapM (addProof s) found
   return $ catMaybes mids
 
-type Assumptions = (TheoremId, S.Set TraitId)
+type Assumptions = (TheoremId, Set TraitId)
 type ProofData p = (p, TValueId, Assumptions)
 
 apply' :: (Ord p) => TheoremId -> Implication p -> TraitMap p -> [ProofData p]
@@ -149,13 +149,13 @@ addProof s (p,v,(thrm,ts)) = do
       $(logDebug) $ "Added trait " <> (encodeText _id)
       return $ Just _id
 
-imatch :: MatchType -> MatchType -> Implication PropertyId -> Handler (S.Set SpaceId)
+imatch :: MatchType -> MatchType -> Implication PropertyId -> Handler (Set SpaceId)
 imatch at ct = \(Implication ant cons) -> do
   a <- matches at ant
   c <- matches ct cons
   return $ a `S.intersection` c
 
-counterexamples, candidates:: Implication PropertyId -> Handler (S.Set SpaceId)
+counterexamples, candidates:: Implication PropertyId -> Handler (Set SpaceId)
 counterexamples = imatch Yes No
 candidates = imatch Yes Unknown
 

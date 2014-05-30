@@ -7,10 +7,14 @@ import           Prelude              as Import hiding (head, init, last,
 import           Yesod                as Import hiding (Route (..))
 
 import           Control.Applicative  as Import (pure, (<$>), (<*>))
+import           Data.Int             as Import (Int64)
+import           Data.Map             as Import (Map)
+import           Data.Set             as Import (Set)
 import           Data.Text            as Import (Text)
 
 import           Foundation           as Import
 import           Model                as Import
+import           Logic.Types          as Import
 import           Settings             as Import
 import           Settings.Development as Import
 import           Settings.StaticFiles as Import

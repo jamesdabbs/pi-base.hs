@@ -9,7 +9,8 @@ import Handler.Partials (filteredTraits)
 
 getPropertiesR :: Handler Html
 getPropertiesR = do
-  (properties, total, pageWidget) <- page 10
+  (properties, pageWidget) <- page 10
+  total <- runDB $ count ([] :: [Filter Trait])
   defaultLayout $(widgetFile "properties/index")
 
 getCreatePropertyR :: Handler Html

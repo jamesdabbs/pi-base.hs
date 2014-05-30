@@ -5,6 +5,7 @@ import Prelude
 import Yesod
 
 import Data.Int (Int64)
+import Data.Map (Map)
 import Data.Text (Text)
 import Data.Time (UTCTime)
 import Data.Typeable (Typeable)
@@ -14,3 +15,5 @@ import Logic.Types
 
 share [mkPersist sqlOnlySettings, mkMigrate "migrateAll"]
     $(persistFileWith lowerCaseSettings "config/models")
+
+type TraitMap p = Map p (TraitId, TValueId)

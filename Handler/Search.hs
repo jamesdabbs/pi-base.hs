@@ -2,7 +2,6 @@ module Handler.Search where
 
 import Import
 
-import Logic.Types (MatchType(..))
 import Logic (matches)
 import Util (decodeText)
 

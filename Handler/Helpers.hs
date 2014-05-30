@@ -27,11 +27,8 @@ plural :: Int -> Text -> Text -> Text
 plural 1 _ x = x
 plural _ x _ = x
 
--- TODO: type signature
-paged q size = do
-  (p, widget) <- runDB $ selectPaginatedWith paginationConfig (size::Int) q []
-  total <- runDB $ count q []
-  return (p, total, widget)
+-- TODO: why doesn't this type signature seem to work?
+paged q size = runDB $ selectPaginatedWith paginationConfig size q []
 page = paged []
 
 preview :: Text -> Text

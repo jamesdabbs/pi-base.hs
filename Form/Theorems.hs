@@ -9,9 +9,6 @@ import Control.Applicative ((<*))
 import Data.Time (getCurrentTime)
 import Yesod.Form.Bootstrap3
 
-import Data.Int (Int64)
-import Logic.Types (Formula(..))
-
 -- FIXME: add validation / coercion
 formulaField :: Field Handler (Formula Int64)
 formulaField = undefined

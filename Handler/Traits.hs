@@ -2,11 +2,12 @@ module Handler.Traits where
 
 import Import
 
-import DB (traitConsequences, deleteTrait, proofTraits, proofTheorem, derivedTraits)
+import DB (derivedTraits)
 import Explore (checkTrait, checkSpace)
 import Form.Traits (createTraitForm)
 import Handler.Partials (traitName, linkedTraitName, theoremName)
 import Handler.Helpers
+import Models
 
 -- FIXME
 queueCheckTrait :: TraitId -> Handler ()
@@ -17,7 +18,8 @@ queueCheckTrait _id = do
 
 getTraitsR :: Handler Html
 getTraitsR = do
-  (traits, total, pageWidget) <- page 10
+  (traits, pageWidget) <- page 10
+  total <- runDB $ count ([] :: [Filter Trait])
   defaultLayout $(widgetFile "traits/index")
 
 getCreateTraitR :: Handler Html
@@ -66,7 +68,7 @@ getDeleteTraitR _id = do
 postDeleteTraitR :: TraitId -> Handler Html
 postDeleteTraitR _id = do
   trait <- runDB . get404 $ _id
-  _ <- deleteTrait _id
+  _ <- traitDelete _id
   _ <- checkSpace "postDeleteTraitR" (traitSpaceId trait)
   setMessage "Deleted trait" -- TODO: show deleted / re-added counts
   redirect TraitsR

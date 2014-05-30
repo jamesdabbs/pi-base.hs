@@ -9,7 +9,8 @@ import Handler.Partials (filteredTraits)
 
 getSpacesR :: Handler Html
 getSpacesR = do
-  (spaces, total, pageWidget) <- page 10
+  (spaces, pageWidget) <- page 10
+  total <- runDB $ count ([] :: [Filter Space])
   defaultLayout $(widgetFile "spaces/index")
 
 getCreateSpaceR :: Handler Html

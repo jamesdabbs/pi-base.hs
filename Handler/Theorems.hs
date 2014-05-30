@@ -2,11 +2,11 @@ module Handler.Theorems where
 
 import Import
 
-import DB (theoremConsequences, deleteTheorem)
 import Explore (checkTheorem)
 import Form.Theorems (createTheoremForm)
 import Handler.Partials (linkedTheoremName, theoremName, traitName)
 import Handler.Helpers
+import Models
 
 
 -- FIXME
@@ -18,7 +18,8 @@ queueCheckTheorem _id = do
 
 getTheoremsR :: Handler Html
 getTheoremsR = do
-  (theorems, total, pageWidget) <- page 10
+  (theorems, pageWidget) <- page 10
+  total <- runDB $ count ([] :: [Filter Theorem])
   defaultLayout $(widgetFile "theorems/index")
 
 getCreateTheoremR :: Handler Html
@@ -50,6 +51,6 @@ getDeleteTheoremR _id = do
 
 postDeleteTheoremR :: TheoremId -> Handler Html
 postDeleteTheoremR _id = do
-  _ <- deleteTheorem _id
+  _ <- theoremDelete _id
   setMessage "Deleted theorem"
   redirect TheoremsR

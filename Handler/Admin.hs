@@ -4,9 +4,10 @@ import Import
 
 import qualified Data.Set as S
 
-import DB (theoremImplication, flushDeductions)
+import DB (flushDeductions)
 import Explore (checkTheorem)
 import Logic (counterexamples)
+import Models
 import Handler.Partials (theoremName)
 
 getAdminR :: Handler Html

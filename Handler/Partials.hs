@@ -11,8 +11,7 @@ import Import
 import qualified Data.Map as M
 import qualified Data.Set as S
 
-import DB (theoremImplication)
-import Logic.Types (implicationProperties)
+import Models
 import Handler.Helpers (paged)
 
 
@@ -57,5 +56,6 @@ paramToFilter param = case param of
 filteredTraits :: [Filter Trait] -> Widget
 filteredTraits fs = do
   param <- lookupGetParam "traits"
-  (traits, _, pageWidget) <- handlerToWidget $ paged (paramToFilter param ++ fs) 10
+  (traits, pageWidget) <- handlerToWidget $ paged (paramToFilter param ++ fs) 10
+  total <- handlerToWidget . runDB $ count ([] :: [Filter Trait])
   $(widgetFile "traits/_filtered")
