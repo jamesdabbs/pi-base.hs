@@ -24,8 +24,8 @@ paginationConfig = paginationWidget $ PageWidgetConfig
   }
 
 plural :: Int -> Text -> Text -> Text
-plural 1 _ x = x
-plural _ x _ = x
+plural 1 _ x = "1 " <> x
+plural n x _ = (T.pack $ show n) <> " " <> x
 
 -- TODO: why doesn't this type signature seem to work?
 paged q size = runDB $ selectPaginatedWith paginationConfig size q []
