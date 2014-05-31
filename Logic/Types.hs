@@ -75,7 +75,7 @@ instance FromJSON a => FromJSON (Implication a) where
     parseJSON (v!1)
   parseJSON _ = mzero
 
-data MatchType = Yes | No | Unknown deriving Show
+data MatchType = Yes | No | Unknown deriving (Show, Eq)
 
 
 formulaProperties :: (Ord a) => Formula a -> S.Set a

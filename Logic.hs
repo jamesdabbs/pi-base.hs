@@ -15,9 +15,8 @@ module Logic
 import Import hiding (negate)
 import Prelude (head)
 
-import Control.Monad (join, liftM2)
 import qualified Data.Map as M
-import Data.Maybe (fromJust, isJust, isNothing, listToMaybe, catMaybes)
+import Data.Maybe (listToMaybe, catMaybes)
 import qualified Data.Set as S
 import qualified Data.Text as Text
 import Data.Time (getCurrentTime)
@@ -63,20 +62,38 @@ matches e (Or sf) = unionN <$> mapM (matches e) sf
 -- We have to go to the database to find the spaces that match an atom
 matches e (Atom p v) = S.fromList <$> matches' p (boolToValueId v) e
 
+filterMatch :: MatchType -> [(MatchType, Set TraitId)] -> [Set TraitId]
+filterMatch t pairs = [ts | (m, ts) <- pairs, m == t]
 
-check :: SpaceId -> Formula PropertyId -> Handler (Maybe (Set TraitId))
-check s f = do
-  ts <- spaceTraitMap s (formulaProperties f)
-  return $ check' ts f
-
-check' :: (Ord p) => TraitMap p -> Formula p -> Maybe (Set TraitId)
-check' ts (And  sf ) = foldl1 (liftM2 S.union) $ map (check' ts) sf
-check' ts (Or   sf ) = join . listToMaybe . filter isJust . map (check' ts) $ sf
+-- TODO: should be able to clean this up
+check' :: (Ord p) => TraitMap p -> Formula p -> (MatchType, Set TraitId)
+check' ts (And  sf) =
+  let
+    subs    = map (check' ts) sf
+    no      = listToMaybe $ filterMatch No subs
+    unknown = listToMaybe $ filterMatch Unknown subs
+  in
+    case no of
+      Just evidence -> (No, evidence)
+      Nothing -> case unknown of
+        Just _ -> (Unknown, S.empty)
+        Nothing -> (Yes, unionN . map snd $ subs)
+check' ts (Or sf) =
+  let
+    subs    = map (check' ts) sf
+    yes     = listToMaybe $ filterMatch Yes subs
+    unknown = listToMaybe $ filterMatch Unknown subs
+  in
+    case yes of
+      Just evidence -> (Yes, evidence)
+      Nothing -> case unknown of
+        Just _ -> (Unknown, S.empty)
+        Nothing -> (No, unionN . map snd $ subs)
 check' ts (Atom p e) = case M.lookup p ts of
-  Nothing    -> Nothing
+  Nothing    -> (Unknown, S.empty)
   Just (t,v) -> if v == (boolToValueId e)
-    then Just . S.singleton $ t
-    else Nothing
+    then (Yes, S.singleton t)
+    else (No,  S.singleton t)
 
 apply :: TheoremId -> Implication PropertyId -> SpaceId -> Handler [TraitId]
 apply a i s = do
@@ -92,10 +109,11 @@ type ProofData p = (p, TValueId, Assumptions)
 apply' :: (Ord p) => TheoremId -> Implication p -> TraitMap p -> [ProofData p]
 apply' thrm (Implication ant cons) ts = do
   case check' ts ant of
-    Just as -> force ts (thrm, as) cons
-    Nothing -> case check' ts (negate cons) of
-      Just as' -> force ts (thrm, as') (negate ant)
-      Nothing  -> [] -- Neither direction applies
+    (Yes, evidence) -> force ts (thrm, evidence) cons
+    (No, _) -> []
+    (Unknown, _) -> case check' ts (negate cons) of
+      (Yes, evidence') -> force ts (thrm, evidence') (negate ant)
+      _ -> []
 
 force :: (Ord p) => TraitMap p -> Assumptions -> Formula p -> [ProofData p]
 
@@ -103,18 +121,17 @@ force :: (Ord p) => TraitMap p -> Assumptions -> Formula p -> [ProofData p]
 force ts as (And sf) = concat . map (force ts as) $ sf
 
 -- Forcing a disjunction can only work if there is only one unknown
--- This is a little verbose, but should be lazy in the right places
-force ts (a,as) (Or sf) =
+--   and the rest are known not to hold
+force ts (thrm,evidence) (Or sf) =
   let
-    evals    = map (\f -> (f, check' ts f)) sf
-    unknowns = take 2 . filter (isNothing . snd) $ evals
-    knowns   = filter (isJust . snd) evals
-  in if length unknowns == 1
-    then
-      let extra = unionN $ map (fromJust . snd) knowns
-      in force ts (a,(S.union as extra)) (fst . head $ unknowns)
-    else
-      [] -- Too many unknowns to force (or no unknowns)
+    subs      = map (\f -> (f, check' ts f)) sf
+    yes       = [f | (f, (Yes,     _)) <- subs]
+    unknown   = [f | (f, (Unknown, _)) <- subs]
+    evidence' = unionN $ [ev | (_, (No, ev)) <- subs]
+  in
+    if null yes && length unknown == 1
+      then force ts (thrm, evidence `S.union` evidence') (head unknown)
+      else []
 
 force ts as (Atom p v) = case M.lookup p ts of
   Just _  -> [] -- Forced value is already known
