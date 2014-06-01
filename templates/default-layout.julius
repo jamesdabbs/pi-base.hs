@@ -1,8 +1,8 @@
 var converter = new Markdown.Converter();
 var markdown = function(text) {
-  text = text.replace(/\$(.*?)\$/g, '<mathjax>$1</mathjax>');
+  text = text.replace(/\$(.*?)\$/g, '<mathjax data-contents="$1"></mathjax>');
   text = converter.makeHtml(text);
-  text = text.replace(/<mathjax>(.*?)<\/mathjax>/g, '\\($1\\)');
+  text = text.replace(/<mathjax data-contents="(.*?)"><\/mathjax>/g, '\\($1\\)');
   return text;
 }
 
