@@ -8,6 +8,7 @@ module Handler.Partials
 
 import Import
 
+import Data.List (intersperse)
 import qualified Data.Map as M
 import qualified Data.Set as S
 
@@ -32,20 +33,41 @@ linkedTraitName trait = do
   (space, property, value) <- handlerToWidget . traitTuple $ trait
   $(widgetFile "traits/linked_name")
 
-renderTheorem :: Show a => (Property -> a) -> Theorem -> Widget
+widgetJoin :: Widget -> [Widget] -> Widget
+widgetJoin sep ws = foldl1 (<>) $ intersperse sep ws
+
+andW, orW :: Widget
+andW = toWidget [whamlet|\ & |]
+orW  = toWidget [whamlet|\ | |]
+
+-- FIXME: strip trailing space
+enclose :: Widget -> Widget
+enclose w = toWidget [whamlet|( ^{w})|]
+
+formulaWidget :: (PropertyId -> Bool -> Widget) -> Formula PropertyId -> Widget
+formulaWidget r (And  sf ) = enclose . widgetJoin andW $ map (formulaWidget r) sf
+formulaWidget r (Or   sf ) = enclose . widgetJoin  orW $ map (formulaWidget r) sf
+formulaWidget r (Atom p v) = r p v
+
+renderTheorem :: (Entity Property -> Bool -> Widget) -> Theorem -> Widget
 renderTheorem f theorem = do
-  let i = theoremImplication theorem
+  let i@(Implication ant cons) = theoremImplication theorem
   props <- handlerToWidget . runDB $ selectList [PropertyId <-. (S.toList $ implicationProperties i)] []
-  let _lookup = M.fromList . map (\(Entity pid p) -> (pid, p)) $ props
+  let _lookup = M.fromList . map (\p -> (entityKey p, p)) $ props
   let f' = f . (M.!) _lookup
-  toWidget [whamlet|<span>#{show $ fmap f' i}|]
+  toWidget [whamlet|^{formulaWidget f' ant} ⇒ ^{formulaWidget f' cons}|]
+
+atomName :: Property -> Bool -> Text
+atomName p True = propertyName p
+atomName p False = "¬" <> (propertyName p)
 
 theoremName :: Theorem -> Widget
-theoremName = renderTheorem propertyName
+theoremName = renderTheorem $ \(Entity _ p) v ->
+  toWidget [whamlet|<span>#{atomName p v}|]
 
--- FIXME: figure out how to HTML escape this
 linkedTheoremName :: Theorem -> Widget
-linkedTheoremName = theoremName
+linkedTheoremName = renderTheorem $ \(Entity pid p) v ->
+  toWidget [whamlet|<a href=@{PropertyR pid}>#{atomName p v}|]
 
 paramToFilter :: Maybe Text -> [Filter Trait]
 paramToFilter param = case param of
