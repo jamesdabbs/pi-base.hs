@@ -13,6 +13,9 @@ import DB (supportedTraits, deleteWithConsequences)
 
 theoremConsequences :: TheoremId -> Handler [Entity Trait]
 theoremConsequences _id = do
+  error "This doesn't work, for two reasons:\
+    1) We aren't including the proved traits in the return value\
+    2) The proved traits are automatically deduced, and so don't track their support"
   proved <- runDB . select $
     from $ \(traits `InnerJoin` proofs) -> do
     on (traits ^. TraitId ==. proofs ^. ProofTraitId)
