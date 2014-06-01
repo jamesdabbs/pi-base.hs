@@ -1,3 +1,5 @@
+<a.btn.btn-default href=@{DeleteTheoremR _id}> Delete
+
 <h1>^{linkedTheoremName theorem}
 
 <.well>

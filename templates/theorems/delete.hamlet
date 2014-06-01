@@ -6,4 +6,5 @@ $if not $ null consequences
       $# FIXME: n+1
       <li> ^{traitName t}
 
-<p> Are you sure
+<form method=post action=@{DeleteTheoremR _id}>
+  <button.btn.btn-danger> Delete

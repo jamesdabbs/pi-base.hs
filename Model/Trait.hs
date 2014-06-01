@@ -4,13 +4,13 @@ module Model.Trait
 ) where
 
 import Import
-import DB (supportedTraits, deleteConsequences)
+import DB (supportedTraits, deleteWithConsequences)
 
 traitConsequences :: TraitId -> Handler [Entity Trait]
 traitConsequences _id = supportedTraits [_id]
 
 traitDelete :: TraitId -> Handler Int64
 traitDelete _id = do
-  consequences <- traitConsequences _id
+  n <- deleteWithConsequences traitConsequences _id
   runDB $ delete _id
-  deleteConsequences consequences
+  return n

@@ -5,10 +5,11 @@ module Model.Theorem
 ) where
 
 import Import hiding ((==.))
+import qualified Import as I ((==.))
 
 import Database.Esqueleto hiding (delete)
 
-import DB (supportedTraits, deleteConsequences)
+import DB (supportedTraits, deleteWithConsequences)
 
 theoremConsequences :: TheoremId -> Handler [Entity Trait]
 theoremConsequences _id = do
@@ -21,9 +22,10 @@ theoremConsequences _id = do
 
 theoremDelete :: TheoremId -> Handler Int64
 theoremDelete _id = do
-  consequences <- theoremConsequences _id
+  runDB $ deleteWhere [TheoremPropertyTheoremId I.==. _id]
+  n <- deleteWithConsequences theoremConsequences _id
   runDB $ delete _id
-  deleteConsequences consequences
+  return n
 
 theoremImplication :: Theorem -> Implication PropertyId
 theoremImplication t = (Key . PersistInt64) <$> Implication (theoremAntecedent t) (theoremConsequent t)

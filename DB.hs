@@ -4,11 +4,12 @@ module DB
 , addSupports
 , derivedTraits
 , supportedTraits
-, deleteConsequences
+, deleteWithConsequences
 , flushDeductions
 ) where
 
 import Import hiding ((==.), (!=.), delete)
+import qualified Import as I (delete)
 
 import Database.Esqueleto
 import Data.List (partition, nub)
@@ -44,9 +45,30 @@ supportedTraits _ids = runDB . select $
     where_ (supporters ^. SupporterAssumedId `in_` (valList _ids))
     return traits
 
+deleteSupports :: [TraitId] -> Handler ()
+deleteSupports ids = runDB . delete $
+  from $ \s -> where_ (s ^. SupporterImpliedId `in_` (valList ids))
+
+deleteProofs :: [TraitId] -> Handler ()
+deleteProofs ids = do
+  proofs <- runDB . select $ from $ \p -> do
+    where_ (p ^. ProofTraitId `in_` (valList ids))
+    return p
+  let pids = valList $ map entityKey proofs
+  runDB . delete $ from $ \a -> where_ (a ^. AssumptionProofId `in_` pids)
+  runDB . delete $ from $ \p -> where_ (p ^. ProofId `in_` pids)
+
 deleteConsequences :: [Entity Trait] -> Handler Int64
-deleteConsequences _ids = runDB . deleteCount $ from $ \t ->
-  where_ (t ^. TraitId `in_` (valList . map entityKey $ _ids))
+deleteConsequences traits = do
+  let ids = map entityKey traits
+  deleteSupports ids
+  deleteProofs ids
+  runDB . deleteCount $ from $ \t -> where_ (t ^. TraitId `in_` (valList ids))
+
+deleteWithConsequences :: (Key a -> Handler [Entity Trait]) -> Key a -> Handler Int64
+deleteWithConsequences finder _id = do
+  cons <- finder _id
+  deleteConsequences cons
 
 derivedTraits :: TraitId -> Handler [Entity Trait]
 derivedTraits _id = runDB . select $

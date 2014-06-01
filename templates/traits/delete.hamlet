@@ -10,4 +10,4 @@ $if not $ null consequences
       <li> ^{traitName t}
 
 <form method=post action=@{DeleteTraitR _id}>
-  <button.btn.btn-danger>Delete
+  <button.btn.btn-danger> Delete
