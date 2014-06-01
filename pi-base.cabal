@@ -24,6 +24,7 @@ library
                      Model
                      Model.Proof
                      Model.Property
+                     Model.Revision
                      Model.Space
                      Model.Theorem
                      Model.Trait

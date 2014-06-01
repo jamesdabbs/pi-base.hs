@@ -5,6 +5,7 @@ import Import
 import Form.Properties (createPropertyForm)
 import Handler.Helpers
 import Handler.Partials (filteredTraits)
+import Model.Revision (revisionCreate)
 
 
 getPropertiesR :: Handler Html
@@ -23,7 +24,8 @@ postCreatePropertyR = do
   ((result, widget), enctype) <- runFormPost createPropertyForm
   case result of
     FormSuccess property -> do
-      _id <- runDB $ insert property
+      rid <- revisionCreate (propertyDescription property) Nothing
+      _id <- runDB $ insert property { propertyRevisionId = Just rid }
       setMessage "Created property"
       redirect $ PropertyR _id
     _ -> render "New Property" $(widgetFile "properties/new")

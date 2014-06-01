@@ -38,7 +38,8 @@ postCreateTraitR = do
           setMessage "Trait already exists"
           redirect $ TraitR _id
         Nothing -> do
-          _id <- runDB $ insert trait
+          rid <- revisionCreate (traitDescription trait) Nothing
+          _id <- runDB $ insert trait { traitRevisionId = Just rid }
           queueCheckTrait _id
           setMessage "Created trait"
           redirect $ TraitR _id

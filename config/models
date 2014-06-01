@@ -5,6 +5,7 @@ User sql=remote_users
     admin Bool
     UniqueUser ident
     deriving Typeable
+
 Email sql=emails
     email Text
     userId UserId Maybe
@@ -35,6 +36,7 @@ Space json sql=spaces
   createdAt UTCTime
   updatedAt UTCTime
   proofOfTopology Text Maybe
+  revisionId RevisionId Maybe
 
 Property json sql=properties
   name Text
@@ -42,6 +44,7 @@ Property json sql=properties
   valueSetId ValueSetId
   createdAt UTCTime
   updatedAt UTCTime
+  revisionId RevisionId Maybe
 
 Trait sql=traits
   spaceId SpaceId
@@ -51,6 +54,7 @@ Trait sql=traits
   createdAt UTCTime
   updatedAt UTCTime
   deduced Bool
+  revisionId RevisionId Maybe
   TraitSP spaceId propertyId
 
 Theorem json sql=theorems
@@ -59,6 +63,7 @@ Theorem json sql=theorems
   updatedAt UTCTime
   antecedent (Formula Int64)
   consequent (Formula Int64)
+  revisionId RevisionId Maybe
 
 -- This table is here simply to make it easier to
 --   execute the common "what theorems involve this

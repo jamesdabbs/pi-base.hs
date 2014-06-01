@@ -32,7 +32,8 @@ postCreateTheoremR = do
   ((result, widget), enctype) <- runFormPost createTheoremForm
   case result of
     FormSuccess theorem -> do
-      _id <- runDB $ insert theorem
+      rid <- revisionCreate (theoremDescription theorem) Nothing
+      _id <- runDB $ insert theorem { theoremRevisionId = Just rid }
       queueCheckTheorem _id
       setMessage "Created theorem"
       redirect $ TheoremR _id

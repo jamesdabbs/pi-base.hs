@@ -20,4 +20,5 @@ createTheoremForm = renderBootstrap3 fLayout $ Theorem
   <*> lift (liftIO getCurrentTime)
   <*> areq formulaField (fs "Antecedent") Nothing
   <*> areq formulaField (fs "Consequent") Nothing
+  <*> pure Nothing
   <*  bootstrapSubmit ("Save" :: BootstrapSubmit Text)

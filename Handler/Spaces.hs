@@ -5,6 +5,7 @@ import Import
 import Form.Spaces (createSpaceForm)
 import Handler.Helpers
 import Handler.Partials (filteredTraits)
+import Model.Revision (revisionCreate)
 
 
 getSpacesR :: Handler Html
@@ -23,7 +24,8 @@ postCreateSpaceR = do
   ((result, widget), enctype) <- runFormPost createSpaceForm
   case result of
     FormSuccess space -> do
-      _id <- runDB $ insert space
+      rid <- revisionCreate (spaceDescription space) Nothing
+      _id <- runDB $ insert space { spaceRevisionId = Just rid }
       setMessage "Created space"
       redirect $ SpaceR _id
     _ -> render "New Space" $(widgetFile "spaces/new")

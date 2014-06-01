@@ -9,7 +9,6 @@ module DB
 ) where
 
 import Import hiding ((==.), (!=.), delete)
-import qualified Import as I (delete)
 
 import Database.Esqueleto
 import Data.List (partition, nub)
