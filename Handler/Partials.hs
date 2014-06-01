@@ -79,5 +79,4 @@ filteredTraits :: [Filter Trait] -> Widget
 filteredTraits fs = do
   param <- lookupGetParam "traits"
   (traits, pageWidget) <- handlerToWidget $ paged (paramToFilter param ++ fs) 10
-  total <- handlerToWidget . runDB $ count ([] :: [Filter Trait])
   $(widgetFile "traits/_filtered")
