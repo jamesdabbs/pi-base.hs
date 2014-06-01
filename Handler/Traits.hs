@@ -59,7 +59,6 @@ getTraitR _id = do
       consequences <- traitConsequences _id
       defaultLayout $(widgetFile "traits/show")
 
--- FIXME: only allow deleting manually added traits
 getDeleteTraitR :: TraitId -> Handler Html
 getDeleteTraitR _id = do
   trait <- runDB $ get404 _id
@@ -69,7 +68,10 @@ getDeleteTraitR _id = do
 postDeleteTraitR :: TraitId -> Handler Html
 postDeleteTraitR _id = do
   trait <- runDB . get404 $ _id
-  _ <- traitDelete _id
-  _ <- checkSpace "postDeleteTraitR" (traitSpaceId trait)
-  setMessage "Deleted trait" -- TODO: show deleted / re-added counts
-  redirect TraitsR
+  if traitDeduced trait
+    then invalidArgs ["Please delete the root assumption for this trait"]
+    else do
+      _ <- traitDelete _id
+      _ <- checkSpace "postDeleteTraitR" (traitSpaceId trait)
+      setMessage "Deleted trait" -- TODO: show deleted / re-added counts
+      redirect TraitsR
