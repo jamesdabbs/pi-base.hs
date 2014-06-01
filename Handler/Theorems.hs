@@ -20,12 +20,12 @@ getTheoremsR :: Handler Html
 getTheoremsR = do
   (theorems, pageWidget) <- page 10
   total <- runDB $ count ([] :: [Filter Theorem])
-  defaultLayout $(widgetFile "theorems/index")
+  render "Theorems" $(widgetFile "theorems/index")
 
 getCreateTheoremR :: Handler Html
 getCreateTheoremR = do
   (widget, enctype) <- generateFormPost createTheoremForm
-  defaultLayout $(widgetFile "theorems/new")
+  render "New Theorem" $(widgetFile "theorems/new")
 
 postCreateTheoremR :: Handler Html
 postCreateTheoremR = do
@@ -36,8 +36,9 @@ postCreateTheoremR = do
       queueCheckTheorem _id
       setMessage "Created theorem"
       redirect $ TheoremR _id
-    _ -> defaultLayout $(widgetFile "theorems/new")
+    _ -> render "New Theorem" $(widgetFile "theorems/new")
 
+-- FIXME: need a suitable string renderer for the title here and in delete
 getTheoremR :: TheoremId -> Handler Html
 getTheoremR _id = do
   theorem <- runDB $ get404 _id

@@ -26,7 +26,7 @@ traitTuple trait = do
 traitName :: Trait -> Widget
 traitName trait = do
   (s,p,v) <- handlerToWidget . traitTuple $ trait
-  toWidget [whamlet|<span>#{spaceName s}: #{propertyName p}=#{tValueName v}|]
+  [whamlet|<span>#{spaceName s}: #{propertyName p}=#{tValueName v}|]
 
 linkedTraitName :: Trait -> Widget
 linkedTraitName trait = do
@@ -37,12 +37,12 @@ widgetJoin :: Widget -> [Widget] -> Widget
 widgetJoin sep ws = foldl1 (<>) $ intersperse sep ws
 
 andW, orW :: Widget
-andW = toWidget [whamlet|\ & |]
-orW  = toWidget [whamlet|\ | |]
+andW = [whamlet|\ & |]
+orW  = [whamlet|\ | |]
 
 -- FIXME: strip trailing space
 enclose :: Widget -> Widget
-enclose w = toWidget [whamlet|( ^{w})|]
+enclose w = [whamlet|( ^{w})|]
 
 formulaWidget :: (PropertyId -> Bool -> Widget) -> Formula PropertyId -> Widget
 formulaWidget r (And  sf ) = enclose . widgetJoin andW $ map (formulaWidget r) sf
@@ -55,7 +55,7 @@ renderTheorem f theorem = do
   props <- handlerToWidget . runDB $ selectList [PropertyId <-. (S.toList $ implicationProperties i)] []
   let _lookup = M.fromList . map (\p -> (entityKey p, p)) $ props
   let f' = f . (M.!) _lookup
-  toWidget [whamlet|^{formulaWidget f' ant} ⇒ ^{formulaWidget f' cons}|]
+  [whamlet|^{formulaWidget f' ant} ⇒ ^{formulaWidget f' cons}|]
 
 atomName :: Property -> Bool -> Text
 atomName p True = propertyName p
@@ -63,11 +63,11 @@ atomName p False = "¬" <> (propertyName p)
 
 theoremName :: Theorem -> Widget
 theoremName = renderTheorem $ \(Entity _ p) v ->
-  toWidget [whamlet|<span>#{atomName p v}|]
+  [whamlet|<span>#{atomName p v}|]
 
 linkedTheoremName :: Theorem -> Widget
 linkedTheoremName = renderTheorem $ \(Entity pid p) v ->
-  toWidget [whamlet|<a href=@{PropertyR pid}>#{atomName p v}|]
+  [whamlet|<a href=@{PropertyR pid}>#{atomName p v}|]
 
 paramToFilter :: Maybe Text -> [Filter Trait]
 paramToFilter param = case param of

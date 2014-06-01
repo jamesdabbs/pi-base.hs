@@ -8,10 +8,11 @@ import DB (flushDeductions)
 import Explore (checkTheorem)
 import Logic (counterexamples)
 import Models
+import Handler.Helpers
 import Handler.Partials (theoremName)
 
 getAdminR :: Handler Html
-getAdminR = defaultLayout $(widgetFile "admin/show")
+getAdminR = render "Admin" $(widgetFile "admin/show")
 
 -- TODO: add counts of added, with counterexamples
 postExploreR :: Handler Html
@@ -26,7 +27,7 @@ postContradictionsR = do
   theorems <- runDB $ selectList [] []
   counters <- mapM (counterexamples . theoremImplication . entityVal) $ theorems
   let pairs = filter (not . S.null . snd) $ zip theorems counters
-  defaultLayout $(widgetFile "admin/check")
+  render "Contradictions" $(widgetFile "admin/check")
 
 postResetR :: Handler Html
 postResetR = do

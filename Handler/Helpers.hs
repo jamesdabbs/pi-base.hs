@@ -3,6 +3,7 @@ module Handler.Helpers
 , paged
 , preview
 , plural
+, render
 ) where
 
 import Import
@@ -11,7 +12,10 @@ import qualified Data.Text as T
 
 import Yesod.Paginator hiding (paginate)
 
--- TODO: this module is becoming Handler.Helpers
+render :: Text -> Widget -> Handler Html
+render title w = defaultLayout $ do
+  setTitle . toHtml $ [shamlet|#{title} | 𝜋-Base|]
+  w
 
 paginationConfig :: PageWidget App
 paginationConfig = paginationWidget $ PageWidgetConfig

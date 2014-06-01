@@ -11,12 +11,12 @@ getPropertiesR :: Handler Html
 getPropertiesR = do
   (properties, pageWidget) <- page 10
   total <- runDB $ count ([] :: [Filter Property])
-  defaultLayout $(widgetFile "properties/index")
+  render "Properties" $(widgetFile "properties/index")
 
 getCreatePropertyR :: Handler Html
 getCreatePropertyR = do
   (widget, enctype) <- generateFormPost createPropertyForm
-  defaultLayout $(widgetFile "properties/new")
+  render "New Property" $(widgetFile "properties/new")
 
 postCreatePropertyR :: Handler Html
 postCreatePropertyR = do
@@ -26,18 +26,18 @@ postCreatePropertyR = do
       _id <- runDB $ insert property
       setMessage "Created property"
       redirect $ PropertyR _id
-    _ -> defaultLayout $(widgetFile "properties/new")
+    _ -> render "New Property" $(widgetFile "properties/new")
 
 getPropertyR :: PropertyId -> Handler Html
 getPropertyR _id = do
   property <- runDB $ get404 _id
-  defaultLayout $(widgetFile "properties/show")
+  render (propertyName property) $(widgetFile "properties/show")
 
 getDeletePropertyR :: PropertyId -> Handler Html
 getDeletePropertyR _id = do
   property <- runDB $ get404 _id
   traits <- runDB $ count [TraitPropertyId ==. _id]
-  defaultLayout $(widgetFile "properties/delete")
+  render ("Delete " <> propertyName property) $(widgetFile "properties/delete")
 
 postDeletePropertyR :: PropertyId -> Handler Html
 postDeletePropertyR _id = do

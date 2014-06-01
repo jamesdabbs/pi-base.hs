@@ -20,12 +20,12 @@ getTraitsR :: Handler Html
 getTraitsR = do
   (traits, pageWidget) <- page 10
   total <- runDB $ count ([] :: [Filter Trait])
-  defaultLayout $(widgetFile "traits/index")
+  render "Traits" $(widgetFile "traits/index")
 
 getCreateTraitR :: Handler Html
 getCreateTraitR = do
   (widget, enctype) <- generateFormPost createTraitForm
-  defaultLayout $(widgetFile "traits/new")
+  render "New Trait" $(widgetFile "traits/new")
 
 postCreateTraitR :: Handler Html
 postCreateTraitR = do
@@ -42,8 +42,9 @@ postCreateTraitR = do
           queueCheckTrait _id
           setMessage "Created trait"
           redirect $ TraitR _id
-    _ -> defaultLayout $(widgetFile "traits/new")
+    _ -> render "New Trait" $(widgetFile "traits/new")
 
+-- FIXME: need suitable string name here and for delete
 getTraitR :: TraitId -> Handler Html
 getTraitR _id = do
   trait <- runDB $ get404 _id
