@@ -10,7 +10,7 @@ import Models
 
 getSpacesR :: Handler Html
 getSpacesR = do
-  (spaces, pageWidget) <- page 10
+  (spaces, pageWidget) <- paged 10 [] [Asc SpaceName]
   total <- runDB $ count ([] :: [Filter Space])
   render "Spaces" $(widgetFile "spaces/index")
 

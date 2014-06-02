@@ -10,7 +10,7 @@ import Model.Revision (revisionCreate)
 
 getPropertiesR :: Handler Html
 getPropertiesR = do
-  (properties, pageWidget) <- page 10
+  (properties, pageWidget) <- paged 10 [] [Asc PropertyName]
   total <- runDB $ count ([] :: [Filter Property])
   render "Properties" $(widgetFile "properties/index")
 

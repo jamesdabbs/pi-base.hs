@@ -1,6 +1,5 @@
 module Handler.Helpers
-( page
-, paged
+( paged
 , preview
 , plural
 , render
@@ -32,8 +31,7 @@ plural 1 _ x = "1 " <> x
 plural n x _ = (T.pack $ show n) <> " " <> x
 
 -- TODO: why doesn't this type signature seem to work?
-paged q size = runDB $ selectPaginatedWith paginationConfig size q []
-page = paged []
+paged size q f = runDB $ selectPaginatedWith paginationConfig size q f
 
 preview :: Textarea -> Text
 preview t = case T.lines . unTextarea $ t of

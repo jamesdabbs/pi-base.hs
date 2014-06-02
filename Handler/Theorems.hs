@@ -22,7 +22,7 @@ theoremTitle _ = "Theorem"
 
 getTheoremsR :: Handler Html
 getTheoremsR = do
-  (theorems, pageWidget) <- page 10
+  (theorems, pageWidget) <- paged 10 [] [Desc TheoremUpdatedAt]
   total <- runDB $ count ([] :: [Filter Theorem])
   render "Theorems" $(widgetFile "theorems/index")
 
