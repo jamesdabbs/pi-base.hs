@@ -159,7 +159,6 @@ addProof s (p,v,(thrm,ts)) = do
           , traitDeduced         = True
           , traitCreatedAt       = now
           , traitUpdatedAt       = now
-          , traitRevisionId      = Nothing
           }
       pid <- runDB . insert $ Proof _id thrm 0 now now
       mapM_ (runDB . insert . Assumption pid) . S.toList $ ts

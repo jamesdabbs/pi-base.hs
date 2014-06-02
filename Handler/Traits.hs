@@ -5,7 +5,7 @@ import Import
 import DB (derivedTraits)
 import Explore (checkTrait, checkSpace)
 import Form.Traits (createTraitForm)
-import Handler.Partials (traitName, linkedTraitName, theoremName)
+import Handler.Partials (traitName, linkedTraitName, theoremName, revisionList)
 import Handler.Helpers
 import Models
 
@@ -38,14 +38,14 @@ postCreateTraitR = do
           setMessage "Trait already exists"
           redirect $ TraitR _id
         Nothing -> do
-          rid <- revisionCreate (traitDescription trait) Nothing
-          _id <- runDB $ insert trait { traitRevisionId = Just rid }
+          _id <- runDB $ insert trait
+          _ <- revisionCreate $ Entity _id trait
           queueCheckTrait _id
           setMessage "Created trait"
           redirect $ TraitR _id
     _ -> render "New Trait" $(widgetFile "traits/new")
 
--- FIXME: need suitable string name here and for delete
+-- FIXME: need suitable string name for get / delete / revisions
 getTraitR :: TraitId -> Handler Html
 getTraitR _id = do
   trait <- runDB $ get404 _id
@@ -68,7 +68,7 @@ getDeleteTraitR _id = do
 
 postDeleteTraitR :: TraitId -> Handler Html
 postDeleteTraitR _id = do
-  trait <- runDB . get404 $ _id
+  trait <- runDB $ get404 _id
   if traitDeduced trait
     then invalidArgs ["Please delete the root assumption for this trait"]
     else do
@@ -76,3 +76,8 @@ postDeleteTraitR _id = do
       _ <- checkSpace "postDeleteTraitR" (traitSpaceId trait)
       setMessage "Deleted trait" -- TODO: show deleted / re-added counts
       redirect TraitsR
+
+getTraitRevisionsR :: TraitId -> Handler Html
+getTraitRevisionsR _id = do
+  trait <- runDB $ get404 _id
+  defaultLayout $(widgetFile "traits/revisions")

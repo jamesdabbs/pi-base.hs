@@ -6,25 +6,29 @@
 
 / HomeR GET
 
-/spaces                 SpacesR      GET
-/spaces/!new            CreateSpaceR GET POST
-/spaces/#SpaceId        SpaceR       GET
-/spaces/#SpaceId/delete DeleteSpaceR GET POST
+/spaces                    SpacesR         GET
+/spaces/!new               CreateSpaceR    GET POST
+/spaces/#SpaceId           SpaceR          GET
+/spaces/#SpaceId/delete    DeleteSpaceR    GET POST
+/spaces/#SpaceId/revisions SpaceRevisionsR GET
 
-/properties                    PropertiesR     GET
-/properties/!new               CreatePropertyR GET POST
-/properties/#PropertyId        PropertyR       GET
-/properties/#PropertyId/delete DeletePropertyR GET POST
+/properties                       PropertiesR        GET
+/properties/!new                  CreatePropertyR    GET POST
+/properties/#PropertyId           PropertyR          GET
+/properties/#PropertyId/delete    DeletePropertyR    GET POST
+/properties/#PropertyId/revisions PropertyRevisionsR GET
 
-/traits                 TraitsR      GET
-/traits/!new            CreateTraitR GET POST
-/traits/#TraitId        TraitR       GET
-/traits/#TraitId/delete DeleteTraitR GET POST
+/traits                    TraitsR         GET
+/traits/!new               CreateTraitR    GET POST
+/traits/#TraitId           TraitR          GET
+/traits/#TraitId/delete    DeleteTraitR    GET POST
+/traits/#TraitId/revisions TraitRevisionsR GET
 
-/theorems                   TheoremsR      GET
-/theorems/!new              CreateTheoremR GET POST
-/theorems/#TheoremId        TheoremR       GET
-/theorems/#TheoremId/delete DeleteTheoremR GET POST
+/theorems                      TheoremsR         GET
+/theorems/!new                 CreateTheoremR    GET POST
+/theorems/#TheoremId           TheoremR          GET
+/theorems/#TheoremId/delete    DeleteTheoremR    GET POST
+/theorems/#TheoremId/revisions TheoremRevisionsR GET
 
 /search SearchR GET
 

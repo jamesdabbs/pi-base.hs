@@ -16,5 +16,4 @@ createSpaceForm = renderBootstrap3 fLayout $ Space
   <*> lift (liftIO getCurrentTime)
   <*> lift (liftIO getCurrentTime)
   <*> aopt textField (fs "Proof of Topology") Nothing
-  <*> pure Nothing
   <*  bootstrapSubmit ("Save" :: BootstrapSubmit Text)

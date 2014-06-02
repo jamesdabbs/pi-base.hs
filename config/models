@@ -13,8 +13,9 @@ Email sql=emails
     UniqueEmail email
 
 Revision sql=revisions
-  text Text
-  parent RevisionId Maybe
+  itemId Int64
+  itemClass Text
+  body Text
   userId UserId
   createdAt UTCTime
 
@@ -36,7 +37,6 @@ Space json sql=spaces
   createdAt UTCTime
   updatedAt UTCTime
   proofOfTopology Text Maybe
-  revisionId RevisionId Maybe
 
 Property json sql=properties
   name Text
@@ -44,9 +44,8 @@ Property json sql=properties
   valueSetId ValueSetId
   createdAt UTCTime
   updatedAt UTCTime
-  revisionId RevisionId Maybe
 
-Trait sql=traits
+Trait json sql=traits
   spaceId SpaceId
   propertyId PropertyId
   valueId TValueId
@@ -54,7 +53,6 @@ Trait sql=traits
   createdAt UTCTime
   updatedAt UTCTime
   deduced Bool
-  revisionId RevisionId Maybe
   TraitSP spaceId propertyId
 
 Theorem json sql=theorems
@@ -63,7 +61,6 @@ Theorem json sql=theorems
   updatedAt UTCTime
   antecedent (Formula Int64)
   consequent (Formula Int64)
-  revisionId RevisionId Maybe
 
 -- This table is here simply to make it easier to
 --   execute the common "what theorems involve this

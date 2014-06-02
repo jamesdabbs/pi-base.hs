@@ -4,6 +4,7 @@ module Handler.Partials
 , theoremName
 , linkedTheoremName
 , filteredTraits
+, revisionList
 ) where
 
 import Import
@@ -80,3 +81,8 @@ filteredTraits fs = do
   param <- lookupGetParam "traits"
   (traits, pageWidget) <- handlerToWidget $ paged (paramToFilter param ++ fs) 10
   $(widgetFile "traits/_filtered")
+
+revisionList :: (Revisable a) => Entity a -> Widget
+revisionList e = do
+  revs <- handlerToWidget . revisions $ e
+  $(widgetFile "revisions/_list")

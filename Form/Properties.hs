@@ -24,5 +24,4 @@ createPropertyForm = renderBootstrap3 fLayout $ Property
   <*> lift (boolean)
   <*> lift (liftIO getCurrentTime)
   <*> lift (liftIO getCurrentTime)
-  <*> pure Nothing
   <*  bootstrapSubmit ("Save" :: BootstrapSubmit Text)

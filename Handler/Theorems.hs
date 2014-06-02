@@ -4,7 +4,7 @@ import Import
 
 import Explore (checkTheorem)
 import Form.Theorems (createTheoremForm)
-import Handler.Partials (linkedTheoremName, theoremName, traitName)
+import Handler.Partials (linkedTheoremName, theoremName, traitName, revisionList)
 import Handler.Helpers
 import Models
 
@@ -32,14 +32,14 @@ postCreateTheoremR = do
   ((result, widget), enctype) <- runFormPost createTheoremForm
   case result of
     FormSuccess theorem -> do
-      rid <- revisionCreate (theoremDescription theorem) Nothing
-      _id <- runDB $ insert theorem { theoremRevisionId = Just rid }
+      _id <- runDB $ insert theorem
+      _ <- revisionCreate $ Entity _id theorem
       queueCheckTheorem _id
       setMessage "Created theorem"
       redirect $ TheoremR _id
     _ -> render "New Theorem" $(widgetFile "theorems/new")
 
--- FIXME: need a suitable string renderer for the title here and in delete
+-- FIXME: need a suitable string renderer for the title in get / delete / revisions
 getTheoremR :: TheoremId -> Handler Html
 getTheoremR _id = do
   theorem <- runDB $ get404 _id
@@ -56,3 +56,8 @@ postDeleteTheoremR _id = do
   _ <- theoremDelete _id
   setMessage "Deleted theorem"
   redirect TheoremsR
+
+getTheoremRevisionsR :: TheoremId -> Handler Html
+getTheoremRevisionsR _id = do
+  theorem <- runDB . get404 $ _id
+  defaultLayout $(widgetFile "theorems/revisions")

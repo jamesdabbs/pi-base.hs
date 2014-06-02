@@ -18,5 +18,4 @@ createTraitForm = renderBootstrap3 fLayout $ Trait
   <*> lift (liftIO getCurrentTime)
   <*> lift (liftIO getCurrentTime)
   <*> pure False
-  <*> pure Nothing
   <*  bootstrapSubmit ("Save" :: BootstrapSubmit Text)

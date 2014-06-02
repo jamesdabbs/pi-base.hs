@@ -4,7 +4,7 @@ import Import
 
 import Form.Properties (createPropertyForm)
 import Handler.Helpers
-import Handler.Partials (filteredTraits)
+import Handler.Partials (filteredTraits, revisionList)
 import Model.Revision (revisionCreate)
 
 
@@ -24,8 +24,8 @@ postCreatePropertyR = do
   ((result, widget), enctype) <- runFormPost createPropertyForm
   case result of
     FormSuccess property -> do
-      rid <- revisionCreate (propertyDescription property) Nothing
-      _id <- runDB $ insert property { propertyRevisionId = Just rid }
+      _id <- runDB $ insert property
+      _ <- revisionCreate $ Entity _id property
       setMessage "Created property"
       redirect $ PropertyR _id
     _ -> render "New Property" $(widgetFile "properties/new")
@@ -47,3 +47,8 @@ postDeletePropertyR _id = do
   runDB $ delete _id
   setMessage "Deleted property"
   redirect PropertiesR
+
+getPropertyRevisionsR :: PropertyId -> Handler Html
+getPropertyRevisionsR _id = do
+  property <- runDB $ get404 _id
+  render (propertyName property <> " Revisions") $(widgetFile "properties/revisions")

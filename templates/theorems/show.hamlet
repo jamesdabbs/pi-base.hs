@@ -1,3 +1,4 @@
+<a.btn.btn-default href=@{TheoremRevisionsR _id}> Revisions
 $# This is borked <a.btn.btn-default href=@{DeleteTheoremR _id}> Delete
 
 <h1>^{linkedTheoremName theorem}
