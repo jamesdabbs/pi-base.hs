@@ -1,5 +1,6 @@
 module Form.Traits
 ( createTraitForm
+, updateTraitForm
 ) where
 
 import Import
@@ -19,3 +20,14 @@ createTraitForm = renderBootstrap3 fLayout $ Trait
   <*> lift (liftIO getCurrentTime)
   <*> pure False
   <*  bootstrapSubmit ("Save" :: BootstrapSubmit Text)
+
+updateTraitForm :: Trait -> Html -> MForm Handler (FormResult Trait, Widget)
+updateTraitForm t = renderBootstrap3 fLayout $ Trait
+  <$> pure (traitSpaceId t)
+  <*> pure (traitPropertyId t)
+  <*> pure (traitValueId t)
+  <*> areq textField (fs "Description") (Just $ traitDescription t)
+  <*> pure (traitCreatedAt t)
+  <*> lift (liftIO getCurrentTime)
+  <*> pure (traitDeduced t)
+  <* bootstrapSubmit ("Save" :: BootstrapSubmit Text)

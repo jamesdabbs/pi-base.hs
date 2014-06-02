@@ -1,3 +1,4 @@
+<a.btn.btn-default href=@{EditPropertyR _id}> Edit
 <a.btn.btn-default href=@{PropertyRevisionsR _id}> Revisions
 
 <h1> #{propertyName property}

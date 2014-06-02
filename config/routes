@@ -8,25 +8,29 @@
 
 /spaces                    SpacesR         GET
 /spaces/!new               CreateSpaceR    GET POST
-/spaces/#SpaceId           SpaceR          GET
+/spaces/#SpaceId           SpaceR          GET POST
+/spaces/#SpaceId/edit      EditSpaceR      GET
 /spaces/#SpaceId/delete    DeleteSpaceR    GET POST
 /spaces/#SpaceId/revisions SpaceRevisionsR GET
 
 /properties                       PropertiesR        GET
 /properties/!new                  CreatePropertyR    GET POST
-/properties/#PropertyId           PropertyR          GET
+/properties/#PropertyId           PropertyR          GET POST
+/properties/#PropertyId/edit      EditPropertyR      GET
 /properties/#PropertyId/delete    DeletePropertyR    GET POST
 /properties/#PropertyId/revisions PropertyRevisionsR GET
 
 /traits                    TraitsR         GET
 /traits/!new               CreateTraitR    GET POST
-/traits/#TraitId           TraitR          GET
+/traits/#TraitId           TraitR          GET POST
+/traits/#TraitId/edit      EditTraitR      GET
 /traits/#TraitId/delete    DeleteTraitR    GET POST
 /traits/#TraitId/revisions TraitRevisionsR GET
 
 /theorems                      TheoremsR         GET
 /theorems/!new                 CreateTheoremR    GET POST
-/theorems/#TheoremId           TheoremR          GET
+/theorems/#TheoremId           TheoremR          GET POST
+/theorems/#TheoremId/edit      EditTheoremR      GET
 /theorems/#TheoremId/delete    DeleteTheoremR    GET POST
 /theorems/#TheoremId/revisions TheoremRevisionsR GET
 

@@ -2,7 +2,7 @@ module Handler.Spaces where
 
 import Import
 
-import Form.Spaces (createSpaceForm)
+import Form.Spaces
 import Handler.Helpers
 import Handler.Partials (filteredTraits, revisionList)
 import Models
@@ -30,6 +30,24 @@ postCreateSpaceR = do
       redirect $ SpaceR _id
     _ -> render "New Space" $(widgetFile "spaces/new")
 
+getEditSpaceR :: SpaceId -> Handler Html
+getEditSpaceR _id = do
+  space <- runDB $ get404 _id
+  (widget, enctype) <- generateFormPost $ updateSpaceForm space
+  render ("Edit " <> spaceName space) $(widgetFile "spaces/edit")
+
+postSpaceR :: SpaceId -> Handler Html
+postSpaceR _id = do
+  space <- runDB $ get404 _id
+  ((result, widget), enctype) <- runFormPost $ updateSpaceForm space
+  case result of
+    FormSuccess updated -> do
+      runDB $ replace _id updated
+      _ <- revisionCreate $ Entity _id updated
+      setMessage "Updated space"
+      redirect $ SpaceR _id
+    _ -> render ("Edit " <> spaceName space) $(widgetFile "spaces/edit")
+
 getSpaceR :: SpaceId -> Handler Html
 getSpaceR _id = do
   space <- runDB $ get404 _id
@@ -50,5 +68,5 @@ postDeleteSpaceR _id = do
 
 getSpaceRevisionsR :: SpaceId -> Handler Html
 getSpaceRevisionsR _id = do
-  space <- runDB . get404 $ _id
+  space <- runDB $ get404 _id
   render (spaceName space <> " Revisions") $(widgetFile "spaces/revisions")

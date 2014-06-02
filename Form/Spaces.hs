@@ -1,5 +1,6 @@
 module Form.Spaces
 ( createSpaceForm
+, updateSpaceForm
 ) where
 
 import Import
@@ -17,3 +18,12 @@ createSpaceForm = renderBootstrap3 fLayout $ Space
   <*> lift (liftIO getCurrentTime)
   <*> aopt textField (fs "Proof of Topology") Nothing
   <*  bootstrapSubmit ("Save" :: BootstrapSubmit Text)
+
+updateSpaceForm :: Space -> Html -> MForm Handler (FormResult Space, Widget)
+updateSpaceForm s = renderBootstrap3 fLayout $ Space
+  <$> pure (spaceName s)
+  <*> areq textField (fs "Description") (Just $ spaceDescription s)
+  <*> pure (spaceCreatedAt s)
+  <*> lift (liftIO getCurrentTime)
+  <*> aopt textField (fs "Proof of Topology") (Just $ spaceProofOfTopology s)
+  <* bootstrapSubmit ("Save" :: BootstrapSubmit Text)

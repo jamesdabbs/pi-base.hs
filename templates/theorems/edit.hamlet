@@ -1,0 +1,4 @@
+<a.btn.btn-default href=@{TheoremR _id}> Back
+
+<form.form.form-horizontal role=form method=post action=@{TheoremR _id} enctype=#{enctype}>
+  ^{widget}

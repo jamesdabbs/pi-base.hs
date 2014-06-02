@@ -3,7 +3,7 @@ module Handler.Theorems where
 import Import
 
 import Explore (checkTheorem)
-import Form.Theorems (createTheoremForm)
+import Form.Theorems
 import Handler.Partials (linkedTheoremName, theoremName, traitName, revisionList)
 import Handler.Helpers
 import Models
@@ -14,6 +14,10 @@ queueCheckTheorem :: TheoremId -> Handler ()
 queueCheckTheorem _id = do
   _ <- checkTheorem "queueCheckTheorem" _id
   return ()
+
+-- FIXME
+theoremTitle :: Theorem -> Text
+theoremTitle _ = "Theorem"
 
 
 getTheoremsR :: Handler Html
@@ -39,17 +43,34 @@ postCreateTheoremR = do
       redirect $ TheoremR _id
     _ -> render "New Theorem" $(widgetFile "theorems/new")
 
--- FIXME: need a suitable string renderer for the title in get / delete / revisions
+getEditTheoremR :: TheoremId -> Handler Html
+getEditTheoremR _id = do
+  theorem <- runDB $ get404 _id
+  (widget, enctype) <- generateFormPost $ updateTheoremForm theorem
+  render ("Edit " <> theoremTitle theorem) $(widgetFile "theorems/edit")
+
+postTheoremR :: TheoremId -> Handler Html
+postTheoremR _id = do
+  theorem <- runDB $ get404 _id
+  ((result, widget), enctype) <- runFormPost $ updateTheoremForm theorem
+  case result of
+    FormSuccess updated -> do
+      runDB $ replace _id updated
+      _ <- revisionCreate $ Entity _id updated
+      setMessage "Updated theorem"
+      redirect $ TheoremR _id
+    _ -> render ("Edit " <> theoremTitle theorem) $(widgetFile "theorems/edit")
+
 getTheoremR :: TheoremId -> Handler Html
 getTheoremR _id = do
   theorem <- runDB $ get404 _id
-  defaultLayout $(widgetFile "theorems/show")
+  render (theoremTitle theorem) $(widgetFile "theorems/show")
 
 getDeleteTheoremR :: TheoremId -> Handler Html
 getDeleteTheoremR _id = do
   theorem <- runDB $ get404 _id
   consequences <- theoremConsequences _id
-  defaultLayout $(widgetFile "theorems/delete")
+  render ("Delete " <> theoremTitle theorem) $(widgetFile "theorems/delete")
 
 postDeleteTheoremR :: TheoremId -> Handler Html
 postDeleteTheoremR _id = do
@@ -60,4 +81,4 @@ postDeleteTheoremR _id = do
 getTheoremRevisionsR :: TheoremId -> Handler Html
 getTheoremRevisionsR _id = do
   theorem <- runDB . get404 $ _id
-  defaultLayout $(widgetFile "theorems/revisions")
+  render (theoremTitle theorem <> " Revisions") $(widgetFile "theorems/revisions")

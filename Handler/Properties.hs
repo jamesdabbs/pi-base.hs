@@ -2,7 +2,7 @@ module Handler.Properties where
 
 import Import
 
-import Form.Properties (createPropertyForm)
+import Form.Properties
 import Handler.Helpers
 import Handler.Partials (filteredTraits, revisionList)
 import Model.Revision (revisionCreate)
@@ -29,6 +29,25 @@ postCreatePropertyR = do
       setMessage "Created property"
       redirect $ PropertyR _id
     _ -> render "New Property" $(widgetFile "properties/new")
+
+
+getEditPropertyR :: PropertyId -> Handler Html
+getEditPropertyR _id = do
+  property <- runDB $ get404 _id
+  (widget, enctype) <- generateFormPost $ updatePropertyForm property
+  render ("Edit " <> propertyName property) $(widgetFile "properties/edit")
+
+postPropertyR :: PropertyId -> Handler Html
+postPropertyR _id = do
+  property <- runDB $ get404 _id
+  ((result, widget), enctype) <- runFormPost $ updatePropertyForm property
+  case result of
+    FormSuccess updated -> do
+      runDB $ replace _id updated
+      _ <- revisionCreate $ Entity _id updated
+      setMessage "Updated property"
+      redirect $ PropertyR _id
+    _ -> render ("Edit " <> propertyName property) $(widgetFile "properties/edit")
 
 getPropertyR :: PropertyId -> Handler Html
 getPropertyR _id = do

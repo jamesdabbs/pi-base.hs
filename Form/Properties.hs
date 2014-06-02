@@ -1,5 +1,6 @@
 module Form.Properties
 ( createPropertyForm
+, updatePropertyForm
 ) where
 
 import Import
@@ -25,3 +26,12 @@ createPropertyForm = renderBootstrap3 fLayout $ Property
   <*> lift (liftIO getCurrentTime)
   <*> lift (liftIO getCurrentTime)
   <*  bootstrapSubmit ("Save" :: BootstrapSubmit Text)
+
+updatePropertyForm :: Property -> Html -> MForm Handler (FormResult Property, Widget)
+updatePropertyForm p = renderBootstrap3 fLayout $ Property
+  <$> pure (propertyName p)
+  <*> areq textField (fs "Description") (Just $ propertyDescription p)
+  <*> pure (propertyValueSetId p)
+  <*> pure (propertyCreatedAt p)
+  <*> lift (liftIO getCurrentTime)
+  <* bootstrapSubmit ("Save" :: BootstrapSubmit Text)

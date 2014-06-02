@@ -1,0 +1,4 @@
+<a.btn.btn-default href=@{PropertyR _id}> Back
+
+<form.form.form-horizontal role=form method=post action=@{PropertyR _id} enctype=#{enctype}>
+  ^{widget}

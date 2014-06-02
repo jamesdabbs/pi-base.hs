@@ -4,7 +4,7 @@ import Import
 
 import DB (derivedTraits)
 import Explore (checkTrait, checkSpace)
-import Form.Traits (createTraitForm)
+import Form.Traits
 import Handler.Partials (traitName, linkedTraitName, theoremName, revisionList)
 import Handler.Helpers
 import Models
@@ -14,6 +14,10 @@ queueCheckTrait :: TraitId -> Handler ()
 queueCheckTrait _id = do
   _ <- checkTrait "queueCheckTrait" _id
   return ()
+
+-- FIXME
+traitTitle :: Trait -> Text
+traitTitle _ = "Trait"
 
 
 getTraitsR :: Handler Html
@@ -45,7 +49,24 @@ postCreateTraitR = do
           redirect $ TraitR _id
     _ -> render "New Trait" $(widgetFile "traits/new")
 
--- FIXME: need suitable string name for get / delete / revisions
+getEditTraitR :: TraitId -> Handler Html
+getEditTraitR _id = do
+  trait <- runDB $ get404 _id
+  (widget, enctype) <- generateFormPost $ updateTraitForm trait
+  render ("Edit " <> traitTitle trait) $(widgetFile "traits/edit")
+
+postTraitR :: TraitId -> Handler Html
+postTraitR _id = do
+  trait <- runDB $ get404 _id
+  ((result, widget), enctype) <- runFormPost $ updateTraitForm trait
+  case result of
+    FormSuccess updated -> do
+      runDB $ replace _id updated
+      _ <- revisionCreate $ Entity _id updated
+      setMessage "Updated trait"
+      redirect $ TraitR _id
+    _ -> render ("Edit " <> traitTitle trait) $(widgetFile "traits/edit")
+
 getTraitR :: TraitId -> Handler Html
 getTraitR _id = do
   trait <- runDB $ get404 _id
@@ -55,16 +76,16 @@ getTraitR _id = do
       assumedTraits  <- proofTraits  proofId
       assumedTheorem <- proofTheorem proof
       derived        <- derivedTraits _id
-      defaultLayout $(widgetFile "traits/show_deduced")
+      render (traitTitle trait) $(widgetFile "traits/show_deduced")
     False -> do
       consequences <- traitConsequences _id
-      defaultLayout $(widgetFile "traits/show")
+      render (traitTitle trait) $(widgetFile "traits/show")
 
 getDeleteTraitR :: TraitId -> Handler Html
 getDeleteTraitR _id = do
   trait <- runDB $ get404 _id
   consequences <- traitConsequences _id
-  defaultLayout $(widgetFile "traits/delete")
+  render ("Delete " <> traitTitle trait) $(widgetFile "traits/delete")
 
 postDeleteTraitR :: TraitId -> Handler Html
 postDeleteTraitR _id = do
@@ -80,4 +101,4 @@ postDeleteTraitR _id = do
 getTraitRevisionsR :: TraitId -> Handler Html
 getTraitRevisionsR _id = do
   trait <- runDB $ get404 _id
-  defaultLayout $(widgetFile "traits/revisions")
+  render (traitTitle trait <> " Revisions") $(widgetFile "traits/revisions")
