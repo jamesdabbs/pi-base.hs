@@ -11,4 +11,20 @@ $(function() {
     var $el = $(el);
     $el.html(markdown($el.html()));
   });
+
+  // TODO: I'd really like a better way of specifiying this
+  //   on a field-by-field basis
+  $(".form-markdown textarea").each(function(i, el) {
+    var $el = $(el);
+    var $preview = $("<div class='well'></div>");
+    $el.attr("rows", 10).after($preview);
+
+    var renderPreview = function() {
+      $preview.html(markdown($el.val()));
+      MathJax.Hub.Queue(["Typeset", MathJax.Hub, $preview.get(0)]);
+    };
+    renderPreview();
+
+    $el.keyup(_.debounce(renderPreview, 500));
+  });
 });

@@ -73,7 +73,7 @@ linkedTheoremName = renderTheorem $ \(Entity pid p) v ->
 paramToFilter :: Maybe Text -> [Filter Trait]
 paramToFilter param = case param of
     (Just "deduced")  -> [TraitDeduced ==. True]
-    (Just "unproven") -> [TraitDeduced ==. False, TraitDescription ==. ""]
+    (Just "unproven") -> [TraitDeduced ==. False, TraitDescription ==. Textarea ""]
     _                 -> [TraitDeduced ==. False]
 
 filteredTraits :: [Filter Trait] -> Widget

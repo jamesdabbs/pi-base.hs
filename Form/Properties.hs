@@ -20,8 +20,8 @@ boolean = do
 
 createPropertyForm :: Html -> MForm Handler (FormResult Property, Widget)
 createPropertyForm = renderBootstrap3 fLayout $ Property
-  <$> areq textField (fs "Name")        Nothing
-  <*> areq textField (fs "Description") Nothing
+  <$> areq textField (fs "Name") Nothing
+  <*> areq textareaField (fs "Description") Nothing
   <*> lift (boolean)
   <*> lift (liftIO getCurrentTime)
   <*> lift (liftIO getCurrentTime)
@@ -30,7 +30,7 @@ createPropertyForm = renderBootstrap3 fLayout $ Property
 updatePropertyForm :: Property -> Html -> MForm Handler (FormResult Property, Widget)
 updatePropertyForm p = renderBootstrap3 fLayout $ Property
   <$> pure (propertyName p)
-  <*> areq textField (fs "Description") (Just $ propertyDescription p)
+  <*> areq textareaField (fs "Description") (Just $ propertyDescription p)
   <*> pure (propertyValueSetId p)
   <*> pure (propertyCreatedAt p)
   <*> lift (liftIO getCurrentTime)

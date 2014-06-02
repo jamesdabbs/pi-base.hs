@@ -35,7 +35,7 @@ plural n x _ = (T.pack $ show n) <> " " <> x
 paged q size = runDB $ selectPaginatedWith paginationConfig size q []
 page = paged []
 
-preview :: Text -> Text
-preview t = case T.lines t of
+preview :: Textarea -> Text
+preview t = case T.lines . unTextarea $ t of
   (l:_) -> l
   _     -> ""

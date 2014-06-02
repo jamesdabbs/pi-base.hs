@@ -15,7 +15,7 @@ createTraitForm = renderBootstrap3 fLayout $ Trait
   <$> areq spaceField    (fs "Space")       Nothing
   <*> areq propertyField (fs "Property")    Nothing
   <*> areq valueField    (fs "Value")       Nothing
-  <*> areq textField     (fs "Description") Nothing
+  <*> areq textareaField (fs "Description") Nothing
   <*> lift (liftIO getCurrentTime)
   <*> lift (liftIO getCurrentTime)
   <*> pure False
@@ -26,7 +26,7 @@ updateTraitForm t = renderBootstrap3 fLayout $ Trait
   <$> pure (traitSpaceId t)
   <*> pure (traitPropertyId t)
   <*> pure (traitValueId t)
-  <*> areq textField (fs "Description") (Just $ traitDescription t)
+  <*> areq textareaField (fs "Description") (Just $ traitDescription t)
   <*> pure (traitCreatedAt t)
   <*> lift (liftIO getCurrentTime)
   <*> pure (traitDeduced t)

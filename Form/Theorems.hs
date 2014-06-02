@@ -16,7 +16,7 @@ formulaField = undefined
 
 createTheoremForm :: Html -> MForm Handler (FormResult Theorem, Widget)
 createTheoremForm = renderBootstrap3 fLayout $ Theorem
-  <$> areq textField (fs "Description") Nothing
+  <$> areq textareaField (fs "Description") Nothing
   <*> lift (liftIO getCurrentTime)
   <*> lift (liftIO getCurrentTime)
   <*> areq formulaField (fs "Antecedent") Nothing
@@ -25,7 +25,7 @@ createTheoremForm = renderBootstrap3 fLayout $ Theorem
 
 updateTheoremForm :: Theorem -> Html -> MForm Handler (FormResult Theorem, Widget)
 updateTheoremForm t = renderBootstrap3 fLayout $ Theorem
-  <$> areq textField (fs "Description") (Just $ theoremDescription t)
+  <$> areq textareaField (fs "Description") (Just $ theoremDescription t)
   <*> pure (theoremCreatedAt t)
   <*> lift (liftIO getCurrentTime)
   <*> pure (theoremAntecedent t)

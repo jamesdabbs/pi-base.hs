@@ -33,14 +33,14 @@ TValue sql=values
 
 Space json sql=spaces
   name Text
-  description Text
+  description Textarea
   createdAt UTCTime
   updatedAt UTCTime
-  proofOfTopology Text Maybe
+  proofOfTopology Textarea Maybe
 
 Property json sql=properties
   name Text
-  description Text
+  description Textarea
   valueSetId ValueSetId
   createdAt UTCTime
   updatedAt UTCTime
@@ -49,14 +49,14 @@ Trait json sql=traits
   spaceId SpaceId
   propertyId PropertyId
   valueId TValueId
-  description Text
+  description Textarea
   createdAt UTCTime
   updatedAt UTCTime
   deduced Bool
   TraitSP spaceId propertyId
 
 Theorem json sql=theorems
-  description Text
+  description Textarea
   createdAt UTCTime
   updatedAt UTCTime
   antecedent (Formula Int64)

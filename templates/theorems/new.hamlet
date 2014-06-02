@@ -1,2 +1,2 @@
-<form.form.form-horizontal role=form method=post action=@{CreateTheoremR} enctype=#{enctype}>
+<form.form.form-horizontal.form-markdown role=form method=post action=@{CreateTheoremR} enctype=#{enctype}>
   ^{widget}

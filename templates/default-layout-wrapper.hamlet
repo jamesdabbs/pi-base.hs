@@ -29,6 +29,7 @@ $newline never
 
         <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js">
         <script src="//cdnjs.cloudflare.com/ajax/libs/pagedown/1.0/Markdown.Converter.min.js">
+        <script src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.6.0/underscore-min.js">
         <script src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
         <script type="text/x-mathjax-config">
           MathJax.Hub.Config({

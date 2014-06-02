@@ -4,7 +4,7 @@
 <h1> #{spaceName space}
 
 <.well>
-  <.markdown>#{spaceDescription space}
+  <.markdown>#{unTextarea $ spaceDescription space}
   $maybe proof <- spaceProofOfTopology space
     <hr>
     <h4> Proof of Topology
