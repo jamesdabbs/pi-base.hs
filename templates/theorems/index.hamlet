@@ -3,7 +3,7 @@
 <h1>#{plural total "Theorems" "Theorem"}
 ^{pageWidget}
 <dl>
-  $forall ent@(Entity _id theorem) <- theorems
+  $forall (Entity _id theorem) <- theorems
     <dt>
       $# FIXME: n+1
       <a href=@{TheoremR _id}> ^{theoremName theorem}
