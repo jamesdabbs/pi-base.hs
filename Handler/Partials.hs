@@ -46,7 +46,7 @@ orW  = [whamlet|\ | |]
 enclose :: Widget -> Widget
 enclose w = [whamlet|( ^{w})|]
 
-formulaWidget :: (PropertyId -> Bool -> Widget) -> Formula PropertyId -> Widget
+formulaWidget :: (a -> Bool -> Widget) -> Formula a -> Widget
 formulaWidget r (And  sf ) = enclose . widgetJoin andW $ map (formulaWidget r) sf
 formulaWidget r (Or   sf ) = enclose . widgetJoin  orW $ map (formulaWidget r) sf
 formulaWidget r (Atom p v) = r p v
@@ -73,14 +73,8 @@ linkedAtom (Entity _id p) v = [whamlet|<a href=@{PropertyR _id}>#{atomName p v}|
 linkedTheoremName :: Theorem -> Widget
 linkedTheoremName = renderTheorem linkedAtom
 
--- TODO: factor this and `renderTheorem` together
-linkedFormula :: Formula PropertyId -> Widget
-linkedFormula f = do
-  let fps = S.toList $ formulaProperties f
-  props <- handlerToWidget . runDB $ selectList [PropertyId <-. fps] []
-  let _lookup = M.fromList . map (\p -> (entityKey p, p)) $ props
-  let linkedAtom' = linkedAtom . (M.!) _lookup
-  [whamlet|^{formulaWidget linkedAtom' f}|]
+linkedFormula :: Formula (Entity Property) -> Widget
+linkedFormula = formulaWidget linkedAtom
 
 paramToFilter :: Maybe Text -> [Filter Trait]
 paramToFilter param = case param of
