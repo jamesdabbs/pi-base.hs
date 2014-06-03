@@ -1,0 +1,10 @@
+^{searchShow q}
+
+<h1> #{plural total "Spaces" "Space"} ∋ ^{linkedFormula f}
+$# TODO: extract partial w/ space index
+^{pageWidget}
+<dl>
+  $forall (Entity _id space) <- spaces
+    <dt>
+      <a href=@{SpaceR _id}> #{spaceName space}
+    <dd.markdown> #{preview $ spaceDescription space}

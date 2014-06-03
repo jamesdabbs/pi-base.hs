@@ -1,0 +1,3 @@
+^{searchShow q}
+
+<.alert.alert-danger> Could not parse <strong>#{qt}</strong> as a formula

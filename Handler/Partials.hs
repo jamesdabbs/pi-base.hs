@@ -3,6 +3,7 @@ module Handler.Partials
 , linkedTraitName
 , theoremName
 , linkedTheoremName
+, linkedFormula
 , filteredTraits
 , revisionList
 ) where
@@ -66,9 +67,20 @@ theoremName :: Theorem -> Widget
 theoremName = renderTheorem $ \(Entity _ p) v ->
   [whamlet|<span>#{atomName p v}|]
 
+linkedAtom :: (Entity Property) -> Bool -> Widget
+linkedAtom (Entity _id p) v = [whamlet|<a href=@{PropertyR _id}>#{atomName p v}|]
+
 linkedTheoremName :: Theorem -> Widget
-linkedTheoremName = renderTheorem $ \(Entity pid p) v ->
-  [whamlet|<a href=@{PropertyR pid}>#{atomName p v}|]
+linkedTheoremName = renderTheorem linkedAtom
+
+-- TODO: factor this and `renderTheorem` together
+linkedFormula :: Formula PropertyId -> Widget
+linkedFormula f = do
+  let fps = S.toList $ formulaProperties f
+  props <- handlerToWidget . runDB $ selectList [PropertyId <-. fps] []
+  let _lookup = M.fromList . map (\p -> (entityKey p, p)) $ props
+  let linkedAtom' = linkedAtom . (M.!) _lookup
+  [whamlet|^{formulaWidget linkedAtom' f}|]
 
 paramToFilter :: Maybe Text -> [Filter Trait]
 paramToFilter param = case param of
