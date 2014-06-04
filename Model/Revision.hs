@@ -2,6 +2,7 @@ module Model.Revision
 ( Revisable
 , revisionCreate
 , revisions
+, logDeletion
 ) where
 
 import Import
@@ -36,8 +37,8 @@ revisionFilters (Entity _id o) =
 revisions :: (Revisable a) => Entity a -> Handler [Entity Revision]
 revisions e = runDB $ selectList (revisionFilters e) [Desc RevisionCreatedAt]
 
-revisionCreate :: (Revisable a) => Entity a -> Handler RevisionId
-revisionCreate (Entity _id obj) = do
+revisionCreate' :: (Revisable a) => Bool -> Entity a -> Handler RevisionId
+revisionCreate' del (Entity _id obj) = do
   auth <- requireAuthId
   now  <- liftIO getCurrentTime
   runDB . insert $ Revision
@@ -46,4 +47,13 @@ revisionCreate (Entity _id obj) = do
     , revisionBody = encodeText obj
     , revisionUserId = auth
     , revisionCreatedAt = now
+    , revisionDelete = del
     }
+
+revisionCreate :: (Revisable a) => Entity a -> Handler RevisionId
+revisionCreate = revisionCreate' False
+
+logDeletion :: (Revisable a) => Entity a -> Handler ()
+logDeletion e = do
+  _ <- revisionCreate' True e
+  return ()

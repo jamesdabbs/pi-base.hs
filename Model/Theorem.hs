@@ -10,6 +10,7 @@ import qualified Import as I ((==.))
 import Database.Esqueleto hiding (delete)
 
 import DB (supportedTraits, deleteWithConsequences)
+import Model.Revision
 
 theoremConsequences :: TheoremId -> Handler [Entity Trait]
 theoremConsequences _id = do
@@ -25,6 +26,8 @@ theoremConsequences _id = do
 
 theoremDelete :: TheoremId -> Handler Int64
 theoremDelete _id = do
+  theorem <- runDB $ get404 _id
+  logDeletion $ Entity _id theorem
   runDB $ deleteWhere [TheoremPropertyTheoremId I.==. _id]
   n <- deleteWithConsequences theoremConsequences _id
   runDB $ delete _id

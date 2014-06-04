@@ -18,6 +18,7 @@ Revision sql=revisions
   body Text
   userId UserId
   createdAt UTCTime
+  delete Bool default=False
 
 ValueSet sql=value_sets
   name Text

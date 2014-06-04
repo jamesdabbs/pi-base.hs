@@ -61,8 +61,7 @@ getDeleteSpaceR _id = do
 
 postDeleteSpaceR :: SpaceId -> Handler Html
 postDeleteSpaceR _id = do
-  runDB $ deleteWhere [TraitSpaceId ==. _id]
-  runDB $ delete _id
+  _ <- spaceDelete _id
   setMessage "Deleted space"
   redirect SpacesR
 

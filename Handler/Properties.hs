@@ -5,7 +5,7 @@ import Import
 import Form.Properties
 import Handler.Helpers
 import Handler.Partials (filteredTraits, revisionList)
-import Model.Revision (revisionCreate)
+import Models
 
 
 getPropertiesR :: Handler Html
@@ -62,8 +62,7 @@ getDeletePropertyR _id = do
 
 postDeletePropertyR :: PropertyId -> Handler Html
 postDeletePropertyR _id = do
-  runDB $ deleteWhere [TraitPropertyId ==. _id]
-  runDB $ delete _id
+  _ <- propertyDelete _id
   setMessage "Deleted property"
   redirect PropertiesR
 
