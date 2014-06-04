@@ -1,11 +1,14 @@
 module Handler.Theorems where
 
 import Import
+import qualified Data.Set as S
+import Prelude (head)
 
 import Explore (checkTheorem)
 import Form.Theorems
 import Handler.Partials (linkedTheoremName, theoremName, traitName, revisionList)
 import Handler.Helpers
+import Logic (counterexamples)
 import Models
 
 
@@ -36,11 +39,19 @@ postCreateTheoremR = do
   ((result, widget), enctype) <- runFormPost createTheoremForm
   case result of
     FormSuccess theorem -> do
-      _id <- runDB $ insert theorem
-      _ <- revisionCreate $ Entity _id theorem
-      queueCheckTheorem _id
-      setMessage "Created theorem"
-      redirect $ TheoremR _id
+      cxs <- counterexamples . theoremImplication $ theorem
+      if S.null cxs
+        then do
+          _id <- runDB $ insert theorem
+          _ <- revisionCreate $ Entity _id theorem
+          queueCheckTheorem _id
+          setMessage "Created theorem"
+          redirect $ TheoremR _id
+        else do
+          -- TODO: better way to do this include?
+          let baseW = $(widgetFile "theorems/new")
+          let cx = head . S.toList $ cxs
+          render "New Theorem" $(widgetFile "theorems/counterexamples")
     _ -> render "New Theorem" $(widgetFile "theorems/new")
 
 getEditTheoremR :: TheoremId -> Handler Html
