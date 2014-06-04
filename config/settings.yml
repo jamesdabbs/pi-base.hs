@@ -15,5 +15,5 @@ Staging:
   <<: *defaults
 
 Production:
-  #approot: "http://www.example.com"
   <<: *defaults
+  approot: "http://secret-headland-8915.herokuapp.com"
