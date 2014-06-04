@@ -26,14 +26,14 @@ getTraitsR = do
   total <- runDB $ count ([] :: [Filter Trait])
   render "Traits" $(widgetFile "traits/index")
 
-getCreateTraitR :: Handler Html
-getCreateTraitR = do
-  (widget, enctype) <- generateFormPost createTraitForm
+getCreateTraitR :: SpaceId -> Handler Html
+getCreateTraitR sid = do
+  (widget, enctype) <- generateFormPost $ createTraitForm sid
   render "New Trait" $(widgetFile "traits/new")
 
-postCreateTraitR :: Handler Html
-postCreateTraitR = do
-  ((result, widget), enctype) <- runFormPost createTraitForm
+postCreateTraitR :: SpaceId -> Handler Html
+postCreateTraitR sid = do
+  ((result, widget), enctype) <- runFormPost $ createTraitForm sid
   case result of
     FormSuccess trait -> do
       existing <- runDB . getBy $ TraitSP (traitSpaceId trait) (traitPropertyId trait)

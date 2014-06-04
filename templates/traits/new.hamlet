@@ -1,2 +1,2 @@
-<form.form.form-horizontal.form-markdown role=form method=post action=@{CreateTraitR} enctype=#{enctype}>
+<form.form.form-horizontal.form-markdown role=form method=post action=@{CreateTraitR sid} enctype=#{enctype}>
   ^{widget}

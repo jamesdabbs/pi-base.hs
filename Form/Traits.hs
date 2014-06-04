@@ -10,10 +10,10 @@ import Control.Applicative ((<*))
 import Data.Time (getCurrentTime)
 import Yesod.Form.Bootstrap3
 
-createTraitForm :: Html -> MForm Handler (FormResult Trait, Widget)
-createTraitForm = renderBootstrap3 fLayout $ Trait
-  <$> areq spaceField    (fs "Space")       Nothing
-  <*> areq propertyField (fs "Property")    Nothing
+createTraitForm :: SpaceId -> Html -> MForm Handler (FormResult Trait, Widget)
+createTraitForm sid = renderBootstrap3 fLayout $ Trait
+  <$> pure sid
+  <*> areq (propertyField sid) (fs "Property") Nothing
   <*> areq valueField    (fs "Value")       Nothing
   <*> areq textareaField (fs "Description") Nothing
   <*> lift (liftIO getCurrentTime)

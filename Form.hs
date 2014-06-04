@@ -1,6 +1,5 @@
 module Form
-( spaceField
-, propertyField
+( propertyField
 , valueField
 , formulaField
 , fs
@@ -9,30 +8,21 @@ module Form
 ) where
 
 import Import
+import Model.Space (spaceUnknownProperties)
 import Util (encodeText, decodeText)
 
 import Yesod.Form.Bootstrap3
 
 
-choices :: (PersistEntity val, YesodPersist site, RenderMessage site msg,
-  PersistQuery (YesodPersistBackend site (HandlerT site IO)),
-  PersistEntityBackend val
-  ~ PersistMonadBackend
-    (YesodPersistBackend site (HandlerT site IO))) =>
-  EntityField val typ
-  -> (val -> msg) -> HandlerT site IO (OptionList (Key val))
-choices order display = do
-  entities <- runDB $ selectList [] [Asc order]
-  optionsPairs $ map (\s -> (display $ entityVal s, entityKey s)) entities
-
-spaceField :: Field Handler SpaceId
-spaceField = selectField (choices SpaceName spaceName)
-
-propertyField :: Field Handler PropertyId
-propertyField = selectField (choices PropertyName propertyName)
+propertyField :: SpaceId -> Field Handler PropertyId
+propertyField sid = selectField $ do
+  available <- spaceUnknownProperties sid
+  optionsPairs $ map (\(Entity _id p) -> (propertyName p, _id)) available
 
 valueField :: Field Handler TValueId
-valueField = selectField (choices TValueId tValueName)
+valueField = selectField $ do
+  entities <- runDB $ selectList [] [Asc TValueId]
+  optionsPairs $ map (\(Entity _id v) -> (tValueName v, _id)) entities
 
 parseFormula :: Text -> Either FormMessage (Formula Int64)
 parseFormula t = case decodeText t of

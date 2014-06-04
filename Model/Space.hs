@@ -1,6 +1,7 @@
 module Model.Space
 ( spaceTraitMap
 , spaceManualTraits
+, spaceUnknownProperties
 , spaceDelete
 ) where
 
@@ -20,6 +21,12 @@ spaceManualTraits :: SpaceId -> Handler [TraitId]
 spaceManualTraits _id = do
   traits <- runDB $ selectList [TraitSpaceId ==. _id, TraitDeduced ==. False] []
   return . map entityKey $ traits
+
+spaceUnknownProperties :: SpaceId -> Handler [Entity Property]
+spaceUnknownProperties _id = do
+  knownTraits <- runDB $ selectList [TraitSpaceId ==. _id] []
+  let knownProperties = map (traitPropertyId . entityVal) knownTraits
+  runDB $ selectList [PropertyId /<-. knownProperties] []
 
 spaceDelete :: SpaceId -> Handler ()
 spaceDelete _id = do

@@ -1,5 +1,3 @@
-<a.btn.btn-default href=@{CreateTraitR}>New
-
 <h1>#{plural total "Traits" "Trait"}
 ^{pageWidget}
 <dl>
