@@ -22,6 +22,11 @@ queueCheckTheorem _id = do
 theoremTitle :: Theorem -> Text
 theoremTitle _ = "Theorem"
 
+searchHelp :: Widget
+searchHelp = do
+  let s = SpaceR . Key . PersistInt64
+  $(widgetFile "search/help")
+
 
 getTheoremsR :: Handler Html
 getTheoremsR = do

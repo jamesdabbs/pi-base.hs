@@ -1,2 +1,4 @@
+^{searchHelp}
+
 <form.form.form-horizontal.form-markdown role=form method=post action=@{CreateTheoremR} enctype=#{enctype}>
   ^{widget}

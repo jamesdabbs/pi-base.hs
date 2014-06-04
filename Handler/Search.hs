@@ -9,6 +9,11 @@ import Handler.Partials (linkedFormula)
 import Logic (matches)
 import Util (decodeText)
 
+searchHelp :: Widget
+searchHelp = do
+  let s = SpaceR . Key . PersistInt64
+  $(widgetFile "search/help")
+
 parseFormula :: Text -> Handler (Maybe (Formula (Entity Property)))
 parseFormula _ = do
   mp <- runDB $ selectFirst [] []
@@ -34,7 +39,8 @@ getSearchR = do
       case mf of
         Nothing -> do
           render "Search" $(widgetFile "search/malformed")
-        Just f' -> do
+        Just f'' -> do
+          let f' = fmap (Key . PersistInt64) f''
           spaceIds <- matches Yes f'
           let total = S.size spaceIds
           (spaces, pageWidget) <- paged 10 [SpaceId <-. (S.toList spaceIds)] [Asc SpaceName]

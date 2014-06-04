@@ -18,7 +18,7 @@ Revision sql=revisions
   body Text
   userId UserId
   createdAt UTCTime
-  delete Bool default=False
+  deletes Bool default=False
 
 ValueSet sql=value_sets
   name Text
@@ -57,11 +57,11 @@ Trait json sql=traits
   TraitSP spaceId propertyId
 
 Theorem json sql=theorems
+  antecedent (Formula Int64)
+  consequent (Formula Int64)
   description Textarea
   createdAt UTCTime
   updatedAt UTCTime
-  antecedent (Formula Int64)
-  consequent (Formula Int64)
 
 -- This table is here simply to make it easier to
 --   execute the common "what theorems involve this

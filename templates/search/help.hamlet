@@ -1,0 +1,16 @@
+<.alert.alert-info>
+  Formula input is under construction. For now, all input must be JSON formatted like so -
+
+  <h5> Conjunctions
+  <pre> { "and": [ ... ] }
+
+  <h5> Disjunctions
+  <pre> { "or": [ ... ] }
+
+  <h5> Atoms
+  <pre> { propertyId: valueId }
+
+  For example, you can specify <a href=@{s 16}>Compact</a> (id 16), <a href=@{s 36}>Connected</a> (id 36), non-<a href=@{s 53}>Metrizable</a> spaces with
+
+  <a href="search?q=%7B&quot;and&quot;%3A+%5B+%7B&quot;16&quot;%3A+1%7D%2C+%7B&quot;36&quot;%3A+1%7D%2C+%7B&quot;53&quot;%3A+2%7D+%5D+%7D">
+    <pre> {"and": [ {"16": 1}, {"36": 1}, {"53": 2} ] }

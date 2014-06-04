@@ -47,7 +47,7 @@ revisionCreate' del (Entity _id obj) = do
     , revisionBody = encodeText obj
     , revisionUserId = auth
     , revisionCreatedAt = now
-    , revisionDelete = del
+    , revisionDeletes = del
     }
 
 revisionCreate :: (Revisable a) => Entity a -> Handler RevisionId

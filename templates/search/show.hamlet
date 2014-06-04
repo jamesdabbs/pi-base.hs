@@ -1,3 +1,5 @@
+^{searchHelp}
+
 <form.form.form-horizontal.form-search role=form action=@{SearchR}>
   <.form-group.required>
     <.col-md-8>
