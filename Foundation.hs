@@ -25,7 +25,7 @@ import Control.Monad (unless, void)
 import Control.Monad.Logger (runStderrLoggingT)
 import Data.Text
 import Rollbar
-import System.Environment (getEnv)
+import System.Environment (lookupEnv)
 
 
 -- | The site argument for your application. This can be a good place to
@@ -130,9 +130,11 @@ instance Yesod App where
 
     errorHandler err@(InternalError e) = do
       app <- getYesod
-      rollbarToken <- liftIO $ getEnv "ROLLBAR_ACCESS_TOKEN"
-      unless development $ void $ liftIO $ forkIO $ runStderrLoggingT $
-        rollbarLogger (pack rollbarToken) "errorHandler" $logWarnS e
+      mTok <- liftIO $ lookupEnv "ROLLBAR_ACCESS_TOKEN"
+      case mTok of
+        Nothing -> return ()
+        Just rollbarToken -> unless development $ void $ liftIO $ forkIO $ runStderrLoggingT $
+                               rollbarLogger (pack rollbarToken) "errorHandler" $logWarnS e
       defaultErrorHandler err
     errorHandler err = defaultErrorHandler err
 
