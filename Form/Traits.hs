@@ -19,7 +19,7 @@ createTraitForm = renderBootstrap3 fLayout $ Trait
   <*> lift (liftIO getCurrentTime)
   <*> lift (liftIO getCurrentTime)
   <*> pure False
-  <*  bootstrapSubmit ("Save" :: BootstrapSubmit Text)
+  <*  save
 
 updateTraitForm :: Trait -> Html -> MForm Handler (FormResult Trait, Widget)
 updateTraitForm t = renderBootstrap3 fLayout $ Trait
@@ -30,4 +30,4 @@ updateTraitForm t = renderBootstrap3 fLayout $ Trait
   <*> pure (traitCreatedAt t)
   <*> lift (liftIO getCurrentTime)
   <*> pure (traitDeduced t)
-  <* bootstrapSubmit ("Save" :: BootstrapSubmit Text)
+  <*  save

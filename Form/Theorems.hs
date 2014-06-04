@@ -10,10 +10,6 @@ import Control.Applicative ((<*))
 import Data.Time (getCurrentTime)
 import Yesod.Form.Bootstrap3
 
--- FIXME: add validation / coercion
-formulaField :: Field Handler (Formula Int64)
-formulaField = undefined
-
 createTheoremForm :: Html -> MForm Handler (FormResult Theorem, Widget)
 createTheoremForm = renderBootstrap3 fLayout $ Theorem
   <$> areq textareaField (fs "Description") Nothing
@@ -21,7 +17,7 @@ createTheoremForm = renderBootstrap3 fLayout $ Theorem
   <*> lift (liftIO getCurrentTime)
   <*> areq formulaField (fs "Antecedent") Nothing
   <*> areq formulaField (fs "Consequent") Nothing
-  <*  bootstrapSubmit ("Save" :: BootstrapSubmit Text)
+  <*  save
 
 updateTheoremForm :: Theorem -> Html -> MForm Handler (FormResult Theorem, Widget)
 updateTheoremForm t = renderBootstrap3 fLayout $ Theorem
@@ -30,4 +26,4 @@ updateTheoremForm t = renderBootstrap3 fLayout $ Theorem
   <*> lift (liftIO getCurrentTime)
   <*> pure (theoremAntecedent t)
   <*> pure (theoremConsequent t)
-  <* bootstrapSubmit ("Save" :: BootstrapSubmit Text)
+  <*  save

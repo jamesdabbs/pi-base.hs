@@ -17,7 +17,7 @@ createSpaceForm = renderBootstrap3 fLayout $ Space
   <*> lift (liftIO getCurrentTime)
   <*> lift (liftIO getCurrentTime)
   <*> aopt textareaField (fs "Proof of Topology") Nothing
-  <*  bootstrapSubmit ("Save" :: BootstrapSubmit Text)
+  <*  save
 
 updateSpaceForm :: Space -> Html -> MForm Handler (FormResult Space, Widget)
 updateSpaceForm s = renderBootstrap3 fLayout $ Space
@@ -26,4 +26,4 @@ updateSpaceForm s = renderBootstrap3 fLayout $ Space
   <*> pure (spaceCreatedAt s)
   <*> lift (liftIO getCurrentTime)
   <*> aopt textareaField (fs "Proof of Topology") (Just $ spaceProofOfTopology s)
-  <* bootstrapSubmit ("Save" :: BootstrapSubmit Text)
+  <*  save

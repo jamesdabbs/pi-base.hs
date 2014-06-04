@@ -13,7 +13,7 @@ $(function() {
   });
 
   // TODO: I'd really like a better way of specifiying this
-  //   on a field-by-field basis
+  //   on a field-by-field basis, but Yesod.Bootstrap3 doesn't seem to expose this
   $(".form-markdown textarea").each(function(i, el) {
     var $el = $(el);
     var $preview = $("<div class='well'></div>");

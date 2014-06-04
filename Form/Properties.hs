@@ -25,7 +25,7 @@ createPropertyForm = renderBootstrap3 fLayout $ Property
   <*> lift (boolean)
   <*> lift (liftIO getCurrentTime)
   <*> lift (liftIO getCurrentTime)
-  <*  bootstrapSubmit ("Save" :: BootstrapSubmit Text)
+  <*  save
 
 updatePropertyForm :: Property -> Html -> MForm Handler (FormResult Property, Widget)
 updatePropertyForm p = renderBootstrap3 fLayout $ Property
@@ -34,4 +34,4 @@ updatePropertyForm p = renderBootstrap3 fLayout $ Property
   <*> pure (propertyValueSetId p)
   <*> pure (propertyCreatedAt p)
   <*> lift (liftIO getCurrentTime)
-  <* bootstrapSubmit ("Save" :: BootstrapSubmit Text)
+  <*  save
