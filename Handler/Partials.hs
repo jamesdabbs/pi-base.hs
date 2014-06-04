@@ -42,9 +42,10 @@ andW, orW :: Widget
 andW = [whamlet|\ & |]
 orW  = [whamlet|\ | |]
 
--- FIXME: strip trailing space
 enclose :: Widget -> Widget
-enclose w = [whamlet|( ^{w})|]
+enclose w = [whamlet|
+$newline never
+(^{w})|]
 
 formulaWidget :: (a -> Bool -> Widget) -> Formula a -> Widget
 formulaWidget r (And  sf ) = enclose . widgetJoin andW $ map (formulaWidget r) sf
@@ -57,7 +58,9 @@ renderTheorem f theorem = do
   props <- handlerToWidget . runDB $ selectList [PropertyId <-. (S.toList $ implicationProperties i)] []
   let _lookup = M.fromList . map (\p -> (entityKey p, p)) $ props
   let f' = f . (M.!) _lookup
-  [whamlet|^{formulaWidget f' ant} ⇒ ^{formulaWidget f' cons}|]
+  [whamlet|
+$newline never
+^{formulaWidget f' ant} ⇒ ^{formulaWidget f' cons}|]
 
 atomName :: Property -> Bool -> Text
 atomName p True = propertyName p
@@ -65,10 +68,14 @@ atomName p False = "¬" <> (propertyName p)
 
 theoremName :: Theorem -> Widget
 theoremName = renderTheorem $ \(Entity _ p) v ->
-  [whamlet|<span>#{atomName p v}|]
+  [whamlet|
+$newline never
+<span>#{atomName p v}|]
 
 linkedAtom :: (Entity Property) -> Bool -> Widget
-linkedAtom (Entity _id p) v = [whamlet|<a href=@{PropertyR _id}>#{atomName p v}|]
+linkedAtom (Entity _id p) v = [whamlet|
+$newline never
+<a href=@{PropertyR _id}>#{atomName p v}|]
 
 linkedTheoremName :: Theorem -> Widget
 linkedTheoremName = renderTheorem linkedAtom

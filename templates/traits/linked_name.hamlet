@@ -1,3 +1,4 @@
+$newline never
 <span>
   <a href=@{SpaceR $ traitSpaceId trait}>#{spaceName space}
   :
