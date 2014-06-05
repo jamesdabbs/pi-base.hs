@@ -1,6 +1,7 @@
 // TODO: rollbar monitor for errors
 $(function() {
-  var nameMap = {};
+  var nameMap = {}
+    , idMap = {};
 
   var $q = $('input[name=q]')
     , $preview = $('<pre></pre>');
@@ -48,6 +49,19 @@ $(function() {
     }
   }
 
+  var lighten = function(f) {
+    if (f.and) {
+      return "{and: [" + _.map(f.and, lighten).join(", ") + "]}";
+    } else if (f.or) {
+      return "{or: [" + _.map(f.or, lighten).join(", ") + "]}";
+    } else {
+      var kv = _.pairs(f)[0]
+        , prefix = kv[1] ? "" : "~";
+      return prefix + idMap[""+kv[0]];
+    }
+  }
+  // $q.val(lighten($q.val()));
+
   var renderPreview = function() {
     if (!nameMap) return;
     var contents = parse($q.val());
@@ -56,9 +70,15 @@ $(function() {
 
   $.get("@{PropertiesNamesR}", function(data) {
     _.each(data, function(id, name) {
-      // TODO: error if we have a key collision
-      nameMap[canonicalizeName(name)] = id;
+      var cName = canonicalizeName(name);
+      if (nameMap[cName]) {
+        throw "Name " + cName + " already present";
+      };
+      nameMap[cName] = id;
+      idMap[id] = cName;
     });
+
+    $q.val(lighten(JSON.parse($q.val())));
     renderPreview();
   });
 
