@@ -18,7 +18,7 @@ checkTrait desc _id = runQueue desc [_id]
 
 checkSpace :: Text -> SpaceId -> Handler Int
 checkSpace desc _id = do
-  traitIds <- spaceManualTraits _id
+  traitIds <- spaceTraits _id
   runQueue desc traitIds
 
 checkTheorem :: Text -> TheoremId -> Handler Int
