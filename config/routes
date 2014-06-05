@@ -15,6 +15,7 @@
 /spaces/#SpaceId/traits/new CreateTraitR    GET POST
 
 /properties                       PropertiesR        GET
+/properties/!names                PropertiesNamesR   GET
 /properties/!new                  CreatePropertyR    GET POST
 /properties/#PropertyId           PropertyR          GET POST
 /properties/#PropertyId/edit      EditPropertyR      GET

@@ -6,6 +6,7 @@ module DB
 , supportedTraits
 , deleteWithConsequences
 , flushDeductions
+, pluck
 ) where
 
 import Import hiding ((==.), (!=.), delete)
@@ -113,3 +114,9 @@ flushDeductions = do
     from $ \(table) ->
     where_ (table ^. TraitDeduced ==. (val True))
   return ()
+
+-- TODO: type signature
+pluck f = do
+  ents <- runDB $ selectList [] []
+  return . map (f . entityVal) $ ents
+

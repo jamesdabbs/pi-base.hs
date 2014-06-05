@@ -2,6 +2,7 @@ module Handler.Properties where
 
 import Import
 
+import DB (pluck)
 import Form.Properties
 import Handler.Helpers
 import Handler.Partials (filteredTraits, revisionList)
@@ -13,6 +14,11 @@ getPropertiesR = do
   (properties, pageWidget) <- paged 10 [] [Asc PropertyName]
   total <- runDB $ count ([] :: [Filter Property])
   render "Properties" $(widgetFile "properties/index")
+
+getPropertiesNamesR :: Handler Value
+getPropertiesNamesR = do
+  names <- pluck propertyName
+  returnJson names
 
 getCreatePropertyR :: Handler Html
 getCreatePropertyR = do
