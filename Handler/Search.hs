@@ -14,11 +14,6 @@ searchHelp = do
   let s = SpaceR . Key . PersistInt64
   $(widgetFile "search/help")
 
-parseFormula :: Text -> Handler (Maybe (Formula (Entity Property)))
-parseFormula _ = do
-  mp <- runDB $ selectFirst [] []
-  return $ fmap (\p -> Atom p True) mp
-
 formulaLookup :: Formula PropertyId -> Handler (Formula (Entity Property))
 formulaLookup f = do
   let pids = S.toList . formulaProperties $ f

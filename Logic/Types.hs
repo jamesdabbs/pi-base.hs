@@ -49,8 +49,7 @@ valueIdToBool 2 = False
 valueIdToBool _ = error "Unrecognized value"
 
 instance FromJSON (Formula Int64) where
-  parseJSON (Object v) = do
-    case head . M.toList $ v of
+  parseJSON (Object v) = case head . M.toList $ v of
       ("and", val) -> do
         ands <- parseJSON val
         return $ And ands
@@ -59,6 +58,8 @@ instance FromJSON (Formula Int64) where
         return $ Or ors
       (key, Number valId) -> do
         return $ Atom (read . unpack $ key) (valueIdToBool . round $ valId)
+      (key, Bool b) -> do
+        return $ Atom (read . unpack $ key) b
       _ -> mzero
   parseJSON _ = mzero
 
