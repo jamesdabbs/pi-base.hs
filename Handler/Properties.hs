@@ -2,7 +2,6 @@ module Handler.Properties where
 
 import Import
 
-import DB (pluck)
 import Form.Properties
 import Handler.Helpers
 import Handler.Partials (filteredTraits, revisionList)
@@ -17,8 +16,8 @@ getPropertiesR = do
 
 getPropertiesNamesR :: Handler Value
 getPropertiesNamesR = do
-  names <- pluck propertyName
-  returnJson names
+  properties <- runDB $ selectList [] []
+  returnJson . object . map (\(Entity _id p) -> (propertyName p, toJSON _id)) $ properties
 
 getCreatePropertyR :: Handler Html
 getCreatePropertyR = do
