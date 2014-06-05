@@ -1,0 +1,9 @@
+$(function() {
+  var findInput = function(label) {
+    var $label = $("label:contains('" + label + "')");
+    return $label.siblings().find("input");
+  };
+
+  window.piBase.formulaInput(findInput("Antecedent"));
+  window.piBase.formulaInput(findInput("Consequent"));
+});

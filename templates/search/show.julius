@@ -1,0 +1,5 @@
+$(function() {
+  var $q = $('input[name=q]');
+
+  window.piBase.formulaInput($q);
+});

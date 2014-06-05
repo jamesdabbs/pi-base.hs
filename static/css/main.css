@@ -13,3 +13,15 @@ body {
 #footer {
   height: 30px;
 }
+
+.js .js-fallback {
+  display: none;
+}
+
+.no-js .js-only {
+  display: none;
+}
+
+.clickable {
+  cursor: pointer;
+}
