@@ -1,0 +1,71 @@
+// TODO: rollbar monitor for errors
+$(function() {
+  var nameMap = {};
+
+  var $q = $('input[name=q]')
+    , $preview = $('<pre></pre>');
+  // $q.after($preview);
+
+  var closeParens = function(str) {
+    var stack = [], el;
+    _.map(str, function(c) {
+      if (c == '{') {
+        stack.push('}');
+      } else if (c == '[') {
+        stack.push(']');
+      } else if (c == '}' || c == ']') {
+        stack.pop();
+      }
+    });
+    while (el = stack.pop()) {
+      str += el;
+    }
+    return str;
+  };
+
+  var parse = function(str) {
+    return jsonlite.parse(closeParens(str));
+  };
+
+  var canonicalizeName = function(name) {
+    return name.toLowerCase().replace(/[${}\(\)\\\s]/g, '');
+  };
+
+  var lookupProps = function(f) {
+    if (f.and) {
+      return {and: _.map(f.and, lookupProps)};
+    } else if (f.or) {
+      return {or: _.map(f.or, lookupProps)};
+    } else {
+      // TODO: fuzzy match, make suggestions if missing
+      var atom = {};
+      if (f[0] == "~" || f[0] == "-" || f[0] == "¬") {
+        atom[ nameMap[canonicalizeName(f.slice(1, f.length))] ] = false;
+      } else {
+        atom[ nameMap[canonicalizeName(f)] ] = true;
+      };
+      return atom;
+    }
+  }
+
+  var renderPreview = function() {
+    if (!nameMap) return;
+    var contents = parse($q.val());
+    $preview.html(JSON.stringify(lookupProps(contents), null, 2));
+  };
+
+  $.get("@{PropertiesNamesR}", function(data) {
+    _.each(data, function(id, name) {
+      // TODO: error if we have a key collision
+      nameMap[canonicalizeName(name)] = id;
+    });
+    renderPreview();
+  });
+
+  $q.keyup(_.debounce(renderPreview, 500));
+
+  $q.closest('form').submit(function() {
+    var corrected = lookupProps(parse($q.val()));
+    $q.val(JSON.stringify(corrected));
+  });
+});

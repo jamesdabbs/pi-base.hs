@@ -38,6 +38,7 @@ $newline never
               displayMath: [ ['$$','$$'], ["\\[","\\]"] ],
             }
           });
+        <script src="/static/js/jsonlite.js">
 
     <body>
       <#wrap>
