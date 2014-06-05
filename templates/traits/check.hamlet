@@ -5,10 +5,5 @@
 $if null traits
   <p>No new traits found.
 $else
-  $# TODO: pluralize
-  <p>Found #{length traits} new traits.
-  <ul>
-    $forall (Entity tid t) <- traits
-      $# FIXME: n+1
-      <li>
-        <a href=@{TraitR tid}>^{traitName t}
+  <p>Found #{plural (length traits) "new traits" "new trait"}.
+  ^{linkedTraitList traits}

@@ -6,6 +6,7 @@ module Handler.Partials
 , linkedFormula
 , filteredTraits
 , revisionList
+, linkedTraitList
 ) where
 
 import Import
@@ -99,3 +100,6 @@ revisionList :: (Revisable a) => Entity a -> Widget
 revisionList e = do
   revs <- handlerToWidget . revisions $ e
   $(widgetFile "revisions/_list")
+
+linkedTraitList :: [Entity Trait] -> Widget
+linkedTraitList traits = $(widgetFile "traits/_linked_list")

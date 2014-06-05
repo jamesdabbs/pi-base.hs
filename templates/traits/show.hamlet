@@ -9,8 +9,4 @@
 
 $if not $ null consequences
   <p>Traits which depend on this fact
-  <ul>
-    $forall (Entity tid t) <- consequences
-      $# FIXME: n+1
-      <li>
-        <a href=@{TraitR tid}> ^{traitName t}
+  ^{linkedTraitList consequences}

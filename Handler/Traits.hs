@@ -5,7 +5,7 @@ import Import
 import DB (derivedTraits)
 import Explore (checkTrait, checkSpace)
 import Form.Traits
-import Handler.Partials (traitName, linkedTraitName, theoremName, revisionList)
+import Handler.Partials (traitName, linkedTraitName, theoremName, revisionList, linkedTraitList)
 import Handler.Helpers
 import Models
 
@@ -76,6 +76,7 @@ getTraitR _id = do
       assumedTraits  <- proofTraits  proofId
       assumedTheorem <- proofTheorem proof
       derived        <- derivedTraits _id
+      supports       <- traitSupport _id
       render (traitTitle trait) $(widgetFile "traits/show_deduced")
     False -> do
       consequences <- traitConsequences _id

@@ -4,10 +4,7 @@
 
 $if not $ null consequences
   <p>The following supported traits will also be deleted:
-  <ul>
-    $forall (Entity _id t) <- consequences
-      $# FIXME: n+1
-      <li> ^{traitName t}
+  ^{linkedTraitList consequences}
 
 <form method=post action=@{DeleteTraitR _id}>
   <button.btn.btn-danger> Delete

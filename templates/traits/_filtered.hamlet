@@ -4,14 +4,10 @@ $# - Add count badges to each tab
 $# - Better way to link_to here?
 <.clear>
   <.btn-group>
-    <a.btn.btn-default href="?traits=added"> Added
+    <a.btn.btn-default href="?traits=asserted"> Asserted
     <a.btn.btn-default href="?traits=deduced"> Deduced
     <a.btn.btn-default href="?traits=unproven"> Needing Proof
 
 ^{pageWidget}
 
-<ul>
-  $forall (Entity tid trait) <- traits
-    <li>
-      $# FIXME: n+1
-      <a href=@{TraitR tid}> ^{traitName trait}
+^{linkedTraitList traits}

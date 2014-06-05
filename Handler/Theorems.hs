@@ -6,7 +6,7 @@ import Prelude (head)
 
 import Explore (checkTheorem)
 import Form.Theorems
-import Handler.Partials (linkedTheoremName, theoremName, traitName, revisionList)
+import Handler.Partials (linkedTheoremName, theoremName, revisionList, linkedTraitList)
 import Handler.Helpers
 import Logic (counterexamples)
 import Models

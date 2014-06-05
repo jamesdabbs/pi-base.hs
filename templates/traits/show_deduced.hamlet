@@ -2,15 +2,15 @@
 
 <.well>
   <ul>
-    $# FIXME: n+1
-    $forall (Entity _ptid pt) <- assumedTraits
+    $# FIXME n+1
+    $forall (Entity _id t) <- assumedTraits
       <li>
-        <a href=@{TraitR _ptid}> ^{traitName pt}
+        <a href=@{TraitR _id}> ^{traitName t}
     <li>
       <a href=@{TheoremR $ proofTheoremId proof}> ^{theoremName $ entityVal assumedTheorem}
 
-<ul>
-  $# FIXME: n+1
-  $forall (Entity _dtid dt) <- derived
-    <li>
-      <a href=@{TraitR _dtid}> ^{traitName dt}
+<h5> Derived traits
+^{linkedTraitList derived}
+
+<h5> Supporting assertions
+^{linkedTraitList supports}
