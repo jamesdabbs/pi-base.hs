@@ -1,3 +1,5 @@
+<a href=@{UsersR}> View Users
+
 <form action=@{ExploreR} method=post>
   <button.btn.btn-default type=submit> Explore Theorems
 

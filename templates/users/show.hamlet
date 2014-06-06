@@ -1,0 +1,7 @@
+<h1> #{userIdent user}
+
+^{pageWidget}
+
+$forall (Entity _ r) <- revs
+  <h5> #{show $ revisionCreatedAt r}
+  <pre> #{revisionBody r}

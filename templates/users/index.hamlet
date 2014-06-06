@@ -1,0 +1,5 @@
+^{pageWidget}
+<ul>
+  $forall (Entity _id u) <- users
+    <li>
+      <a href=@{UserR _id}> #{userIdent u}

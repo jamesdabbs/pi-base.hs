@@ -1,8 +1,8 @@
 User sql=remote_users
     ident Text
-    password Text Maybe
     name Text Maybe
     admin Bool
+    createdAt UTCTime default=now()
     UniqueUser ident
     deriving Typeable
 
@@ -90,12 +90,3 @@ Assumption sql=assumptions
 Supporter sql=supporters
   assumedId TraitId
   impliedId TraitId
-
-Version sql=versions
-  itemType Text
-  itemId Int
-  event Text
-  whodunnit Text Maybe
-  object Text Maybe
-  createdAt UTCTime
-  objectChanges Text Maybe

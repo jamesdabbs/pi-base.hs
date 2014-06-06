@@ -41,3 +41,6 @@
 /admin/contradictions ContradictionsR POST
 /admin/explore        ExploreR        POST
 /admin/reset          ResetR          POST
+
+/users         UsersR GET
+/users/#UserId UserR  GET

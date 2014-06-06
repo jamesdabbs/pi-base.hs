@@ -46,6 +46,7 @@ library
                      Handler.Spaces
                      Handler.Theorems
                      Handler.Traits
+                     Handler.User
 
     if flag(dev) || flag(library-only)
         cpp-options:   -DDEVELOPMENT

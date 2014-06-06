@@ -24,6 +24,7 @@ import Control.Concurrent (forkIO)
 import Control.Monad (unless, void)
 import Control.Monad.Logger (runStderrLoggingT)
 import Data.Text
+import Data.Time (getCurrentTime)
 import Rollbar
 import System.Environment (lookupEnv)
 
@@ -127,6 +128,10 @@ instance Yesod App where
     isAuthorized ExploreR        _ = isAdmin
     isAuthorized ResetR          _ = isAdmin
 
+    -- Must be an admin to administrate users
+    isAuthorized  UsersR   _ = isAdmin
+    isAuthorized (UserR _) _ = isAdmin
+
     -- Must be logged in to create
     isAuthorized CreateSpaceR     _ = isLoggedIn
     isAuthorized CreatePropertyR  _ = isLoggedIn
@@ -205,11 +210,12 @@ instance YesodAuth App where
         case x of
             Just (Entity uid _) -> return $ Just uid
             Nothing -> do
+                now <- liftIO $ getCurrentTime
                 fmap Just $ insert User
                     { userIdent = credsIdent creds
-                    , userPassword = Nothing
                     , userName = Nothing
                     , userAdmin = False
+                    , userCreatedAt = now
                     }
 
     -- You can add other plugins like BrowserID, email or OAuth here
