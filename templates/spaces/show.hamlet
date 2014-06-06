@@ -12,4 +12,4 @@
     <.markdown>#{proof}
 
 <h3> Traits
-^{filteredTraits [TraitSpaceId ==. _id]}
+^{filteredTraits spaceTraitName [TraitSpaceId ==. _id]}

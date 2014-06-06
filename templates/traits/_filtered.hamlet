@@ -10,4 +10,8 @@ $# - Better way to link_to here?
 
 ^{pageWidget}
 
-^{linkedTraitList traits}
+<dl>
+  $forall lt@(_,(Entity _id t),_) <- traitTuples
+    <dt>
+      <a href=@{TraitR _id}> #{renderer lt}
+    <dd> #{preview $ traitDescription t}

@@ -17,7 +17,7 @@ import qualified Data.Map as M
 import qualified Data.Set as S
 
 import Models
-import Handler.Helpers (paged)
+import Handler.Helpers (paged, preview)
 
 
 traitTuple :: Trait -> Handler (Space, Property, TValue)
@@ -114,11 +114,31 @@ traitTab fs t = do
     then [whamlet|<a.btn.btn-default href="?traits=#{ttParam t}">#{ttLabel t} <span class="badge">#{n}</span>|]
     else [whamlet||]
 
-filteredTraits :: [Filter Trait] -> Widget
-filteredTraits fs = do
+-- IDEA:
+-- class Loadable m where
+--   type Loaded = Loaded m
+--   load :: [m] -> Handler [Loaded m]
+type ELTrait = (Entity Space, Entity Trait, Entity Property)
+
+getEntity _id = do
+  v <- runDB . get404 $ _id
+  return $ Entity _id v
+
+fetchOne et@(Entity _ t) = do
+  s <- getEntity $ traitSpaceId t
+  p <- getEntity $ traitPropertyId t
+  return (s,et,p)
+
+-- FIXME: n+1
+prefetchTraits :: [Entity Trait] -> Handler [ELTrait]
+prefetchTraits = mapM fetchOne
+
+filteredTraits :: (ELTrait -> Text) -> [Filter Trait] -> Widget
+filteredTraits renderer fs = do
   param <- lookupGetParam "traits"
   let tab = tabFromParam param
   (traits, pageWidget) <- handlerToWidget $ paged 10 (withTTFilter tab fs) []
+  traitTuples <- handlerToWidget $ prefetchTraits traits
   $(widgetFile "traits/_filtered")
 
 revisionList :: (Revisable a) => Entity a -> Widget

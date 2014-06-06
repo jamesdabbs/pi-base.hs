@@ -8,6 +8,11 @@ import Handler.Partials (filteredTraits, revisionList)
 import Models
 
 
+propertyTraitName :: (Entity Space, Entity Trait, Entity Property) -> Text
+propertyTraitName ((Entity _ s), (Entity _ t), _) = if traitValueBool t
+  then spaceName s <> " = True"
+  else spaceName s <> " = False"
+
 getPropertiesR :: Handler Html
 getPropertiesR = do
   (properties, pageWidget) <- paged 10 [] [Asc PropertyName]

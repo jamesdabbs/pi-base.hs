@@ -2,6 +2,7 @@ module Model.Trait
 ( traitConsequences
 , traitDelete
 , traitSupport
+, traitValueBool
 ) where
 
 import Import hiding ((==.))
@@ -27,3 +28,9 @@ traitSupport _id = runDB . select $
     on (traits ^. TraitId ==. supporters ^. SupporterAssumedId)
     where_ (supporters ^. SupporterImpliedId ==. val _id)
     return traits
+
+traitValueBool :: Trait -> Bool
+traitValueBool t = case traitValueId t of
+  Key (PersistInt64 1) -> True
+  Key (PersistInt64 2) -> False
+  _ -> error "Can't coerce traitValueId to Bool"
