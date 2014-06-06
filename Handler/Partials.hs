@@ -12,7 +12,7 @@ module Handler.Partials
 
 import Import
 
-import Data.List (intersperse)
+import Data.List (find, intersperse)
 import qualified Data.Map as M
 import qualified Data.Set as S
 
@@ -85,16 +85,40 @@ linkedTheoremName = renderTheorem linkedAtom
 linkedFormula :: Formula (Entity Property) -> Widget
 linkedFormula = formulaWidget linkedAtom
 
-paramToFilter :: Maybe Text -> [Filter Trait]
-paramToFilter param = case param of
-    (Just "deduced")  -> [TraitDeduced ==. True]
-    (Just "unproven") -> [TraitDeduced ==. False, TraitDescription ==. Textarea ""]
-    _                 -> [TraitDeduced ==. False]
+data TraitTab = TraitTab { ttParam :: Text, ttLabel :: Text, ttFilter :: [Filter Trait] }
+
+asserted, deduced, unproven :: TraitTab
+asserted = TraitTab
+  { ttParam = "asserted", ttLabel = "Asserted", ttFilter = [TraitDeduced ==. False] }
+deduced  = TraitTab
+  { ttParam = "deduced",  ttLabel = "Deduced",  ttFilter = [TraitDeduced ==. True] }
+unproven = TraitTab
+  { ttParam = "unproven", ttLabel = "Needing Proof"
+  , ttFilter = [TraitDeduced ==. False, TraitDescription ==. Textarea ""] }
+
+tabFromParam :: Maybe Text -> TraitTab
+tabFromParam p = case find match tabs of
+  Just t  -> t
+  Nothing -> asserted
+  where
+    tabs = [asserted, deduced, unproven]
+    match tab = p == (Just . ttParam $ tab)
+
+withTTFilter :: TraitTab -> [Filter Trait] -> [Filter Trait]
+withTTFilter tab fs = fs ++ (ttFilter tab)
+
+traitTab :: [Filter Trait] -> TraitTab -> Widget
+traitTab fs t = do
+  n <- handlerToWidget . runDB . count $ withTTFilter t fs
+  if n > 0
+    then [whamlet|<a.btn.btn-default href="?traits=#{ttParam t}">#{ttLabel t} <span class="badge">#{n}</span>|]
+    else [whamlet||]
 
 filteredTraits :: [Filter Trait] -> Widget
 filteredTraits fs = do
   param <- lookupGetParam "traits"
-  (traits, pageWidget) <- handlerToWidget $ paged 10 (paramToFilter param ++ fs) []
+  let tab = tabFromParam param
+  (traits, pageWidget) <- handlerToWidget $ paged 10 (withTTFilter tab fs) []
   $(widgetFile "traits/_filtered")
 
 revisionList :: (Revisable a) => Entity a -> Widget

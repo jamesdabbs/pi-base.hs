@@ -1,4 +1,7 @@
-<h1>#{plural total "Traits" "Trait"}
+<h1>
+  Traits
+  <span.badge>#{total}
+
 ^{pageWidget}
 <dl>
   $forall (Entity _id trait) <- traits
