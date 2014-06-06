@@ -50,7 +50,7 @@ postCreateTheoremR = do
           _id <- runDB $ insert theorem
           _ <- revisionCreate $ Entity _id theorem
           queueCheckTheorem _id
-          setMessage "Created theorem"
+          flash Success "Created theorem"
           redirect $ TheoremR _id
         else do
           -- TODO: better way to do this include?
@@ -73,7 +73,7 @@ postTheoremR _id = do
     FormSuccess updated -> do
       runDB $ replace _id updated
       _ <- revisionCreate $ Entity _id updated
-      setMessage "Updated theorem"
+      flash Success "Updated theorem"
       redirect $ TheoremR _id
     _ -> render ("Edit " <> theoremTitle theorem) $(widgetFile "theorems/edit")
 
@@ -91,7 +91,7 @@ getDeleteTheoremR _id = do
 postDeleteTheoremR :: TheoremId -> Handler Html
 postDeleteTheoremR _id = do
   _ <- theoremDelete _id
-  setMessage "Deleted theorem"
+  flash Warning "Deleted theorem"
   redirect TheoremsR
 
 getTheoremRevisionsR :: TheoremId -> Handler Html

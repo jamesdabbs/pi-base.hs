@@ -39,13 +39,13 @@ postCreateTraitR sid = do
       existing <- runDB . getBy $ TraitSP (traitSpaceId trait) (traitPropertyId trait)
       case existing of
         Just (Entity _id _) -> do
-          setMessage "Trait already exists"
+          flash Danger "Trait already exists"
           redirect $ TraitR _id
         Nothing -> do
           _id <- runDB $ insert trait
           _ <- revisionCreate $ Entity _id trait
           queueCheckTrait _id
-          setMessage "Created trait"
+          flash Success "Created trait"
           redirect $ TraitR _id
     _ -> render "New Trait" $(widgetFile "traits/new")
 
@@ -63,7 +63,7 @@ postTraitR _id = do
     FormSuccess updated -> do
       runDB $ replace _id updated
       _ <- revisionCreate $ Entity _id updated
-      setMessage "Updated trait"
+      flash Success "Updated trait"
       redirect $ TraitR _id
     _ -> render ("Edit " <> traitTitle trait) $(widgetFile "traits/edit")
 
@@ -96,7 +96,7 @@ postDeleteTraitR _id = do
     else do
       _ <- traitDelete _id
       _ <- checkSpace "postDeleteTraitR" (traitSpaceId trait)
-      setMessage "Deleted trait" -- TODO: show deleted / re-added counts
+      flash Warning "Deleted trait" -- TODO: show deleted / re-added counts
       redirect TraitsR
 
 getTraitRevisionsR :: TraitId -> Handler Html

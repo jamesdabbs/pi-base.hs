@@ -26,7 +26,7 @@ postCreateSpaceR = do
     FormSuccess space -> do
       _id <- runDB $ insert space
       _ <- revisionCreate $ Entity _id space
-      setMessage "Created space"
+      flash Success "Created space"
       redirect $ SpaceR _id
     _ -> render "New Space" $(widgetFile "spaces/new")
 
@@ -44,7 +44,7 @@ postSpaceR _id = do
     FormSuccess updated -> do
       runDB $ replace _id updated
       _ <- revisionCreate $ Entity _id updated
-      setMessage "Updated space"
+      flash Success "Updated space"
       redirect $ SpaceR _id
     _ -> render ("Edit " <> spaceName space) $(widgetFile "spaces/edit")
 
@@ -62,7 +62,7 @@ getDeleteSpaceR _id = do
 postDeleteSpaceR :: SpaceId -> Handler Html
 postDeleteSpaceR _id = do
   _ <- spaceDelete _id
-  setMessage "Deleted space"
+  flash Warning "Deleted space"
   redirect SpacesR
 
 getSpaceRevisionsR :: SpaceId -> Handler Html

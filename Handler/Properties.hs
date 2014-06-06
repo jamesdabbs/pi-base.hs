@@ -31,7 +31,7 @@ postCreatePropertyR = do
     FormSuccess property -> do
       _id <- runDB $ insert property
       _ <- revisionCreate $ Entity _id property
-      setMessage "Created property"
+      flash Success "Created property"
       redirect $ PropertyR _id
     _ -> render "New Property" $(widgetFile "properties/new")
 
@@ -50,7 +50,7 @@ postPropertyR _id = do
     FormSuccess updated -> do
       runDB $ replace _id updated
       _ <- revisionCreate $ Entity _id updated
-      setMessage "Updated property"
+      flash Success "Updated property"
       redirect $ PropertyR _id
     _ -> render ("Edit " <> propertyName property) $(widgetFile "properties/edit")
 
@@ -68,7 +68,7 @@ getDeletePropertyR _id = do
 postDeletePropertyR :: PropertyId -> Handler Html
 postDeletePropertyR _id = do
   _ <- propertyDelete _id
-  setMessage "Deleted property"
+  flash Warning "Deleted property"
   redirect PropertiesR
 
 getPropertyRevisionsR :: PropertyId -> Handler Html

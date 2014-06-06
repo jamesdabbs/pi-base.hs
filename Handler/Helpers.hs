@@ -4,6 +4,8 @@ module Handler.Helpers
 , plural
 , render
 , authButton
+, flash
+, FlashClass (..)
 ) where
 
 import Import
@@ -49,3 +51,9 @@ authButton route label = do
 $if can == Authorized
   <a.btn.btn-default href=@{route}>#{label}
 |]
+
+data FlashClass = Success | Info | Warning | Danger deriving (Show)
+
+-- TODO: is there any way to get the "you are now logged in" message styled?
+flash :: FlashClass -> Text -> Handler ()
+flash c msg = setMessage [shamlet|<.alert.alert-#{show c}>#{msg}|]

@@ -19,7 +19,7 @@ postExploreR :: Handler Html
 postExploreR = do
   theorems <- runDB $ selectList [] []
   mapM_ (checkTheorem "Checking all theorems" . entityKey) theorems
-  setMessage "Explored all theorems"
+  flash Success "Explored all theorems"
   redirect AdminR
 
 postContradictionsR :: Handler Html
@@ -33,8 +33,8 @@ postResetR :: Handler Html
 postResetR = do
 #ifdef DEVELOPMENT
   flushDeductions
-  setMessage "Reset deduced theorems"
+  flash Warning "Reset deduced theorems"
 #else
-  setMessage "Can only reset in development mode"
+  flash Danger "Can only reset in development mode"
 #endif
   redirect AdminR
