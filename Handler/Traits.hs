@@ -22,17 +22,19 @@ traitTitle _ = "Trait"
 
 getTraitsR :: Handler Html
 getTraitsR = do
-  (traits, pageWidget) <- paged 10 [] [Desc TraitUpdatedAt]
+  (traits, pageWidget) <- paged 25 [] [Desc TraitUpdatedAt]
   total <- runDB $ count ([] :: [Filter Trait])
   render "Traits" $(widgetFile "traits/index")
 
 getCreateTraitR :: SpaceId -> Handler Html
 getCreateTraitR sid = do
+  space <- runDB $ get404 sid
   (widget, enctype) <- generateFormPost $ createTraitForm sid
   render "New Trait" $(widgetFile "traits/new")
 
 postCreateTraitR :: SpaceId -> Handler Html
 postCreateTraitR sid = do
+  space <- runDB $ get404 sid
   ((result, widget), enctype) <- runFormPost $ createTraitForm sid
   case result of
     FormSuccess trait -> do
