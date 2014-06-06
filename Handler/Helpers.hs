@@ -3,13 +3,16 @@ module Handler.Helpers
 , preview
 , plural
 , render
+, authButton
 ) where
 
 import Import
 
 import qualified Data.Text as T
 
+import Database.Persist.Sql (SqlBackend)
 import Yesod.Paginator hiding (paginate)
+import Yesod.Routes.Class (Route)
 
 render :: Text -> Widget -> Handler Html
 render title w = defaultLayout $ do
@@ -31,9 +34,18 @@ plural 1 _ x = "1 " <> x
 plural n x _ = (T.pack $ show n) <> " " <> x
 
 -- TODO: why doesn't this type signature seem to work?
+paged :: (PersistEntity e, PersistEntityBackend e ~ SqlBackend) => Int -> [Filter e]  -> [SelectOpt e] -> Handler ([Entity e], Widget)
 paged size q f = runDB $ selectPaginatedWith paginationConfig size q f
 
 preview :: Textarea -> Text
 preview t = case T.lines . unTextarea $ t of
   (l:_) -> l
   _     -> ""
+
+authButton :: Route App -> Text -> Widget
+authButton route label = do
+  can <- handlerToWidget $ isAuthorized route False
+  [whamlet|
+$if can == Authorized
+  <a.btn.btn-default href=@{route}>#{label}
+|]

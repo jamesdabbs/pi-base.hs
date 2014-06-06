@@ -1,5 +1,5 @@
 <a.btn.btn-default href=@{EditTraitR _id}> Edit
-<a.btn.btn-default href=@{TraitRevisionsR _id}> Revisions
+^{authButton (TraitRevisionsR _id) "Revisions"}
 <a.btn.btn-default href=@{DeleteTraitR _id}> Delete
 
 <h1> ^{linkedTraitName trait}

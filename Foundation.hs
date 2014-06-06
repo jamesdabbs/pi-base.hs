@@ -58,6 +58,13 @@ mkYesodData "App" $(parseRoutesFile "config/routes")
 
 type Form x = Html -> MForm (HandlerT App IO) (FormResult x, Widget)
 
+isLoggedIn :: Handler AuthResult
+isLoggedIn = do
+  ma <- maybeAuth
+  return $ case ma of
+    Nothing -> AuthenticationRequired
+    _       -> Authorized
+
 isAdmin :: Handler AuthResult
 isAdmin = do
   ma <- maybeAuth
@@ -102,7 +109,37 @@ instance Yesod App where
     -- The page to be redirected to when authentication is required.
     authRoute _ = Just $ AuthR LoginR
 
-    -- TODO: allow writes to non-logic-related fields / resources
+    -- Must be an admin to delete
+    isAuthorized (DeleteSpaceR    _) _ = isAdmin
+    isAuthorized (DeletePropertyR _) _ = isAdmin
+    isAuthorized (DeleteTraitR    _) _ = isAdmin
+    isAuthorized (DeleteTheoremR  _) _ = isAdmin
+
+    -- Must be an admin to inspect revisions
+    isAuthorized (SpaceRevisionsR    _) _ = isAdmin
+    isAuthorized (PropertyRevisionsR _) _ = isAdmin
+    isAuthorized (TraitRevisionsR    _) _ = isAdmin
+    isAuthorized (TheoremRevisionsR  _) _ = isAdmin
+
+    -- Must be an admin for admin functions
+    isAuthorized AdminR          _ = isAdmin
+    isAuthorized ContradictionsR _ = isAdmin
+    isAuthorized ExploreR        _ = isAdmin
+    isAuthorized ResetR          _ = isAdmin
+
+    -- Must be logged in to create
+    isAuthorized CreateSpaceR     _ = isLoggedIn
+    isAuthorized CreatePropertyR  _ = isLoggedIn
+    isAuthorized CreateTheoremR   _ = isLoggedIn
+    isAuthorized (CreateTraitR _) _ = isLoggedIn
+
+    -- Must be logged in to edit
+    isAuthorized (EditSpaceR    _) _ = isLoggedIn
+    isAuthorized (EditPropertyR _) _ = isLoggedIn
+    isAuthorized (EditTraitR    _) _ = isLoggedIn
+    isAuthorized (EditTheoremR  _) _ = isLoggedIn
+
+    -- Must be an admin for any other write request
     isAuthorized _ True = isAdmin
     isAuthorized _ _    = return Authorized
 

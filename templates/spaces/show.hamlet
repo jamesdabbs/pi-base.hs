@@ -1,5 +1,5 @@
 <a.btn.btn-default href=@{EditSpaceR _id}> Edit
-<a.btn.btn-default href=@{SpaceRevisionsR _id}> Revisions
+^{authButton (SpaceRevisionsR _id) "Revisions"}
 <a.btn.btn-default href=@{CreateTraitR _id}> Add Trait
 
 <h1> #{spaceName space}

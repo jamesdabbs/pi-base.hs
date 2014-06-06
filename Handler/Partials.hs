@@ -1,3 +1,4 @@
+-- TODO: modularize
 module Handler.Partials
 ( traitName
 , linkedTraitName

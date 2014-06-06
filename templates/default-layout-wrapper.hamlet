@@ -63,7 +63,7 @@ $newline never
                   <a href=@{SearchR}> Search
 
               <ul.nav.navbar-nav.pull-right>
-                $maybe (Entity aid a) <- ma
+                $maybe (Entity _ a) <- ma
                   <li>
                     <a>#{userIdent a}
                   $if userAdmin a
