@@ -3,7 +3,7 @@ Default: &defaults
   port: 3000
   approot: "http://localhost:3000"
   copyright: © James Dabbs 2012-2014
-  #analytics: UA-YOURCODE
+  analytics: UA-40474239-1
 
 Development:
   <<: *defaults
@@ -16,4 +16,4 @@ Staging:
 
 Production:
   <<: *defaults
-  approot: "http://secret-headland-8915.herokuapp.com"
+  approot: "http://topology.jdabbs.com"
