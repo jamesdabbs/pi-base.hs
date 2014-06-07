@@ -6,5 +6,8 @@
 <.well>
   <.markdown>#{propertyDescription property}
 
+<h3> Theorems
+^{propertyTheoremsWidget _id}
+
 <h3> Traits
 ^{filteredTraits propertyTraitName [TraitPropertyId ==. _id]}

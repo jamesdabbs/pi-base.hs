@@ -60,6 +60,7 @@ Theorem json sql=theorems
   antecedent (Formula Int64)
   consequent (Formula Int64)
   description Textarea
+  converseIds [TheoremId] default='[]' -- [] for unknown
   createdAt UTCTime
   updatedAt UTCTime
 

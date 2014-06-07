@@ -6,3 +6,13 @@ $# This is borked <a.btn.btn-default href=@{DeleteTheoremR _id}> Delete
 
 <.well>
   <.markdown> #{theoremDescription theorem}
+
+<h5> Converse
+$if null converses
+  ^{theoremConverseCounterexamples theorem}
+$else
+  <p> This theorem's converse also holds:
+  <ul>
+    $forall (Entity cid c) <- converses
+      $# FIXME: n+1 (though n is small)
+      <a href=@{TheoremR cid}> ^{theoremName c}

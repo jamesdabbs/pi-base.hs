@@ -1,0 +1,5 @@
+<ul>
+  $forall (Entity _id t) <- theorems
+    <li>
+      $# FIXME: n+1
+      <a href=@{TheoremR _id}> ^{theoremName t}

@@ -4,9 +4,14 @@ import Import
 
 import Form.Properties
 import Handler.Helpers
-import Handler.Partials (filteredTraits, revisionList)
+import Handler.Partials (filteredTraits, revisionList, theoremName)
 import Models
 
+
+propertyTheoremsWidget :: PropertyId -> Widget
+propertyTheoremsWidget _id = do
+  theorems <- handlerToWidget $ propertyTheorems _id
+  $(widgetFile "properties/_theorems")
 
 propertyTraitName :: (Entity Space, Entity Trait, Entity Property) -> Text
 propertyTraitName ((Entity _ s), (Entity _ t), _) = if traitValueBool t

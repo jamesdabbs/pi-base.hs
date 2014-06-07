@@ -2,6 +2,7 @@ module Model.Theorem
 ( theoremConsequences
 , theoremDelete
 , theoremImplication
+, theoremConverses
 ) where
 
 import Import hiding ((==.))
@@ -35,3 +36,6 @@ theoremDelete _id = do
 
 theoremImplication :: Theorem -> Implication PropertyId
 theoremImplication t = (Key . PersistInt64) <$> Implication (theoremAntecedent t) (theoremConsequent t)
+
+theoremConverses :: Theorem -> Handler [Entity Theorem]
+theoremConverses t = runDB $ selectList [TheoremId <-. theoremConverseIds t] []

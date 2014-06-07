@@ -8,7 +8,7 @@ import Explore (checkTheorem)
 import Form.Theorems
 import Handler.Partials (linkedTheoremName, theoremName, revisionList, linkedTraitList)
 import Handler.Helpers
-import Logic (counterexamples)
+import Logic (counterexamples, converse)
 import Models
 
 
@@ -27,6 +27,12 @@ searchHelp = do
   let s = SpaceR . Key . PersistInt64
   $(widgetFile "search/help")
 
+theoremConverseCounterexamples :: Theorem -> Widget
+theoremConverseCounterexamples theorem = do
+  cxids <- handlerToWidget . counterexamples . converse $ theoremImplication theorem
+  let total = S.size cxids
+  cxs <- handlerToWidget . runDB $ selectList [SpaceId <-. S.toList cxids] [LimitTo 5]
+  $(widgetFile "theorems/_converse_counterexamples")
 
 getTheoremsR :: Handler Html
 getTheoremsR = do
@@ -80,6 +86,7 @@ postTheoremR _id = do
 getTheoremR :: TheoremId -> Handler Html
 getTheoremR _id = do
   theorem <- runDB $ get404 _id
+  converses <- theoremConverses theorem
   render (theoremTitle theorem) $(widgetFile "theorems/show")
 
 getDeleteTheoremR :: TheoremId -> Handler Html

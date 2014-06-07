@@ -15,6 +15,7 @@ createTheoremForm = renderBootstrap3 fLayout $ Theorem
   <$> areq formulaField (fs "Antecedent") Nothing
   <*> areq formulaField (fs "Consequent") Nothing
   <*> areq textareaField (fs "Description") Nothing
+  <*> pure []
   <*> lift (liftIO getCurrentTime)
   <*> lift (liftIO getCurrentTime)
   <*  save
@@ -24,6 +25,7 @@ updateTheoremForm t = renderBootstrap3 fLayout $ Theorem
   <$> pure (theoremAntecedent t)
   <*> pure (theoremConsequent t)
   <*> areq textareaField (fs "Description") (Just $ theoremDescription t)
+  <*> pure (theoremConverseIds t)
   <*> pure (theoremCreatedAt t)
   <*> lift (liftIO getCurrentTime)
   <*  save
