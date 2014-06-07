@@ -8,6 +8,7 @@ module Handler.Partials
 , filteredTraits
 , revisionList
 , linkedTraitList
+, traitAtomName
 ) where
 
 import Import
@@ -20,20 +21,20 @@ import Models
 import Handler.Helpers (paged, preview)
 
 
-traitTuple :: Trait -> Handler (Space, Property)
-traitTuple trait = do
-  s <- runDB . get404 . traitSpaceId $ trait
-  p <- runDB . get404 . traitPropertyId $ trait
-  return (s,p)
+traitAtomName :: Trait -> Widget
+traitAtomName trait = do
+  property <- handlerToWidget . runDB . get404 . traitPropertyId $ trait
+  [whamlet|#{atomName property $ traitValueBool trait}|]
 
 traitName :: Trait -> Widget
 traitName trait = do
-  (s,p) <- handlerToWidget . traitTuple $ trait
-  [whamlet|<span>#{spaceName s}: #{atomName p $ traitValueBool trait}|]
+  space <- handlerToWidget . runDB . get404 . traitSpaceId $ trait
+  [whamlet|<span>#{spaceName space}: ^{traitAtomName trait}|]
 
 linkedTraitName :: Trait -> Widget
 linkedTraitName trait = do
-  (space, property) <- handlerToWidget . traitTuple $ trait
+  space <- handlerToWidget . runDB . get404 . traitSpaceId $ trait
+  property <- handlerToWidget . runDB . get404 . traitPropertyId $ trait
   $(widgetFile "traits/linked_name")
 
 widgetJoin :: Widget -> [Widget] -> Widget

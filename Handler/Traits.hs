@@ -5,7 +5,7 @@ import Import
 import DB (derivedTraits)
 import Explore (checkTrait, checkSpace)
 import Form.Traits
-import Handler.Partials (traitName, linkedTraitName, theoremName, revisionList, linkedTraitList)
+import Handler.Partials (traitName, linkedTraitName, theoremName, revisionList, linkedTraitList, traitAtomName)
 import Handler.Helpers
 import Models
 
