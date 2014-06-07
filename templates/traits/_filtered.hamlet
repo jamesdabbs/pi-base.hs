@@ -4,9 +4,9 @@ $# - Add count badges to each tab
 $# - Better way to link_to here?
 <.clear>
   <.btn-group>
-    ^{traitTab fs asserted}
-    ^{traitTab fs deduced}
-    ^{traitTab fs unproven}
+    ^{traitTab fs tab asserted}
+    ^{traitTab fs tab deduced}
+    ^{traitTab fs tab unproven}
 
 ^{pageWidget}
 

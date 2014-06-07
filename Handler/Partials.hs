@@ -87,6 +87,9 @@ linkedFormula = formulaWidget linkedAtom
 
 data TraitTab = TraitTab { ttParam :: Text, ttLabel :: Text, ttFilter :: [Filter Trait] }
 
+instance Eq TraitTab where
+  a == b = ttParam a == ttParam b
+
 asserted, deduced, unproven :: TraitTab
 asserted = TraitTab
   { ttParam = "asserted", ttLabel = "Asserted", ttFilter = [TraitDeduced ==. False] }
@@ -107,11 +110,12 @@ tabFromParam p = case find match tabs of
 withTTFilter :: TraitTab -> [Filter Trait] -> [Filter Trait]
 withTTFilter tab fs = fs ++ (ttFilter tab)
 
-traitTab :: [Filter Trait] -> TraitTab -> Widget
-traitTab fs t = do
+traitTab :: [Filter Trait] -> TraitTab -> TraitTab -> Widget
+traitTab fs selected t = do
   n <- handlerToWidget . runDB . count $ withTTFilter t fs
+  let klass = if t == selected then ("active" :: Text) else ""
   if n > 0
-    then [whamlet|<a.btn.btn-default href="?traits=#{ttParam t}">#{ttLabel t} <span class="badge">#{n}</span>|]
+    then [whamlet|<a class="btn btn-default #{klass}" href="?traits=#{ttParam t}">#{ttLabel t} <span class="badge">#{n}</span>|]
     else [whamlet||]
 
 -- IDEA:
