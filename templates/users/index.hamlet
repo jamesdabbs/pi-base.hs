@@ -1,4 +1,4 @@
-^{pageWidget}
+^{pager}
 <ul>
   $forall (Entity _id u) <- users
     <li>

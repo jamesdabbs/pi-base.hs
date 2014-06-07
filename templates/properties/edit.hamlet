@@ -1,4 +1,8 @@
 <a.btn.btn-default href=@{PropertyR _id}> Back
 
+<h1> #{propertyName property}
+  $if not $ null $ propertyAliases property
+    <small> or #{intercalate ", " $ propertyAliases property}
+
 <form.form.form-horizontal.form-markdown role=form method=post action=@{PropertyR _id} enctype=#{enctype}>
   ^{widget}

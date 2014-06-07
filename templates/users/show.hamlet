@@ -1,6 +1,6 @@
 <h1> #{userIdent user}
 
-^{pageWidget}
+^{pager}
 
 $forall (Entity _ r) <- revs
   <h5> #{show $ revisionCreatedAt r}

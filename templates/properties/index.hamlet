@@ -4,7 +4,7 @@
   Properties
   <span.badge>#{total}
 
-^{pageWidget}
+^{pager}
 <dl>
   $forall (Entity _id property) <- properties
     <dt>

@@ -36,7 +36,7 @@ theoremConverseCounterexamples theorem = do
 
 getTheoremsR :: Handler Html
 getTheoremsR = do
-  (theorems, pageWidget) <- paged 10 [] [Desc TheoremUpdatedAt]
+  (theorems, pager) <- paged 10 [] [Desc TheoremUpdatedAt]
   total <- runDB $ count ([] :: [Filter Theorem])
   render "Theorems" $(widgetFile "theorems/index")
 

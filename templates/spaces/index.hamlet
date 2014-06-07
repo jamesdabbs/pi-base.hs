@@ -4,7 +4,7 @@
   Spaces
   <span.badge>#{total}
 
-^{pageWidget}
+^{pager}
 <dl>
   $forall (Entity _id space) <- spaces
     <dt>

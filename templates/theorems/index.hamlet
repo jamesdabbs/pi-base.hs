@@ -4,7 +4,7 @@
   Theorems
   <span.badge>#{total}
 
-^{pageWidget}
+^{pager}
 <dl>
   $forall (Entity _id theorem) <- theorems
     <dt>

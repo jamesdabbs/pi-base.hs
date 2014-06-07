@@ -22,7 +22,7 @@ traitTitle _ = "Trait"
 
 getTraitsR :: Handler Html
 getTraitsR = do
-  (traits, pageWidget) <- paged 25 [] [Desc TraitUpdatedAt]
+  (traits, pager) <- paged 25 [] [Desc TraitUpdatedAt]
   total <- runDB $ count ([] :: [Filter Trait])
   render "Traits" $(widgetFile "traits/index")
 

@@ -8,7 +8,7 @@ $# - Better way to link_to here?
     ^{traitTab fs tab deduced}
     ^{traitTab fs tab unproven}
 
-^{pageWidget}
+^{pager}
 
 <dl>
   $forall lt@(_,(Entity _id t),_) <- traitTuples

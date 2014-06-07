@@ -41,5 +41,7 @@ postResetR = do
 
 getUnprovenR :: Handler Html
 getUnprovenR = do
-  (traits, pager) <- paged 20 [TraitDeduced ==. False, TraitDescription ==. Textarea ""] [Asc TraitSpaceId]
+  let q = [TraitDeduced ==. False, TraitDescription ==. Textarea ""]
+  (traits, pager) <- paged 20 q [Asc TraitSpaceId]
+  -- total <- runDB $ count q
   render "Unproven Assertions" $(widgetFile "admin/unproven")

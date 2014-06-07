@@ -2,7 +2,7 @@
   Traits
   <span.badge>#{total}
 
-^{pageWidget}
+^{pager}
 <dl>
   $forall (Entity _id trait) <- traits
     <dt>

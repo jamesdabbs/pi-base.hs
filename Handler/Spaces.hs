@@ -14,7 +14,7 @@ spaceTraitName (_, (Entity _ t), (Entity _ p)) = if traitValueBool t
 
 getSpacesR :: Handler Html
 getSpacesR = do
-  (spaces, pageWidget) <- paged 10 [] [Asc SpaceName]
+  (spaces, pager) <- paged 10 [] [Asc SpaceName]
   total <- runDB $ count ([] :: [Filter Space])
   render "Spaces" $(widgetFile "spaces/index")
 

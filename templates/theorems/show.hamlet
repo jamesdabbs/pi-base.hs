@@ -2,7 +2,7 @@
 ^{authButton (TheoremRevisionsR _id) "Revisions"}
 $# This is borked <a.btn.btn-default href=@{DeleteTheoremR _id}> Delete
 
-<h1>^{linkedTheoremName theorem}
+<h1> ^{linkedTheoremName theorem}
 
 <.well>
   <.markdown> #{theoremDescription theorem}

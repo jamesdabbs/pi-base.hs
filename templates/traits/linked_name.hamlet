@@ -1,6 +1,5 @@
 $newline never
 <span>
   <a href=@{SpaceR $ traitSpaceId trait}>#{spaceName space}
-  :
-  <a href=@{PropertyR $ traitPropertyId trait}>#{propertyName property}
-  =#{tValueName value}
+  \ : #
+  <a href=@{PropertyR $ traitPropertyId trait}>#{atomName property $ traitValueBool trait}

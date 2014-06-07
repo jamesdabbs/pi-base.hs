@@ -2,7 +2,7 @@
 
 <h1> #{plural total "Spaces" "Space"} ∋ ^{linkedFormula f}
 $# TODO: extract partial w/ space index
-^{pageWidget}
+^{pager}
 <dl>
   $forall (Entity _id space) <- spaces
     <dt>

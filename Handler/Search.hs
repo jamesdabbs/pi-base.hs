@@ -38,6 +38,6 @@ getSearchR = do
           let f' = fmap (Key . PersistInt64) f''
           spaceIds <- matches Yes f'
           let total = S.size spaceIds
-          (spaces, pageWidget) <- paged 10 [SpaceId <-. (S.toList spaceIds)] [Asc SpaceName]
+          (spaces, pager) <- paged 10 [SpaceId <-. (S.toList spaceIds)] [Asc SpaceName]
           f <- formulaLookup f'
           render "Search" $(widgetFile "search/results")

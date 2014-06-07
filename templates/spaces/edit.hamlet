@@ -1,4 +1,6 @@
 <a.btn.btn-default href=@{SpaceR _id}> Back
 
+<h1> #{spaceName space}
+
 <form.form.form-horizontal.form-markdown role=form method=post action=@{SpaceR _id} enctype=#{enctype}>
   ^{widget}

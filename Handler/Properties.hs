@@ -21,7 +21,7 @@ propertyTraitName ((Entity _ s), (Entity _ t), _) = if traitValueBool t
 
 getPropertiesR :: Handler Html
 getPropertiesR = do
-  (properties, pageWidget) <- paged 10 [] [Asc PropertyName]
+  (properties, pager) <- paged 10 [] [Asc PropertyName]
   total <- runDB $ count ([] :: [Filter Property])
   render "Properties" $(widgetFile "properties/index")
 

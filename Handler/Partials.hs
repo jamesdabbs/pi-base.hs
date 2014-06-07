@@ -20,21 +20,20 @@ import Models
 import Handler.Helpers (paged, preview)
 
 
-traitTuple :: Trait -> Handler (Space, Property, TValue)
+traitTuple :: Trait -> Handler (Space, Property)
 traitTuple trait = do
   s <- runDB . get404 . traitSpaceId $ trait
   p <- runDB . get404 . traitPropertyId $ trait
-  v <- runDB . get404 . traitValueId $ trait
-  return (s,p,v)
+  return (s,p)
 
 traitName :: Trait -> Widget
 traitName trait = do
-  (s,p,v) <- handlerToWidget . traitTuple $ trait
-  [whamlet|<span>#{spaceName s}: #{propertyName p}=#{tValueName v}|]
+  (s,p) <- handlerToWidget . traitTuple $ trait
+  [whamlet|<span>#{spaceName s}: #{atomName p $ traitValueBool trait}|]
 
 linkedTraitName :: Trait -> Widget
 linkedTraitName trait = do
-  (space, property, value) <- handlerToWidget . traitTuple $ trait
+  (space, property) <- handlerToWidget . traitTuple $ trait
   $(widgetFile "traits/linked_name")
 
 widgetJoin :: Widget -> [Widget] -> Widget
@@ -141,7 +140,7 @@ filteredTraits :: (ELTrait -> Text) -> [Filter Trait] -> Widget
 filteredTraits renderer fs = do
   param <- lookupGetParam "traits"
   let tab = tabFromParam param
-  (traits, pageWidget) <- handlerToWidget $ paged 10 (withTTFilter tab fs) []
+  (traits, pager) <- handlerToWidget $ paged 10 (withTTFilter tab fs) []
   traitTuples <- handlerToWidget $ prefetchTraits traits
   $(widgetFile "traits/_filtered")
 
