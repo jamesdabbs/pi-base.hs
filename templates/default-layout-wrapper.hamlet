@@ -58,8 +58,9 @@ $newline never
                   <a href=@{PropertiesR}> Properties
                 <li>
                   <a href=@{TheoremsR}> Theorems
-                <li>
-                  <a href=@{SearchR}> Search
+              <form.navbar-form.navbar-left action=@{SearchR} role=search>
+                <.form-group>
+                  <input.form-control id=navbar-search type=text name=q placeholder="Search">
 
               <ul.nav.navbar-nav.pull-right>
                 $maybe (Entity _ a) <- ma

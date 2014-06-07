@@ -55,7 +55,7 @@ window.piBase.formulaInput = function($q) {
       return {or: _.map(f.or, lookupProps)};
     } else {
       // TODO: fuzzy match, make suggestions if missing
-      var name, val, atom;
+      var name, val, prop, atom;
 
       if (f[0] === "~" || f[0] === "-" || f[0] === "¬") {
         name = f.slice(1, f.length);
@@ -148,6 +148,8 @@ window.piBase.formulaInput = function($q) {
 
 
 $(function() {
+  window.piBase.formulaInput($("#navbar-search"));
+
   $(".markdown").each(function(i, el) {
     var $el = $(el);
     $el.html(markdown($el.html()));
