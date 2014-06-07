@@ -4,7 +4,7 @@
   <.form-group.required>
     <.col-md-8>
       $maybe jq <- q
-        <input.form-control type=search name=q value=#{jq}>
+        <input.form-control autofocus=true type=search name=q value=#{jq}>
       $nothing
-        <input.form-control type=search name=q>
+        <input.form-control autofocus=true type=search name=q>
   <button.btn.btn-default> Search

@@ -30,6 +30,7 @@ $newline never
         $if not development
           <script src="/static/js/rollbar.js">
         <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js">
+        <script src="//cdnjs.cloudflare.com/ajax/libs/typeahead.js/0.10.2/typeahead.bundle.min.js">
         <script src="//cdnjs.cloudflare.com/ajax/libs/pagedown/1.0/Markdown.Converter.min.js">
         <script src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.6.0/underscore-min.js">
         <script src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
@@ -59,8 +60,10 @@ $newline never
                 <li>
                   <a href=@{TheoremsR}> Theorems
               <form.navbar-form.navbar-left action=@{SearchR} role=search>
-                <.form-group>
+                <.input-group>
                   <input.form-control id=navbar-search type=text name=q placeholder="Search">
+                $# Need this for the typeahead JS to still submit
+                <button.hidden> Submit
 
               <ul.nav.navbar-nav.pull-right>
                 $maybe (Entity _ a) <- ma
