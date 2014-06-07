@@ -104,7 +104,7 @@ window.piBase.formulaInput = function($q) {
         throw "Name " + cName + " already present";
       };
       nameMap[cName] = id;
-      idMap[id] = cName;
+      idMap[id] = idMap[id] || cName;
     });
 
     if ($q.val()) {
