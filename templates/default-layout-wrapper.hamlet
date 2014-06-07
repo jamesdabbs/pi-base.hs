@@ -41,6 +41,7 @@ $newline never
             }
           });
         <script src="/static/js/jsonlite.js">
+        <script src="/static/js/latinize.js">
 
     <body>
       <#wrap>

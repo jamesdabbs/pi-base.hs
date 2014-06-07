@@ -44,7 +44,7 @@ window.piBase.formulaInput = function($q) {
 
   // Allow e.g. lowercase names
   var canonicalizeName = function(name) {
-    return name.toLowerCase().replace(/[${}\(\)\\\s]/g, '');
+    return name.latinize().toLowerCase().replace(/[${}\(\)\\\s]/g, '');
   };
 
   // Maps text atoms to submittable id: bool value pairs

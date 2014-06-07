@@ -9,4 +9,6 @@
   $forall (Entity _id property) <- properties
     <dt>
       <a href=@{PropertyR _id}> #{propertyName property}
+        $if not $ null $ propertyAliases $ property
+          <small> or #{intercalate ", " $ propertyAliases property}
     <dd.markdown> #{preview $ propertyDescription property}
