@@ -1,6 +1,7 @@
 module Handler.Properties where
 
 import Import
+import Data.Text (intercalate)
 
 import Form.Properties
 import Handler.Helpers
@@ -27,7 +28,8 @@ getPropertiesR = do
 getPropertiesNamesR :: Handler Value
 getPropertiesNamesR = do
   properties <- runDB $ selectList [] []
-  returnJson . object . map (\(Entity _id p) -> (propertyName p, toJSON _id)) $ properties
+  returnJson . object . concat . map pNameMap $ properties
+  where pNameMap (Entity _id p) = map (\name -> (name, toJSON _id)) $ propertyNames p
 
 getCreatePropertyR :: Handler Html
 getCreatePropertyR = do

@@ -1,6 +1,7 @@
 module Model.Property
 ( propertyTheorems
 , propertyDelete
+, propertyNames
 ) where
 
 import Import hiding ((==.))
@@ -23,3 +24,6 @@ propertyDelete _id = do
   logDeletion $ Entity _id property
   runDB $ deleteWhere [TraitPropertyId I.==. _id]
   runDB $ delete _id
+
+propertyNames :: Property -> [Text]
+propertyNames p = propertyName p : propertyAliases p

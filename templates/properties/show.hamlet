@@ -2,6 +2,8 @@
 ^{authButton (PropertyRevisionsR _id) "Revisions"}
 
 <h1> #{propertyName property}
+  $if not $ null $ propertyAliases property
+    <small> or #{intercalate ", " $ propertyAliases property}
 
 <.well>
   <.markdown>#{propertyDescription property}

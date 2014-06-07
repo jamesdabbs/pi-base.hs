@@ -41,6 +41,7 @@ Space json sql=spaces
 
 Property json sql=properties
   name Text
+  aliases [Text] default='[]'
   description Textarea
   valueSetId ValueSetId
   createdAt UTCTime
