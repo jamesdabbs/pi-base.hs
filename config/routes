@@ -40,6 +40,7 @@
 /admin                AdminR          GET
 /admin/contradictions ContradictionsR POST
 /admin/explore        ExploreR        POST
+/admin/unproven       UnprovenR       GET
 /admin/reset          ResetR          POST
 
 /users         UsersR GET

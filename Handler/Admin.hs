@@ -9,7 +9,7 @@ import Explore (checkTheorem)
 import Logic (counterexamples)
 import Models
 import Handler.Helpers
-import Handler.Partials (theoremName)
+import Handler.Partials (theoremName, traitName)
 
 getAdminR :: Handler Html
 getAdminR = render "Admin" $(widgetFile "admin/show")
@@ -38,3 +38,8 @@ postResetR = do
   flash Danger "Can only reset in development mode"
 #endif
   redirect AdminR
+
+getUnprovenR :: Handler Html
+getUnprovenR = do
+  (traits, pager) <- paged 20 [TraitDeduced ==. False, TraitDescription ==. Textarea ""] [Asc TraitSpaceId]
+  render "Unproven Assertions" $(widgetFile "admin/unproven")

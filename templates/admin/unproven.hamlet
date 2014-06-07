@@ -1,0 +1,7 @@
+^{pager}
+
+<ul>
+  $forall (Entity _id t) <- traits
+    <li>
+      $# FIXME: n+1
+      <a href=@{TraitR _id}> ^{traitName t}

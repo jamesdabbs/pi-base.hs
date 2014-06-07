@@ -126,6 +126,7 @@ instance Yesod App where
     isAuthorized AdminR          _ = isAdmin
     isAuthorized ContradictionsR _ = isAdmin
     isAuthorized ExploreR        _ = isAdmin
+    isAuthorized UnprovenR       _ = isAdmin
     isAuthorized ResetR          _ = isAdmin
 
     -- Must be an admin to administrate users

@@ -1,10 +1,13 @@
 <a.btn.btn-default href=@{UsersR}> View Users
 
+<a.btn.btn-default href=@{UnprovenR}> Unproven Traits
+
 <form action=@{ExploreR} method=post>
   <button.btn.btn-default type=submit> Explore Theorems
 
 <form action=@{ContradictionsR} method=post>
   <button.btn.btn-default type=submit> Check Contradictions
 
-<form action=@{ResetR} method=post>
-  <button.btn.btn-default type=submit> Reset Deductions
+$if development
+  <form action=@{ResetR} method=post>
+    <button.btn.btn-default type=submit> Reset Deductions
