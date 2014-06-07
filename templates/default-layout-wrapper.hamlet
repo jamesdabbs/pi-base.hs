@@ -59,8 +59,6 @@ $newline never
                 <li>
                   <a href=@{TheoremsR}> Theorems
                 <li>
-                  <a href=@{TraitsR}> Traits
-                <li>
                   <a href=@{SearchR}> Search
 
               <ul.nav.navbar-nav.pull-right>
