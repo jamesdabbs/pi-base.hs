@@ -56,4 +56,4 @@ data FlashClass = Success | Info | Warning | Danger deriving (Show)
 
 -- TODO: is there any way to get the "you are now logged in" message styled?
 flash :: FlashClass -> Text -> Handler ()
-flash c msg = setMessage [shamlet|<.alert.alert-#{show c}>#{msg}|]
+flash c msg = setMessage [shamlet|<.alert.alert-#{T.toLower $ show c}>#{msg}|]
