@@ -24,7 +24,7 @@ spaceUnknownProperties :: SpaceId -> Handler [Entity Property]
 spaceUnknownProperties _id = do
   knownTraits <- runDB $ selectList [TraitSpaceId ==. _id] []
   let knownProperties = map (traitPropertyId . entityVal) knownTraits
-  runDB $ selectList [PropertyId /<-. knownProperties] []
+  runDB $ selectList [PropertyId /<-. knownProperties] [Asc PropertyName]
 
 spaceDelete :: SpaceId -> Handler ()
 spaceDelete _id = do

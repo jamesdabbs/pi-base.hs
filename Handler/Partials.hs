@@ -141,7 +141,7 @@ filteredTraits :: (ELTrait -> Text) -> [Filter Trait] -> Widget
 filteredTraits renderer fs = do
   param <- lookupGetParam "traits"
   let tab = tabFromParam param
-  (traits, pager) <- handlerToWidget $ paged 10 (withTTFilter tab fs) []
+  (traits, pager) <- handlerToWidget $ paged 10 (withTTFilter tab fs) [Desc TraitId]
   traitTuples <- handlerToWidget $ prefetchTraits traits
   $(widgetFile "traits/_filtered")
 
