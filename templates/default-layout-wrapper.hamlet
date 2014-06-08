@@ -43,6 +43,7 @@ $newline never
           });
         <script src="/static/js/jsonlite.js">
         <script src="/static/js/latinize.js">
+        <script src="/static/js/local-cache.js">
 
     <body>
       <#wrap>

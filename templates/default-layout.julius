@@ -31,6 +31,11 @@ window.piBase.formulaInput = function($q) {
     , suggestions   = []
     , _lookupErrors = []; // TODO: global state bad!
 
+  var logError = function(args) {
+    if (typeof(Rollbar) === "undefined") { return; }
+    Rollbar.error.apply(null, args);
+  }
+
   // var $preview = $('<pre></pre>');
   // $q.after($preview);
 
@@ -112,7 +117,7 @@ window.piBase.formulaInput = function($q) {
 
   // Fetch the existing property name <~> id mapping
   //   and render what we need to once we have it
-  $.get("@{PropertiesNamesR}", function(data) {
+  var setNameMaps = function(data) {
     _.each(data, function(id, name) {
       var cName = canonicalizeName(name);
       if (nameMap[cName]) {
@@ -125,10 +130,15 @@ window.piBase.formulaInput = function($q) {
     });
 
     if ($q.val()) {
-      $q.val(lighten(JSON.parse($q.val())));
+      try {
+        $q.val(lighten(JSON.parse($q.val())));
+      } catch (e) {
+        logError(["Couldn't lighten formula", $q.val(), e]);
+      }
     };
     // renderPreview();
-  });
+  };
+  window.localCache.fetch("propertyNames", "@{PropertiesNamesR}", setNameMaps);
 
   $q.typeahead({
     minLength: 2,
@@ -170,19 +180,26 @@ window.piBase.formulaInput = function($q) {
   var $errors = $('<div class="alert alert-danger"></div>').hide();
   $q.after($errors);
 
-  var showErrors = function(errors) {
-    $errors.show().html("Unrecognized properties: " + errors.join(", "));
+  var showError = function(e) {
+    $errors.show().html(e);
   }
 
   // Convert shorthand to JSON before submitting the form
   $q.closest("form").submit(function(e) {
-    var corrected;
+    var parsed, corrected;
 
     _lookupErrors = [];
-    corrected = lookupProps(parse(closeParens($q.val())));
+    try {
+      parsed = parse(closeParens($q.val()));
+    } catch (e) {
+      showError("Could not parse formula - please be sure it is well-formed");
+      logError("Failed to parse formula", $q.val(), e);
+      return false;
+    }
 
+    corrected = lookupProps(parsed);
     if (_lookupErrors.length > 0) {
-      showErrors(_lookupErrors);
+      showError("Unrecognized properties:" + _lookupErrors.join(", "));
       _lookupErrors = [];
       e.preventDefault();
       return false;
