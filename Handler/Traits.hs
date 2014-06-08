@@ -99,7 +99,7 @@ postDeleteTraitR _id = do
       _ <- traitDelete _id
       _ <- checkSpace "postDeleteTraitR" (traitSpaceId trait)
       flash Warning "Deleted trait" -- TODO: show deleted / re-added counts
-      redirect TraitsR
+      redirect . SpaceR . traitSpaceId $ trait
 
 getTraitRevisionsR :: TraitId -> Handler Html
 getTraitRevisionsR _id = do
