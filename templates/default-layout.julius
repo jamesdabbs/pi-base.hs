@@ -26,8 +26,8 @@ String.prototype.reverse = function() {
 
 window.piBase = window.piBase || {}
 window.piBase.formulaInput = function($q) {
-  var nameMap = {}
-    , idMap   = {}
+  var nameMap       = {} // simplified name -> id
+    , idMap         = {} // id -> display name
     , suggestions   = []
     , _lookupErrors = []; // TODO: global state bad!
 
@@ -66,6 +66,9 @@ window.piBase.formulaInput = function($q) {
   var canonicalizeName = function(name) {
     return name.latinize().toLowerCase().replace(/[${}\(\)\\\s]/g, '');
   };
+  var displayName = function(name) {
+    return name.toLowerCase().replace(/[$]/g, '');
+  }
 
   // Maps text atoms to submittable id: bool value pairs
   var lookupProps = function(f) {
@@ -124,9 +127,11 @@ window.piBase.formulaInput = function($q) {
         throw "Name " + cName + " already present";
       };
       nameMap[cName] = id;
-      idMap[id] = idMap[id] || cName;
 
-      suggestions.push({key: cName, value: name});
+      var dName = displayName(name);
+      idMap[id] = idMap[id] || dName;
+
+      suggestions.push({key: cName, value: dName});
     });
 
     if ($q.val()) {
@@ -156,8 +161,10 @@ window.piBase.formulaInput = function($q) {
         fragment = query.slice(sep + 1, query.length);
       }
 
-      // TODO: glom leading whitespace on to the prefix
-      fragment = fragment.trim();
+      // Include whitespace in the prefix
+      var s = /(\s*)(.*)/.exec(fragment);
+      prefix += s[1];
+      fragment = s[2];
 
       if (fragment.length < 2 || fragment[0] === "{") {
         cb([]);
