@@ -147,10 +147,15 @@ window.piBase.formulaInput = function($q) {
     });
 
     if ($q.val()) {
+      var modifier = "", val = $q.val();
+      if (val[0] === "!" || val[0] === "?" || val[0] === ":") {
+        modifier = val[0];
+        val = val.slice(1, val.length);
+      }
       try {
-        $q.val(lighten(JSON.parse($q.val())));
+        $q.val(modifier + lighten(JSON.parse(val)));
       } catch (e) {
-        logError(["Couldn't lighten formula", $q.val(), e]);
+        logError(["Couldn't lighten formula", val, e]);
       }
     };
     // renderPreview();
@@ -164,6 +169,12 @@ window.piBase.formulaInput = function($q) {
     name: "formula-typeahead",
     displayKey: function(obj) { return obj.prefix + obj.value; },
     source: function(query, cb) {
+      // Handle special query types
+      if (query[0] == ":") return;
+      if (query[0] == "?" || query[0] == "!") {
+        query = query.slice(1, query.length);
+      }
+
       var prefix, fragment, sep = query.regexLastIndexOf(/[,\[]/);
       if (sep == -1) {
         prefix = "";
@@ -205,14 +216,21 @@ window.piBase.formulaInput = function($q) {
 
   // Convert shorthand to JSON before submitting the form
   $q.closest("form").submit(function(e) {
-    var parsed, corrected;
+    var matchType = "", parsed, corrected, val = $q.val()
+
+    if (val[0] == ":") {
+      return true; // Searching by text - don't process any
+    } else if (val[0] == "?" || val[0] == "!") {
+      matchType = val[0];
+      val = val.slice(1, val.length);
+    }
 
     _lookupErrors = [];
     try {
-      parsed = parse(closeParens($q.val()));
+      parsed = parse(closeParens(val));
     } catch (e) {
       showError("Could not parse formula - please be sure it is well-formed");
-      logError("Failed to parse formula", $q.val(), e);
+      logError("Failed to parse formula", val, e);
       return false;
     }
 
@@ -223,7 +241,7 @@ window.piBase.formulaInput = function($q) {
       e.preventDefault();
       return false;
     } else {
-      $q.val(JSON.stringify(corrected));
+      $q.val(matchType + JSON.stringify(corrected));
     }
   });
 

@@ -1,3 +1,3 @@
-^{searchShow q}
+^{searchShow $ Just qt}
 
-<.alert.alert-danger> Could not parse <strong>#{qt}</strong> as a formula
+<.alert.alert-danger> Could not parse <strong>#{text}</strong> as a formula
