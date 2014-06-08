@@ -32,8 +32,11 @@ window.piBase.formulaInput = function($q) {
     , _lookupErrors = []; // TODO: global state bad!
 
   var logError = function(args) {
-    if (typeof(Rollbar) === "undefined") { return; }
-    Rollbar.error.apply(null, args);
+    if (typeof(Rollbar) === "undefined") { 
+      console.error(args);
+    } else {
+      Rollbar.error.apply(null, args);
+    }
   }
 
   // var $preview = $('<pre></pre>');
@@ -99,6 +102,14 @@ window.piBase.formulaInput = function($q) {
     }
   }
 
+  var jsonliteEscape = function(str) {
+    if (str.match(/[\s",\[\]{}:]/)) {
+      return '"' + str.replace('"', '\\"') + '"';
+    } else {
+      return str;
+    }
+  }
+
   // Redisplay a JSON formula in its lighter weight format
   var lighten = function(f) {
     if (f.and) {
@@ -107,8 +118,9 @@ window.piBase.formulaInput = function($q) {
       return "{or: [" + _.map(f.or, lighten).join(", ") + "]}";
     } else {
       var kv = _.pairs(f)[0]
-        , prefix = kv[1] ? "" : "~";
-      return prefix + idMap[""+kv[0]];
+        , prefix = kv[1] ? "" : "~"
+        , dName = idMap[""+kv[0]];
+      return jsonliteEscape(prefix + dName);
     }
   }
 

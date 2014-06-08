@@ -61,7 +61,7 @@ $newline never
                 <li>
                   <a href=@{TheoremsR}> Theorems
               <form.navbar-form.navbar-left action=@{SearchR} role=search>
-                <.input-group>
+                <.form-group>
                   <input.form-control id=navbar-search type=text name=q placeholder="Search">
                 $# Need this for the typeahead JS to still submit
                 <button.hidden> Submit
