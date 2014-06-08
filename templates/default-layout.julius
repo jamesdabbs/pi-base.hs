@@ -241,7 +241,10 @@ window.piBase.formulaInput = function($q) {
       e.preventDefault();
       return false;
     } else {
-      $q.val(matchType + JSON.stringify(corrected));
+      // Some legerdemain so that we don't see the _actual_ submitted content
+      var hq = $('<input type="hidden" name="q">').val(matchType + JSON.stringify(corrected));
+      $q.attr("name", "");
+      $(this).append(hq);
     }
   });
 

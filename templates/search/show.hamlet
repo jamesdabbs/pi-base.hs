@@ -1,4 +1,5 @@
-^{searchHelp}
+<.alert.alert-info>
+  ^{searchHelp}
 
 <form.form.form-horizontal id=page-search role=form action=@{SearchR}>
   <.form-group.required>

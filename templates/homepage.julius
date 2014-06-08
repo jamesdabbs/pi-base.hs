@@ -1,0 +1,3 @@
+$(function() {
+  window.piBase.formulaInput($("#jumbotron-search"));
+});

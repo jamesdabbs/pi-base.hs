@@ -1,5 +1,17 @@
-<h1> Welcome to the 𝜋-Base
-<p> A <strong>community maintained</strong> database of topological examples featuring automated deduction and powerful search.
-
 <.alert.alert-info>
-  This site is under active development. Get involved on <a href="https://github.com/jamesdabbs/pi-base.hs">GitHub</a>.
+  This site is under active development. Got suggestions? Get involved on <a href="https://github.com/jamesdabbs/pi-base.hs">GitHub</a>.
+
+<.jumbotron>
+  <h1> Welcome to the 𝜋-Base
+  <p> A community maintained database of topological examples featuring automated deduction and powerful search.
+
+  <form.form.form-horizontal role=form action=@{SearchR}>
+    <.col-lg-8>
+      <.input-group>
+        <input.form-control id=jumbotron-search type=search name=q placeholder="Search for a space">
+        <span.input-group-btn>
+          <input.btn.btn-primary type=submit>
+            <i.fa.fa-search>
+
+<h3> Search tips
+^{searchHelp}

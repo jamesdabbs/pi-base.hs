@@ -16,6 +16,11 @@ searchHelp = do
   let s = SpaceR . Key . PersistInt64
   $(widgetFile "search/help")
 
+getHomeR :: Handler Html
+getHomeR = defaultLayout $ do
+  setTitle "𝜋-Base"
+  $(widgetFile "homepage")
+
 formulaLookup :: Formula PropertyId -> Handler (Formula (Entity Property))
 formulaLookup f = do
   let pids = S.toList . formulaProperties $ f

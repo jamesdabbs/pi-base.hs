@@ -1,4 +1,4 @@
-<.alert.alert-info.js-fallback>
+<.js-fallback>
   You currently have javascript disabled, which is fine but makes this part a little harder.
   You will need to enable javascript, or specify formulae as follows:
 
@@ -17,12 +17,32 @@
     <pre> {"and": [ {"16": 1}, {"36": 1}, {"53": 2} ] }
 
 
-<.alert.alert-info.js-only>
+<.js-only>
   <p>
     Use <code>~</code> for negation and <code>{and: [...]}</code> or <code>{or: [...]}</code>
     for nested formuale.
 
-  <p>
-    For example, you can find all non-metric continua with
+  <p> You may enable different search modes by starting your query with certain special characters
+  <ul>
+    <li> <code>:</code> - spaces by name
+    <li> <code>?</code> - spaces where formula is indeterminate
+    <li> <code>!</code> - spaces where formula is disprovable
+
+  <p> Note that properties containing spaces or special characters may need to be enclosed in quotations.
+
+  <h4.search-examples> Examples
+    <h5> All Non-Metric Continua
     <a href="/search?q=%7B&quot;and&quot;%3A%5B%7B&quot;16&quot;%3Atrue%7D%2C%7B&quot;36&quot;%3Atrue%7D%2C%7B&quot;3&quot;%3Atrue%7D%2C%7B&quot;53&quot;%3Afalse%7D%5D%7D">
       <pre> {and: [compact, connected, t_2, ~metrizable]}
+
+    <h5> A Common Non-Theorem
+    <a href="&quot;/search?q=%7B&quot;and&quot;%3A%5B%7B&quot;28&quot;%3Atrue%7D%2C%7B&quot;26&quot;%3Atrue%7D%2C%7B&quot;27&quot;%3Afalse%7D%5D%7D">
+      <pre> {and: ["first countable", separable, "~second countable"]}
+
+    <h5> A Class of Examples by Name
+    <a href="/search?q=%3Aplank">
+      <pre> :plank
+
+    <h5> New Things to Prove
+    <a href="/search?q=">
+      <pre> ?metacompact

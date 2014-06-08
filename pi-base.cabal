@@ -38,7 +38,6 @@ library
                      Form.Traits
                      Form
                      Handler.Admin
-                     Handler.Home
                      Handler.Helpers
                      Handler.Partials
                      Handler.Properties
