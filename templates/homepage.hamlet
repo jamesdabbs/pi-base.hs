@@ -3,7 +3,7 @@
 
 <.jumbotron>
   <h1> Welcome to the 𝜋-Base
-  <p> A community maintained database of topological examples featuring automated deduction and powerful search
+  <p> A community database of topological examples with automated deduction and powerful search
 
   <form.form role=form action=@{SearchR}>
     <.col-lg-8>

@@ -1,5 +1,13 @@
+<.modal.fade id=search-help>
+  <.modal-content>
+    <.modal-header>
+      <button type=button class=close data-dismiss=modal aria-hidden=true>&times;
+      <h3.modal-title> Searching
+    <.modal-body>
+      ^{searchHelp}
+
 <.alert.alert-info>
-  ^{searchHelp}
+  <p> Antecedent and consequent input accept a syntax similar to the search box. Please <a class="search-help" href="@{HelpR}">consult the documentation</a> if you have questions.
 
 <form.form.form-horizontal.form-markdown role=form method=post action=@{CreateTheoremR} enctype=#{enctype}>
   ^{widget}

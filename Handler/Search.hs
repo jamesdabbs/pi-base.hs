@@ -21,6 +21,9 @@ getHomeR = defaultLayout $ do
   setTitle "𝜋-Base"
   $(widgetFile "homepage")
 
+getHelpR :: Handler Html
+getHelpR = render "Help" $(widgetFile "help/site")
+
 formulaLookup :: Formula PropertyId -> Handler (Formula (Entity Property))
 formulaLookup f = do
   let pids = S.toList . formulaProperties $ f

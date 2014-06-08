@@ -1,5 +1,10 @@
-<.alert.alert-info>
-  ^{searchHelp}
+<.modal.fade id=search-help>
+  <.modal-content>
+    <.modal-header>
+      <button type=button class=close data-dismiss=modal aria-hidden=true>&times;
+      <h3.modal-title> Searching
+    <.modal-body>
+      ^{searchHelp}
 
 <form.form.form-horizontal id=page-search role=form action=@{SearchR}>
   <.form-group.required>
@@ -9,3 +14,4 @@
       $nothing
         <input.form-control autofocus=true type=search name=q>
   <button.btn.btn-default> Search
+  <a.btn.btn-link.search-help href=@{HelpR}> Help &raquo;

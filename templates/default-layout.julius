@@ -279,4 +279,10 @@ $(function() {
 
     $el.keyup(_.debounce(renderPreview, 500));
   });
+
+  $("a.search-help").click(function(e) {
+    e.preventDefault();
+    $('#search-help').modal();
+    return false;
+  });
 });

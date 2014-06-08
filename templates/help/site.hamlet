@@ -1,0 +1,24 @@
+<.page-header>
+  <h1> Searching
+^{searchHelp}
+
+<.page-header>
+  <h1> On Definitions
+
+<p> We have broken with Counterexamples in a few notable places, mostly to update things like the separation axioms to their more modern useage (where $T_i \Rightarrow T_j$ whenever $i > j$). Our definitions should match those given in e.g. <a href="http://www.amazon.com/General-Topology-Dover-Books-Mathematics/dp/0486434796">Willard's <i>General Topology</i></a>.
+
+<.page-header>
+  <h1> Contact
+
+<p> Questions? Comments? Suggestions? Requests? I would love to hear them. Drop me a line <a href="mailto:jamesdabbs@gmail.com">by email</a> or post an issue on the <a href="http://github.com/jamesdabbs/pi-base.hs/issues">Github issue tracker</a>.
+
+<.page-header>
+  <h1> Acknowledgements
+
+<p> Many people have contributed to this project, and all contributions are appreciated, but a few individuals deserve special recognition:
+
+<ul>
+  <li><a href="http://www.montevallo.edu/staff-bio/scott-varagona/">Scott Varagona</a> for his heroic work entering data into the database
+  <li>My advisor, <a href="http://www.auburn.edu/~gruengf/">Gary Gruenhage</a> for all his support and guidance
+  <li><a href="http://austinmohr.com/home/">Austin Mohr</a> for his work using the 𝜋-Base as a pedagogical tool, and all his invaluable feedback
+  <li>Steen and Seebach for writing <a href="http://www.amazon.com/Counterexamples-Topology-Dover-Books-Mathematics/dp/048668735X">Counterexamples in Topology</a> in the first place and inspiring this project

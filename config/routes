@@ -36,6 +36,7 @@
 /theorems/#TheoremId/revisions TheoremRevisionsR GET
 
 /search SearchR GET
+/help   HelpR GET
 
 /admin                AdminR          GET
 /admin/contradictions ContradictionsR POST

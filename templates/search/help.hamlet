@@ -1,53 +1,44 @@
 <.js-fallback>
-  You currently have javascript disabled, which is fine but makes this part a little harder.
-  You will need to enable javascript, or specify formulae as follows:
+  <.alert.alert-danger>
+    <p> The instructions below assume you have javascript enabled, but it appears you do not.
 
-  <h5> Conjunctions
-  <pre> { "and": [ ... ] }
+    <p> If you can't (or don't want to) enable javascript, you will need to enclose <code>and</code>s and <code>or</code>s with quotations, and use <code>{ "property_id": true/false }</code> in place of property names.
 
-  <h5> Disjunctions
-  <pre> { "or": [ ... ] }
+    <p> For example, you would specify <a href=@{s 16}>Compact</a> (id 16), <a href=@{s 36}>Connected</a> (id 36), non-<a href=@{s 53}>Metrizable</a> spaces with
 
-  <h5> Atoms
-  <pre> { propertyId: valueId }
+      <a href="/search?q=%7B&quot;and&quot;%3A+%5B+%7B&quot;16&quot;%3A+1%7D%2C+%7B&quot;36&quot;%3A+1%7D%2C+%7B&quot;53&quot;%3A+2%7D+%5D+%7D">
+        <pre> {"and": [ {"16": true}, {"36": true}, {"53": false} ] }
 
-  For example, you can specify <a href=@{s 16}>Compact</a> (id 16), <a href=@{s 36}>Connected</a> (id 36), non-<a href=@{s 53}>Metrizable</a> spaces with
+<.row>
+  <.col-md-6>
+    <h4> Syntax
+    <p>
+      Use <code>~</code> for negation and <code>{and: [...]}</code> or <code>{or: [...]}</code>
+      for nested formuale.
 
-  <a href="/search?q=%7B&quot;and&quot;%3A+%5B+%7B&quot;16&quot;%3A+1%7D%2C+%7B&quot;36&quot;%3A+1%7D%2C+%7B&quot;53&quot;%3A+2%7D+%5D+%7D">
-    <pre> {"and": [ {"16": 1}, {"36": 1}, {"53": 2} ] }
+    <p> You may enable different search modes by starting your query with certain special characters
+    <ul>
+      <li> <code>:</code> - spaces by name
+      <li> <code>?</code> - spaces where formula is indeterminate
+      <li> <code>!</code> - spaces where formula is disprovable
 
+    <p> Note that properties containing spaces or special characters may need to be enclosed in quotations.
 
-<.js-only>
-  <.row>
-    <.col-md-6>
-      <h4> Searching
-      <p>
-        Use <code>~</code> for negation and <code>{and: [...]}</code> or <code>{or: [...]}</code>
-        for nested formuale.
+  <.col-md-6>
+    <h4.search-examples> Examples
 
-      <p> You may enable different search modes by starting your query with certain special characters
-      <ul>
-        <li> <code>:</code> - spaces by name
-        <li> <code>?</code> - spaces where formula is indeterminate
-        <li> <code>!</code> - spaces where formula is disprovable
+    <h5> All Non-Metric Continua
+    <a href="/search?q=%7B&quot;and&quot;%3A%5B%7B&quot;16&quot;%3Atrue%7D%2C%7B&quot;36&quot;%3Atrue%7D%2C%7B&quot;3&quot;%3Atrue%7D%2C%7B&quot;53&quot;%3Afalse%7D%5D%7D">
+      <pre> {and: [compact, connected, t_2, ~metrizable]}
 
-      <p> Note that properties containing spaces or special characters may need to be enclosed in quotations.
+    <h5> A Common Non-Theorem
+    <a href="/search?q=%7B&quot;and&quot;%3A%5B%7B&quot;28&quot;%3Atrue%7D%2C%7B&quot;26&quot;%3Atrue%7D%2C%7B&quot;27&quot;%3Afalse%7D%5D%7D">
+      <pre> {and: ["first countable", separable, "~second countable"]}
 
-    <.col-md-6>
-      <h4.search-examples> Examples
+    <h5> A Class of Examples by Name
+    <a href="/search?q=%3Aplank">
+      <pre> :plank
 
-      <h5> All Non-Metric Continua
-      <a href="/search?q=%7B&quot;and&quot;%3A%5B%7B&quot;16&quot;%3Atrue%7D%2C%7B&quot;36&quot;%3Atrue%7D%2C%7B&quot;3&quot;%3Atrue%7D%2C%7B&quot;53&quot;%3Afalse%7D%5D%7D">
-        <pre> {and: [compact, connected, t_2, ~metrizable]}
-
-      <h5> A Common Non-Theorem
-      <a href="/search?q=%7B&quot;and&quot;%3A%5B%7B&quot;28&quot;%3Atrue%7D%2C%7B&quot;26&quot;%3Atrue%7D%2C%7B&quot;27&quot;%3Afalse%7D%5D%7D">
-        <pre> {and: ["first countable", separable, "~second countable"]}
-
-      <h5> A Class of Examples by Name
-      <a href="/search?q=%3Aplank">
-        <pre> :plank
-
-      <h5> New Things to Prove
-      <a href="/search?q=%3F%7B&quot;31&quot;%3Atrue%7D">
-        <pre> ?metacompact
+    <h5> New Things to Prove
+    <a href="/search?q=%3F%7B&quot;31&quot;%3Atrue%7D">
+      <pre> ?metacompact
