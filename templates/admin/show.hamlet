@@ -1,13 +1,30 @@
-<a.btn.btn-default href=@{UsersR}> View Users
-
-<a.btn.btn-default href=@{UnprovenR}> Unproven Traits
-
-<form action=@{ExploreR} method=post>
-  <button.btn.btn-default type=submit> Explore Theorems
-
-<form action=@{ContradictionsR} method=post>
-  <button.btn.btn-default type=submit> Check Contradictions
-
-$if development
-  <form action=@{ResetR} method=post>
-    <button.btn.btn-default type=submit> Reset Deductions
+<table.table>
+  <thead>
+    <tr>
+      <th>
+      <th> Description
+  <tbody>
+    <tr>
+      <td>
+        <a.btn.btn-default href=@{UsersR}> View Users
+      <td> Show a list of users and their activity
+    <tr>
+      <td>
+        <a.btn.btn-default href=@{ProgressR}> Progress
+      <td> Overview of spaces with counts of traits known and needing proofs
+    <tr>
+      <td>
+        <form action=@{ExploreR} method=post>
+          <button.btn.btn-default type=submit> Explore Theorems
+      <td> Check each theorem for new deductions
+    <tr>
+      <td>
+        <form action=@{ContradictionsR} method=post>
+          <button.btn.btn-default type=submit> Check Contradictions
+      <td> Find asserted theorems with existing counterexamples (hopefully none)
+    $if development
+      <tr>
+        <td>
+          <form action=@{ResetR} method=post>
+            <button.btn.btn-default type=submit> Reset Deductions
+        <td> Delete all deduced theorems

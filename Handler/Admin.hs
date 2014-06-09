@@ -9,7 +9,7 @@ import Explore (checkTheorem)
 import Logic (counterexamples)
 import Models
 import Handler.Helpers
-import Handler.Partials (theoremName, traitName)
+import Handler.Partials (theoremName)
 
 getAdminR :: Handler Html
 getAdminR = render "Admin" $(widgetFile "admin/show")
@@ -39,9 +39,13 @@ postResetR = do
 #endif
   redirect AdminR
 
-getUnprovenR :: Handler Html
-getUnprovenR = do
-  let q = [TraitDeduced ==. False, TraitDescription ==. Textarea ""]
-  (traits, pager) <- paged 20 q [Asc TraitSpaceId]
-  -- total <- runDB $ count q
-  render "Unproven Assertions" $(widgetFile "admin/unproven")
+progressRow :: Entity Space -> Widget
+progressRow (Entity _id s) = do
+  known <- handlerToWidget . runDB $ count [TraitSpaceId ==. _id]
+  unproven <- handlerToWidget . runDB $ count [TraitSpaceId ==. _id, TraitDeduced ==. False, TraitDescription ==. Textarea ""]
+  [whamlet|<tr><td><a href=@{SpaceR _id}>#{spaceName s}</a></td><td>#{known}</td><td>#{unproven}</td>|]
+
+getProgressR :: Handler Html
+getProgressR = do
+  spaces <- runDB $ selectList [] [Asc SpaceName]
+  render "Progress" $(widgetFile "admin/progress")
