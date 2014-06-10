@@ -224,6 +224,8 @@ instance YesodAuth App where
 
     authHttpManager = httpManager
 
+    onLogin = setMessage [shamlet|<.alert.alert-success>You are now logged in|]
+
 -- This instance is required to use forms. You can modify renderMessage to
 -- achieve customized and internationalized form validation messages.
 instance RenderMessage App FormMessage where
