@@ -25,10 +25,7 @@ $newline never
 
         <link href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css" media="screen" rel="stylesheet">
         <link href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css" media="screen" rel="stylesheet">
-        <link href="/static/css/main.css" media="screen" rel="stylesheet">
 
-        $if not development
-          <script src="/static/js/rollbar.js">
         <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js">
         <script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js">
         <script src="//cdnjs.cloudflare.com/ajax/libs/typeahead.js/0.10.2/typeahead.bundle.min.js">
@@ -42,9 +39,6 @@ $newline never
               displayMath: [ ['$$','$$'], ["\\[","\\]"] ],
             }
           });
-        <script src="/static/js/jsonlite.js">
-        <script src="/static/js/latinize.js">
-        <script src="/static/js/local-cache.js">
 
     <body>
       <#wrap>
