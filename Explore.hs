@@ -1,17 +1,28 @@
 module Explore
-( checkTrait
+( async
+, checkTrait
 , checkSpace
 , checkTheorem
 ) where
 
 import Import
 
+import Control.Concurrent (forkIO)
+import Control.Monad (void)
 import Data.Maybe (catMaybes)
 import qualified Data.Set as S
 
 import Logic
 import Models
 import Util (unionN, encodeText)
+
+async :: ToJSON a => (Text -> a -> Handler b) -> a -> Handler ()
+async checker val = do
+  runner <- handlerToIO
+  void . liftIO . forkIO $ do
+    void . runner $ checker label val
+  where
+    label = "Async queue for " <> encodeText val
 
 checkTrait :: Text -> TraitId -> Handler Int
 checkTrait desc _id = runQueue desc [_id]

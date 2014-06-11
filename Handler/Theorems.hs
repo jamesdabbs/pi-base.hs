@@ -4,19 +4,13 @@ import Import
 import qualified Data.Set as S
 import Prelude (head)
 
-import Explore (checkTheorem)
+import Explore (async, checkTheorem)
 import Form.Theorems
 import Handler.Partials (linkedTheoremName, theoremName, revisionList, linkedTraitList)
 import Handler.Helpers
 import Logic (counterexamples, converse)
 import Models
 
-
--- FIXME
-queueCheckTheorem :: TheoremId -> Handler ()
-queueCheckTheorem _id = do
-  _ <- checkTheorem "queueCheckTheorem" _id
-  return ()
 
 -- FIXME
 theoremTitle :: Theorem -> Text
@@ -55,7 +49,7 @@ postCreateTheoremR = do
         then do
           _id <- runDB $ insert theorem
           _ <- revisionCreate $ Entity _id theorem
-          queueCheckTheorem _id
+          async checkTheorem _id
           flash Success "Created theorem"
           redirect $ TheoremR _id
         else do

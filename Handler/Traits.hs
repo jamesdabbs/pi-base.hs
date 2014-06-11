@@ -3,17 +3,12 @@ module Handler.Traits where
 import Import
 
 import DB (derivedTraits)
-import Explore (checkTrait, checkSpace)
+import Explore (async, checkTrait, checkSpace)
 import Form.Traits
 import Handler.Partials (traitName, linkedTraitName, theoremName, revisionList, linkedTraitList, traitAtomName)
 import Handler.Helpers
 import Models
 
--- FIXME
-queueCheckTrait :: TraitId -> Handler ()
-queueCheckTrait _id = do
-  _ <- checkTrait "queueCheckTrait" _id
-  return ()
 
 -- FIXME
 traitTitle :: Trait -> Text
@@ -46,7 +41,7 @@ postCreateTraitR sid = do
         Nothing -> do
           _id <- runDB $ insert trait
           _ <- revisionCreate $ Entity _id trait
-          queueCheckTrait _id
+          async checkTrait _id
           flash Success "Created trait"
           redirect $ TraitR _id
     _ -> render "New Trait" $(widgetFile "traits/new")
@@ -97,7 +92,7 @@ postDeleteTraitR _id = do
     then invalidArgs ["Please delete the root assumption for this trait"]
     else do
       _ <- traitDelete _id
-      _ <- checkSpace "postDeleteTraitR" (traitSpaceId trait)
+      async checkSpace $ traitSpaceId trait
       flash Warning "Deleted trait" -- TODO: show deleted / re-added counts
       redirect . SpaceR . traitSpaceId $ trait
 
