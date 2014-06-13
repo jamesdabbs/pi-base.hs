@@ -2,6 +2,8 @@ module Handler.Traits where
 
 import Import
 
+import qualified Data.Text as T
+
 import DB (derivedTraits)
 import Explore (async, checkTrait, checkSpace)
 import Form.Traits

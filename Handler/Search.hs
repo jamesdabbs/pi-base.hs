@@ -73,3 +73,13 @@ getSearchR = do
         Just _ -> searchByFormula qt Yes qt
         Nothing -> render "Search" (searchShow q)
 
+getContributeR :: Handler Html
+getContributeR = do
+  let q = "SELECT ?? FROM traits WHERE description='' AND deduced=False ORDER BY random() LIMIT 1"
+  result <- runDB $ rawSql q []
+  case result of
+    (Entity _id _) : _ -> do
+      flash Info "We need your help! Can you supply a proof of this assertion?"
+      redirect $ TraitR _id
+    _ -> do
+      error "Every assertion has a proof. That's awesome, but this endpoint has outlived its usefulness"

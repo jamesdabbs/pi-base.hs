@@ -5,7 +5,10 @@
 <h1> ^{linkedTraitName trait}
 
 <.well>
-  <.markdown> #{traitDescription trait}
+  $if T.null $ unTextarea $ traitDescription trait
+    <i> Unforunately this assertion was added without a proof to back it up. It would be a big help if you could <a href=@{EditTraitR _id}>add one.</a>
+  $else
+    <.markdown> #{traitDescription trait}
 
 $if not $ null consequences
   <p>Traits which depend on this fact

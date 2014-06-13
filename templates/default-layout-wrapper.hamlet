@@ -55,6 +55,8 @@ $newline never
                   <a href=@{PropertiesR}> Properties
                 <li>
                   <a href=@{TheoremsR}> Theorems
+                <li>
+                  <a href=@{ContributeR}> Contribute
               <form.navbar-form.navbar-left action=@{SearchR} role=search>
                 <.form-group>
                   <input.form-control id=navbar-search type=text name=q placeholder="Search">

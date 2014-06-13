@@ -35,8 +35,9 @@
 /theorems/#TheoremId/delete    DeleteTheoremR    GET POST
 /theorems/#TheoremId/revisions TheoremRevisionsR GET
 
-/search SearchR GET
-/help   HelpR GET
+/contribute ContributeR GET
+/search     SearchR GET
+/help       HelpR GET
 
 /admin                AdminR          GET
 /admin/contradictions ContradictionsR POST
