@@ -28,6 +28,9 @@ import Network.Wai.Logger (clockDateCacher)
 import Data.Default (def)
 import Yesod.Core.Types (loggerSet, Logger (Logger))
 
+import qualified Rollbar
+import qualified Data.Text as T
+
 -- Import all relevant handler modules here.
 -- Don't forget to add new modules to your cabal file!
 import Handler.Admin
@@ -123,6 +126,17 @@ makeFoundation conf = do
     loggerSet' <- newStdoutLoggerSet defaultBufSize
     (getter, updater) <- clockDateCacher
 
+#ifdef DEVELOPMENT
+    let tok = ""
+#else
+    tok <- getEnv "ROLLBAR_ACCESS_TOKEN"
+#endif
+    let rc = Rollbar.Settings
+            { Rollbar.environment = Rollbar.Environment . T.pack . show $ appEnv conf
+            , Rollbar.token = Rollbar.ApiToken tok
+            , Rollbar.hostName = "pi-base"
+            }
+
     -- If the Yesod logger (as opposed to the request logger middleware) is
     -- used less than once a second on average, you may prefer to omit this
     -- thread and use "(updater >> getter)" in place of "getter" below.  That
@@ -135,7 +149,7 @@ makeFoundation conf = do
     _ <- forkIO updateLoop
 
     let logger = Yesod.Core.Types.Logger loggerSet' getter
-        foundation = App conf s p manager dbconf logger
+        foundation = App conf s p manager dbconf logger rc
 
     -- Perform database migration using our application's logging settings.
     runLoggingT

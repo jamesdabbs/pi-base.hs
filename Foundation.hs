@@ -20,12 +20,12 @@ import Text.Jasmine (minifym)
 import Text.Hamlet (hamletFile)
 import Yesod.Core.Types (Logger)
 
-import Control.Concurrent (forkIO)
-import Control.Monad (unless, void)
+import Control.Monad (unless)
 import Control.Monad.Logger (runStderrLoggingT)
-import Data.Text
+import qualified Data.Text as T
 import Data.Time (getCurrentTime)
-import Rollbar
+import qualified Rollbar
+import Rollbar.MonadLogger (reportErrorS)
 import System.Environment (lookupEnv)
 
 
@@ -40,6 +40,7 @@ data App = App
     , httpManager :: Manager
     , persistConfig :: Settings.PersistConf
     , appLogger :: Logger
+    , appRollbar :: Rollbar.Settings
     }
 
 instance HasHttpManager App where
@@ -183,23 +184,22 @@ instance Yesod App where
 
     errorHandler err@(InternalError e) = do
       app <- getYesod
-      mTok <- liftIO $ lookupEnv "ROLLBAR_ACCESS_TOKEN"
-      case mTok of
-        Nothing -> return ()
-        Just rollbarToken -> unless development $ void $ liftIO $ forkIO $ runStderrLoggingT $
-                               rollbarLogger (pack rollbarToken) "errorHandler" $logWarnS e
+      unless development $ forkHandler ($logErrorS "errorHandler" . T.pack . show) $ do
+          muser <- maybeAuth
+          let rollbarPerson (Entity uid user) =
+                 Rollbar.Person
+                   { Rollbar.id       = toPathPiece uid
+                   , Rollbar.username = Nothing
+                   , Rollbar.email    = Just $ userIdent user
+                   }
+          let rPerson = fmap rollbarPerson muser
+          reportErrorS (appRollbar app)
+                       (Rollbar.Options rPerson Nothing)
+                       "errorHandler"
+                       ($logDebugS) e
       defaultErrorHandler err
     errorHandler err = defaultErrorHandler err
 
-rollbarLogger :: (MonadIO m, MonadBaseControl IO m) => Text -> Text -> (Text -> Text -> m ()) -> Text -> m ()
-rollbarLogger t = reportLoggerErrorS settings' options
-  where
-    settings' = Settings
-      { environment = Environment "production" -- FIXME
-      , token       = ApiToken t
-      , hostName    = "pi-base.hs"
-      }
-    options = Options Nothing Nothing
 
 -- How to run database actions.
 instance YesodPersist App where
