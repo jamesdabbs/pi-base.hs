@@ -125,5 +125,5 @@ flushDeductions = do
     from $ \(t) -> do
     where_ (t ^. TraitDeduced ==. val True)
     return t
-  deleteConsequences traits
+  _ <- deleteConsequences traits
   return ()

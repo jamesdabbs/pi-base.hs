@@ -124,14 +124,15 @@ traitTab fs selected t = do
 --   load :: [m] -> Handler [Loaded m]
 type ELTrait = (Entity Space, Entity Trait, Entity Property)
 
-getEntity _id = do
-  v <- runDB . get404 $ _id
-  return $ Entity _id v
 
 fetchOne et@(Entity _ t) = do
   s <- getEntity $ traitSpaceId t
   p <- getEntity $ traitPropertyId t
   return (s,et,p)
+  where
+    getEntity _id = do
+      v <- runDB . get404 $ _id
+      return $ Entity _id v
 
 -- FIXME: n+1
 prefetchTraits :: [Entity Trait] -> Handler [ELTrait]

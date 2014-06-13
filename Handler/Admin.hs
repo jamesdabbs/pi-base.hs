@@ -5,12 +5,15 @@ import Import
 import qualified Data.Text as T
 import qualified Data.Set as S
 
-import DB (flushDeductions)
 import Explore (checkTheorem)
 import Logic (counterexamples)
 import Models
 import Handler.Helpers
 import Handler.Partials (theoremName)
+
+#ifdef DEVELOPMENT
+import DB (flushDeductions)
+#endif
 
 getAdminR :: Handler Html
 getAdminR = render "Admin" $(widgetFile "admin/show")

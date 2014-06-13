@@ -44,6 +44,7 @@ import Handler.User
 import qualified Data.HashMap.Strict as M
 import qualified Data.Aeson.Types as AT
 #ifndef DEVELOPMENT
+import System.Environment (getEnv)
 import qualified Web.Heroku
 #endif
 
@@ -133,7 +134,7 @@ makeFoundation conf = do
 #endif
     let rc = Rollbar.Settings
             { Rollbar.environment = Rollbar.Environment . T.pack . show $ appEnv conf
-            , Rollbar.token = Rollbar.ApiToken tok
+            , Rollbar.token = Rollbar.ApiToken . T.pack $ tok
             , Rollbar.hostName = "pi-base"
             }
 

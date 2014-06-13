@@ -13,7 +13,7 @@ import qualified Data.Set as S
 
 import Database.Esqueleto hiding (delete)
 
-import DB (supportedTraits, deleteWithConsequences)
+import DB (deleteWithConsequences)
 import Model.Revision
 
 theoremConsequences :: TheoremId -> Handler [Entity Trait]

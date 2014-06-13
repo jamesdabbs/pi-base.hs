@@ -1,6 +1,10 @@
 $maybe (Entity _id rev) <- mRev
   <p> Last revision at #{show $ revisionCreatedAt rev}
 
+<h1>
+  Users
+  <span.badge>#{total}
+
 ^{pager}
 <table.table>
   <thead>
