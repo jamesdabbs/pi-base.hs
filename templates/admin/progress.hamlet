@@ -1,3 +1,25 @@
+<.page-title>
+  <h1> Theorems
+
+<.row>
+  <.col-md-6>
+    <h4> Unproven
+    <ul>
+      $# FIXME: n+1
+      $forall (Entity _id t) <- unprovenTheorems
+        <li>
+          <a href=@{TheoremR _id}> ^{theoremName t}
+
+  <.col-md-6>
+    <h4> Reversable?
+    <ul>
+      $# FIXME: n+1
+      $forall (Entity _id t) <- reversables
+        <li>
+          <a href=@{TheoremR _id}> ^{theoremName t}
+
+<.page-title>
+  <h1> Spaces and Traits
 <table.table.table-hover.table-striped>
   <thead>
     <tr>

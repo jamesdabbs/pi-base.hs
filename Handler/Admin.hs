@@ -2,11 +2,12 @@ module Handler.Admin where
 
 import Import
 
+import Control.Monad (filterM)
 import qualified Data.Text as T
 import qualified Data.Set as S
 
 import Explore (checkTheorem)
-import Logic (counterexamples)
+import Logic (counterexamples, converse)
 import Models
 import Handler.Helpers
 import Handler.Partials (theoremName)
@@ -50,7 +51,22 @@ progressRow (Entity _id s) = do
   unproven <- handlerToWidget . runDB $ count [TraitSpaceId ==. _id, TraitDeduced ==. False, TraitDescription ==. Textarea ""]
   [whamlet|<tr><td><a href=@{SpaceR _id}>#{spaceName s}</a></td><td>#{known}</td><td>#{unproven}</td>|]
 
+theoremUnknownReversables :: Handler [Entity Theorem]
+theoremUnknownReversables = do
+  ts <- runDB $ selectList [] [Asc TheoremId]
+  -- n+1
+  filterM interesting $ ts
+  where
+    interesting (Entity _id t) = do
+      if null . theoremConverseIds $ t
+        then do
+          cxs <- counterexamples . converse . theoremImplication $ t
+          return . S.null $ cxs
+        else return False
+
 getProgressR :: Handler Html
 getProgressR = do
   spaces <- runDB $ selectList [] [Asc SpaceName]
+  unprovenTheorems <- runDB $ selectList [TheoremDescription ==. Textarea ""] [Asc TheoremId]
+  reversables <- theoremUnknownReversables
   render "Progress" $(widgetFile "admin/progress")
