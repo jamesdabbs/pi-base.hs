@@ -39,11 +39,12 @@
 /search     SearchR GET
 /help       HelpR GET
 
-/admin                AdminR          GET
-/admin/contradictions ContradictionsR POST
-/admin/explore        ExploreR        POST
-/admin/reset          ResetR          POST
-/admin/progress       ProgressR       GET
+/admin                   AdminR            GET
+/admin/contradictions    ContradictionsR   POST
+/admin/explore           ExploreR          POST
+/admin/reset             ResetR            POST
+/admin/progress/traits   TraitProgressR    GET
+/admin/progress/theorems TheoremProgressR  GET
 
 /users         UsersR GET
 /users/#UserId UserR  GET

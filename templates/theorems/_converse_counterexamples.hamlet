@@ -3,7 +3,6 @@ $if null cxs
 $else
   <p> Found #{total} counterexamples for the converse, including:
   <ul>
-  $forall (Entity _id s) <- cxs
-    <li>
-      <a href=@{SpaceR _id}> #{spaceName s}
-
+    $forall (Entity _id s) <- cxs
+      <li>
+        <a href=@{SpaceR _id}> #{spaceName s}

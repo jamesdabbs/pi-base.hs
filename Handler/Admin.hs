@@ -64,9 +64,13 @@ theoremUnknownReversables = do
           return . S.null $ cxs
         else return False
 
-getProgressR :: Handler Html
-getProgressR = do
+getTraitProgressR :: Handler Html
+getTraitProgressR = do
   spaces <- runDB $ selectList [] [Asc SpaceName]
+  render "Trait Progress" $(widgetFile "admin/trait_progress")
+
+getTheoremProgressR :: Handler Html
+getTheoremProgressR = do
   unprovenTheorems <- runDB $ selectList [TheoremDescription ==. Textarea ""] [Asc TheoremId]
   reversables <- theoremUnknownReversables
-  render "Progress" $(widgetFile "admin/progress")
+  render "Theorem Progress" $(widgetFile "admin/theorem_progress")

@@ -1,0 +1,10 @@
+<table.table.table-hover.table-striped>
+  <thead>
+    <tr>
+      <th>Space
+      <th>Known
+      <th>Unproven
+  <tbody>
+    $# FIXME: n+1
+    $forall s <- spaces
+      ^{progressRow s}

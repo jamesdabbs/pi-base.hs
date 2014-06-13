@@ -133,11 +133,12 @@ instance Yesod App where
     isAuthorized (TheoremRevisionsR  _) _ = isAdmin
 
     -- Must be an admin for admin functions
-    isAuthorized AdminR          _ = isAdmin
-    isAuthorized ContradictionsR _ = isAdmin
-    isAuthorized ExploreR        _ = isAdmin
-    isAuthorized ResetR          _ = isAdmin
-    isAuthorized ProgressR       _ = isAdmin
+    isAuthorized AdminR           _ = isAdmin
+    isAuthorized ContradictionsR  _ = isAdmin
+    isAuthorized ExploreR         _ = isAdmin
+    isAuthorized ResetR           _ = isAdmin
+    isAuthorized TraitProgressR   _ = isAdmin
+    isAuthorized TheoremProgressR _ = isAdmin
 
     -- Must be an admin to administrate users
     isAuthorized  UsersR   _ = isAdmin

@@ -10,8 +10,12 @@
       <td> Show a list of users and their activity
     <tr>
       <td>
-        <a.btn.btn-default href=@{ProgressR}> Progress
+        <a.btn.btn-default href=@{TraitProgressR}> Trait Progress
       <td> Overview of spaces with counts of traits known and needing proofs
+    <tr>
+      <td>
+        <a.btn.btn-default href=@{TheoremProgressR}> Theorem Progress
+      <td> Overview of theorems needing proofs and counterexamples
     <tr>
       <td>
         <form action=@{ExploreR} method=post>
