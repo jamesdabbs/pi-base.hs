@@ -3,10 +3,13 @@ module Model.Theorem
 , theoremDelete
 , theoremImplication
 , theoremConverses
+, theoremRecordProperties
 ) where
 
 import Import hiding ((==.))
 import qualified Import as I ((==.))
+
+import qualified Data.Set as S
 
 import Database.Esqueleto hiding (delete)
 
@@ -39,3 +42,9 @@ theoremImplication t = (Key . PersistInt64) <$> Implication (theoremAntecedent t
 
 theoremConverses :: Theorem -> Handler [Entity Theorem]
 theoremConverses t = runDB $ selectList [TheoremId <-. theoremConverseIds t] []
+
+theoremRecordProperties :: TheoremId -> Theorem -> Handler ()
+theoremRecordProperties _id t = mapM_ recordProperty properties
+  where
+    recordProperty p = runDB . insert $ TheoremProperty _id p
+    properties = S.toList . implicationProperties . theoremImplication $ t

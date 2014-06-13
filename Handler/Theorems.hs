@@ -49,6 +49,7 @@ postCreateTheoremR = do
         then do
           _id <- runDB $ insert theorem
           _ <- revisionCreate $ Entity _id theorem
+          theoremRecordProperties _id theorem
           async checkTheorem _id
           flash Success "Created theorem"
           redirect $ TheoremR _id
