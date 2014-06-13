@@ -21,12 +21,11 @@ import Text.Hamlet (hamletFile)
 import Yesod.Core.Types (Logger)
 
 import Control.Monad (unless)
-import Control.Monad.Logger (runStderrLoggingT)
+-- import Control.Monad.Logger (runStderrLoggingT)
 import qualified Data.Text as T
 import Data.Time (getCurrentTime)
 import qualified Rollbar
 import Rollbar.MonadLogger (reportErrorS)
-import System.Environment (lookupEnv)
 
 
 -- | The site argument for your application. This can be a good place to
@@ -218,15 +217,18 @@ instance YesodAuth App where
 
     getAuthId creds = runDB $ do
         x <- getBy $ UniqueUser $ credsIdent creds
+        now <- liftIO $ getCurrentTime
         case x of
-            Just (Entity uid _) -> return $ Just uid
+            Just (Entity uid _) -> do
+              update uid [UserLastLoggedInAt =. now]
+              return $ Just uid
             Nothing -> do
-                now <- liftIO $ getCurrentTime
                 fmap Just $ insert User
                     { userIdent = credsIdent creds
                     , userName = Nothing
                     , userAdmin = False
                     , userCreatedAt = now
+                    , userLastLoggedInAt = now
                     }
 
     -- You can add other plugins like BrowserID, email or OAuth here

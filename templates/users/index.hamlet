@@ -1,5 +1,15 @@
+$maybe (Entity _id rev) <- mRev
+  <p> Last revision at #{show $ revisionCreatedAt rev}
+
 ^{pager}
-<ul>
-  $forall (Entity _id u) <- users
-    <li>
-      <a href=@{UserR _id}> #{userIdent u}
+<table.table>
+  <thead>
+    <tr>
+      <th> User
+      <th> Last Login
+  <tbody>
+    $forall (Entity _id u) <- users
+      <tr>
+        <td>
+          <a href=@{UserR _id}> #{userIdent u}
+        <td> #{show $ userLastLoggedInAt u}

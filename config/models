@@ -3,6 +3,7 @@ User sql=remote_users
     name Text Maybe
     admin Bool
     createdAt UTCTime default=now()
+    lastLoggedInAt UTCTime default=now()
     UniqueUser ident
     deriving Typeable
 

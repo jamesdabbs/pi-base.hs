@@ -6,8 +6,9 @@ import Handler.Helpers
 
 getUsersR :: Handler Html
 getUsersR = do
-  (users, pager) <- paged 10 [] [Asc UserIdent]
+  (users, pager) <- paged 10 [] [Desc UserLastLoggedInAt]
   total <- runDB $ count ([] :: [Filter User])
+  mRev <- runDB $ selectFirst [] [Desc RevisionCreatedAt]
   render "Users" $(widgetFile "users/index")
 
 getUserR :: UserId -> Handler Html
