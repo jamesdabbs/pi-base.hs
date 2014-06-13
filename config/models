@@ -93,3 +93,7 @@ Assumption sql=assumptions
 Supporter sql=supporters
   assumedId TraitId
   impliedId TraitId
+
+Strut sql=struts
+  theoremId TheoremId
+  traitId TraitId

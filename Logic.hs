@@ -21,7 +21,7 @@ import qualified Data.Set as S
 import qualified Data.Text as Text
 import Data.Time (getCurrentTime)
 
-import DB (matches', addSupports)
+import DB (matches', addSupports, addStruts)
 import Models
 import Util (intersectionN, unionN, encodeText)
 
@@ -163,6 +163,7 @@ addProof s (p,v,(thrm,ts)) = do
       pid <- runDB . insert $ Proof _id thrm 0 now now
       mapM_ (runDB . insert . Assumption pid) . S.toList $ ts
       addSupports _id ts
+      addStruts _id thrm ts
       $(logDebug) $ "Added trait " <> (encodeText _id)
       return $ Just _id
 

@@ -6,6 +6,7 @@ module DB
 , supportedTraits
 , deleteWithConsequences
 , flushDeductions
+, addStruts
 ) where
 
 import Import hiding ((==.), (!=.), delete)
@@ -48,6 +49,10 @@ deleteSupports :: [TraitId] -> Handler ()
 deleteSupports ids = runDB . delete $
   from $ \s -> where_ (s ^. SupporterImpliedId `in_` (valList ids))
 
+deleteStruts :: [TraitId] -> Handler ()
+deleteStruts ids = runDB . delete $
+  from $ \s -> where_ (s ^. StrutTraitId `in_` (valList ids))
+
 deleteProofs :: [TraitId] -> Handler ()
 deleteProofs ids = do
   proofs <- runDB . select $ from $ \p -> do
@@ -61,6 +66,7 @@ deleteConsequences :: [Entity Trait] -> Handler Int64
 deleteConsequences traits = do
   let ids = map entityKey traits
   deleteSupports ids
+  deleteStruts ids
   deleteProofs ids
   runDB . deleteCount $ from $ \t -> where_ (t ^. TraitId `in_` (valList ids))
 
@@ -97,19 +103,27 @@ addSupports _id assumedIds = do
     ids = map entityKey
     addSupport aid = insert $ Supporter { supporterAssumedId = aid, supporterImpliedId = _id }
 
--- TODO: there's got to be a more concise way to express this ...
+getStruts :: Set TraitId -> Handler (Set TheoremId)
+getStruts ts = do
+  ss <- runDB . select $
+    from $ \(struts) -> do
+    where_ (struts ^. StrutTraitId `in_` (valList . S.toList $ ts))
+    return struts
+  return . S.fromList . map (strutTheoremId . entityVal) $ ss
+
+addStruts :: TraitId -> TheoremId -> Set TraitId -> Handler ()
+addStruts trait theorem assumptions = do
+  _ <- create theorem
+  struts <- getStruts assumptions
+  mapM_ create . S.toList $ struts
+  where
+    create theoremId = runDB . insert $ Strut theoremId trait
+
 flushDeductions :: Handler ()
 flushDeductions = do
-  runDB . delete $
-    from $ \(_ :: SqlExpr (Entity Supporter)) ->
-    return ()
-  runDB . delete $
-    from $ \(_ :: SqlExpr (Entity Assumption)) ->
-    return ()
-  runDB . delete $
-    from $ \(_ :: SqlExpr (Entity Proof)) ->
-    return ()
-  runDB . delete $
-    from $ \(table) ->
-    where_ (table ^. TraitDeduced ==. (val True))
+  traits <- runDB . select $
+    from $ \(t) -> do
+    where_ (t ^. TraitDeduced ==. val True)
+    return t
+  deleteConsequences traits
   return ()

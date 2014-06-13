@@ -2,8 +2,9 @@
 
 <h1>Deleting ^{traitName trait}
 
+  struts <- getStruts assumptions
 $if not $ null consequences
-  <p>The following supported traits will also be deleted:
+  <p> The following supported traits will also be deleted:
   ^{linkedTraitList consequences}
 
 <form method=post action=@{DeleteTraitR _id}>

@@ -2,6 +2,7 @@ module Handler.Admin where
 
 import Import
 
+import qualified Data.Text as T
 import qualified Data.Set as S
 
 import DB (flushDeductions)
@@ -14,12 +15,13 @@ import Handler.Partials (theoremName)
 getAdminR :: Handler Html
 getAdminR = render "Admin" $(widgetFile "admin/show")
 
--- TODO: add counts of added, with counterexamples
 postExploreR :: Handler Html
 postExploreR = do
+  before <- runDB $ count ([] :: [Filter Trait])
   theorems <- runDB $ selectList [] []
   mapM_ (checkTheorem "Checking all theorems" . entityKey) theorems
-  flash Success "Explored all theorems"
+  after <- runDB $ count ([] :: [Filter Trait])
+  flash Success $ "Explored all theorems. Found " <> (T.pack . show $ (after - before)) <> " new traits."
   redirect AdminR
 
 postContradictionsR :: Handler Html

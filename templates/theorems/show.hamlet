@@ -1,6 +1,6 @@
 <a.btn.btn-default href=@{EditTheoremR _id}> Edit
 ^{authButton (TheoremRevisionsR _id) "Revisions"}
-$# This is borked <a.btn.btn-default href=@{DeleteTheoremR _id}> Delete
+<a.btn.btn-default href=@{DeleteTheoremR _id}> Delete
 
 <h1> ^{linkedTheoremName theorem}
 

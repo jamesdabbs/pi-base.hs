@@ -17,16 +17,11 @@ import DB (supportedTraits, deleteWithConsequences)
 import Model.Revision
 
 theoremConsequences :: TheoremId -> Handler [Entity Trait]
-theoremConsequences _id = do
-  error "This doesn't work, for two reasons:\
-    1) We aren't including the proved traits in the return value\
-    2) The proved traits are automatically deduced, and so don't track their support"
-  proved <- runDB . select $
-    from $ \(traits `InnerJoin` proofs) -> do
-    on (traits ^. TraitId ==. proofs ^. ProofTraitId)
-    where_ (proofs ^. ProofTheoremId ==. (val _id))
-    return traits
-  supportedTraits $ map entityKey proved
+theoremConsequences _id = runDB . select $
+  from $ \(traits `InnerJoin` struts) -> do
+  on (traits ^. TraitId ==. struts ^. StrutTraitId)
+  where_ (struts ^. StrutTheoremId ==. (val _id))
+  return traits
 
 theoremDelete :: TheoremId -> Handler Int64
 theoremDelete _id = do
