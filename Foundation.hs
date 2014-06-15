@@ -103,9 +103,16 @@ instance Yesod App where
 
             unless development $ addScript $ StaticR js_rollbar_js
 
-            addScript $ StaticR js_jsonlite_js
-            addScript $ StaticR js_latinize_js
-            addScript $ StaticR js_local_cache_js
+            $(combineScripts 'StaticR
+              [ vendor_js_jquery_js
+              , vendor_js_bootstrap_js
+              , vendor_js_typeahead_js
+              , vendor_js_markdown_js
+              , vendor_js_underscore_js
+              , js_jsonlite_js
+              , js_latinize_js
+              , js_local_cache_js
+              ])
 
             $(widgetFile "default-layout")
 
