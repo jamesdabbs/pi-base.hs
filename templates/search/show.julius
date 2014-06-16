@@ -1,5 +1,0 @@
-$(function() {
-  var $q = $('#page-search input');
-
-  window.piBase.formulaInput($q);
-});

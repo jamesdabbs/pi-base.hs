@@ -6,12 +6,12 @@
     <.modal-body>
       ^{searchHelp}
 
-<form.form.form-horizontal id=page-search role=form action=@{SearchR}>
+<form.form.form-horizontal role=form action=@{SearchR}>
   <.form-group.required>
     <.col-md-8>
       $maybe jq <- q
-        <input.form-control autofocus=true type=search name=q value=#{jq}>
+        <input.formula.form-control autofocus=true type=search name=q value=#{jq}>
       $nothing
-        <input.form-control autofocus=true type=search name=q>
+        <input.formula.form-control autofocus=true type=search name=q>
   <button.btn.btn-default> Search
   <a.btn.btn-link.search-help href=@{HelpR}> Help &raquo;

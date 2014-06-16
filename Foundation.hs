@@ -112,6 +112,11 @@ instance Yesod App where
               , js_jsonlite_js
               , js_latinize_js
               , js_local_cache_js
+              , js_markdown_js
+              , js_pi_base_js
+              , js_property_js
+              , js_formula_typeahead_js
+              , js_formula_js
               ])
 
             $(widgetFile "default-layout")
