@@ -59,9 +59,9 @@ $newline never
                 <button.hidden> Submit
 
               <ul.nav.navbar-nav.pull-right>
-                $maybe (Entity _ a) <- ma
+                $maybe (Entity _id a) <- ma
                   <li>
-                    <a>#{userIdent a}
+                    <a id=auth-data data-id="#{show $ encode _id}" data-email="#{userIdent a}">#{userIdent a}
                   $if userAdmin a
                     <li>
                       <a href=@{AdminR}>Admin

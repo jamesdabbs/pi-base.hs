@@ -21,7 +21,7 @@ import Text.Hamlet (hamletFile)
 import Yesod.Core.Types (Logger)
 
 import Control.Monad (unless)
--- import Control.Monad.Logger (runStderrLoggingT)
+import Data.Aeson (encode)
 import qualified Data.Text as T
 import Data.Time (getCurrentTime)
 import qualified Rollbar

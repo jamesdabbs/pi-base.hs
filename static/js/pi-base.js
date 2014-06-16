@@ -1,3 +1,5 @@
+"use strict";
+
 window.piBase = {
   error: function(args) {
     if (typeof(Rollbar) === "undefined") {
