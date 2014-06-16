@@ -192,6 +192,5 @@ window.piBase.formulaInput = function($q) {
 }
 
 $(function() {
-  window.piBase.formulaInput($("#navbar-search"));
 
 });

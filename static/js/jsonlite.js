@@ -1,4 +1,5 @@
 // From http://deerchao.net/projects/jsonlite
+//   but modified ever so slightly to allow whitespace in words ... why not?
 var jsonlite;
 (function (jsonlite) {
     function parse(source, jsonObjectFormat) {
@@ -180,7 +181,7 @@ var jsonlite;
                 case pair_seperator:
                     return false;
             }
-            return ch > ' ';
+            return ch >= ' ';
         }
     }
     jsonlite.parse = parse;

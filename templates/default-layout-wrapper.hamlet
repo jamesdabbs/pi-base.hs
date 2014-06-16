@@ -54,7 +54,7 @@ $newline never
                   <a href=@{ContributeR}> Contribute
               <form.navbar-form.navbar-left action=@{SearchR} role=search>
                 <.form-group>
-                  <input.form-control id=navbar-search type=text name=q placeholder="Search">
+                  <input.form-control.formula id=navbar-search type=text name=q placeholder="Search">
                 $# Need this for the typeahead JS to still submit
                 <button.hidden> Submit
 

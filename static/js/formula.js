@@ -19,26 +19,13 @@ var closeParens = function(str) {
 };
 
 var jsonliteEscape = function(str) {
-  if (str.match(/[\s",\[\]{}:]/)) {
+  if (str.match(/[",\[\]{}:]/)) {
     return '"' + str.replace('"', '\\"') + '"';
   } else {
     return str;
   }
 }
 
-
-var condenser = function(ids, f) {
-  if (f.and) {
-    return "{and: [" + _.map(f.and, lighten).join(", ") + "]}";
-  } else if (f.or) {
-    return "{or: [" + _.map(f.or, lighten).join(", ") + "]}";
-  } else {
-    var kv = _.pairs(f)[0]
-      , prefix = kv[1] ? "" : "~"
-      , dName = ids[""+kv[0]];
-    return jsonliteEscape(prefix + dName);
-  }
-}
 
 var condense = function(val, cb) {
   if (!val || val[0] === ":") return cb(null, val);
@@ -49,11 +36,24 @@ var condense = function(val, cb) {
     val = val.slice(1, val.length);
   }
   piBase.Property.ids.done(function(ids) {
-    try {
-      cb(null, modifier + condenser(ids, JSON.parse(val)));
-    } catch(e) {
-      cb(e);
+    var condenser = function(f) {
+      if (f.and) {
+        return "{and: [" + _.map(f.and, condenser).join(", ") + "]}";
+      } else if (f.or) {
+        return "{or: [" + _.map(f.or, condenser).join(", ") + "]}";
+      } else {
+        var kv = _.pairs(f)[0]
+          , prefix = kv[1] ? "" : "~"
+          , dName = ids[""+kv[0]];
+        return jsonliteEscape(prefix + dName);
+      }
     }
+
+    //try {
+      cb(null, modifier + condenser(JSON.parse(val)));
+    //} catch(e) {
+    //  cb(e);
+    //}
   });
 }
 
@@ -71,9 +71,9 @@ var expand = function(f, cb) {
     var unknowns = []
       , expander = function(f) {
           if (f.and) {
-            return {and: _.map(f.and, lookupProps)};
+            return {and: _.map(f.and, expander)};
           } else if (f.or) {
-            return {or: _.map(f.or, lookupProps)};
+            return {or: _.map(f.or, expander)};
           } else {
             // TODO: fuzzy match, make suggestions if missing
             var name, val, prop, atom;
@@ -118,14 +118,23 @@ var expand = function(f, cb) {
 };
 
 var displayError = function($field, err) {
-  alert(err);
+  var val = $field.val();
+
+  $field.popover({
+    placement: "bottom",
+    html: true,
+    content: err,
+    trigger: "manual"
+  }).popover("show").blur(function() {
+    if ($field.val() !== val) {
+      $field.popover("hide");
+    }
+  });
 }
 
 
 $(function() {
-  var fs = $(".formula");
-
-  fs.each(function() {
+  $(".formula").each(function() {
     var $field = $(this);
 
     condense($field.val(), function(err, formatted) {
@@ -140,6 +149,7 @@ $(function() {
     e.preventDefault();
 
     var form = this
+      , fs = $(form).find(".formula:not(.tt-hint)") // typeahead js creates these phantoms
       , done = _.after(fs.length, function() {
         // Adjust the submitted values without redrawing the fields
         fs.each(function() {

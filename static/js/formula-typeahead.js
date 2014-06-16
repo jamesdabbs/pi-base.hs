@@ -26,16 +26,18 @@ piBase.formulaTypeahead = function($field) {
     source: function(query, cb) {
       // Handle special query types
       if (query[0] == ":") return;
+
+      var prefix = ""
       if (query[0] == "?" || query[0] == "!") {
+        prefix = query[0];
         query = query.slice(1, query.length);
       }
 
-      var prefix, fragment, sep = query.regexLastIndexOf(/[,\[]/);
+      var fragment, sep = query.regexLastIndexOf(/[,\[]/);
       if (sep == -1) {
-        prefix = "";
         fragment = query;
       } else {
-        prefix = query.slice(0, sep + 1);
+        prefix = prefix + query.slice(0, sep + 1);
         fragment = query.slice(sep + 1, query.length);
       }
 
