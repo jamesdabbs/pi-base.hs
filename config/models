@@ -79,8 +79,6 @@ TheoremProperty sql=theorem_properties
 Proof sql=proofs
   traitId TraitId
   theoremId TheoremId
-  -- FIXME: this field should be made accurate or removed
-  theoremIndex Int
   createdAt UTCTime
   updatedAt UTCTime
   UProofTrait traitId
