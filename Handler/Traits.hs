@@ -77,18 +77,29 @@ getTraitR _id = do
   trait <- runDB $ get404 _id
   case traitDeduced trait of
     True -> do
-      (Entity proofId proof) <- runDB . getBy404 $ UProofTrait _id
-      assumedTraits  <- proofTraits  proofId
-      assumedTheorem <- proofTheorem proof
-      derived        <- derivedTraits _id
-      supports       <- traitSupport _id
-      (spaces, properties) <- traitPrefetch $ [Entity _id trait] ++ derived ++ supports ++ assumedTraits
-      theoremProperties    <- theoremPrefetch [entityVal assumedTheorem]
+      derived  <- derivedTraits _id
+      supports <- traitSupport _id
+      (spaces, properties) <- traitPrefetch $ [Entity _id trait] ++ supports ++ derived
+      struts <- traitStruts _id
+      theoremProperties <- theoremPrefetch . map entityVal $ struts
       render (traitTitle trait) $(widgetFile "traits/show_deduced")
     False -> do
       consequences <- traitConsequences _id
       (spaces, properties) <- traitPrefetch $ [Entity _id trait] ++ consequences
       render (traitTitle trait) $(widgetFile "traits/show")
+
+getTraitDataR :: TraitId -> Handler Value
+getTraitDataR _id = do
+  trait    <- runDB $ get404 _id
+  derived  <- derivedTraits _id
+  supports <- traitSupport _id
+  struts   <- traitStruts _id
+  returnJson . object $
+    [ "trait" .= trait
+    , "supports" .= supports
+    , "struts" .= struts
+    , "derived" .= derived
+    ]
 
 getDeleteTraitR :: TraitId -> Handler Html
 getDeleteTraitR _id = do

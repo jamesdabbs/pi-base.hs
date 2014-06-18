@@ -10,7 +10,7 @@ import Handler.Helpers
 import Handler.Partials (revisionList)
 import Logic (counterexamples, converse)
 import Models
-import Presenter.Trait (traitListLinked)
+import Presenter.Trait (traitName)
 import Presenter.Theorem
 
 

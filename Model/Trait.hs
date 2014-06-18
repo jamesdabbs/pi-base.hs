@@ -1,6 +1,7 @@
 module Model.Trait
 ( traitConsequences
 , traitDelete
+, traitStruts
 , traitSupport
 , traitValueBool
 , traitPrefetch
@@ -24,6 +25,13 @@ traitDelete _id = do
   runDB $ delete _id
   return n
 
+traitStruts :: TraitId -> Handler [Entity Theorem]
+traitStruts _id = runDB . select $
+  from $ \(theorems `InnerJoin` struts) -> do
+    on (theorems ^. TheoremId ==. struts ^. StrutTheoremId)
+    where_ (struts ^. StrutTraitId ==. val _id)
+    return theorems
+
 traitSupport :: TraitId -> Handler [Entity Trait]
 traitSupport _id = runDB . select $
   from $ \(traits `InnerJoin` supporters) -> do
@@ -44,4 +52,3 @@ traitPrefetch ts = do
   return (spaces, properties)
   where
     pluck f = nub . map (f . entityVal)
-

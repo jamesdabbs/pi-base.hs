@@ -2,7 +2,6 @@ module Presenter.Trait
 ( traitName
 , traitNameAtom
 , traitNameLinked
-, traitListLinked
 ) where
 
 import Import
@@ -29,11 +28,3 @@ traitNameLinked ss ps trait = do
   let property = (M.!) ps $ traitPropertyId trait
   let space = (M.!) ss $ traitSpaceId trait
   $(widgetFile "traits/linked_name")
-
-traitListLinked :: Prefetch Space -> Prefetch Property -> [Entity Trait] -> Widget
-traitListLinked spaces properties traits = do
-  [whamlet|
-<ul>
-  $forall (Entity _id t) <- traits
-    <li>
-      <a href=@{TraitR _id}> ^{traitName spaces properties t}|]

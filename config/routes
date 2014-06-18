@@ -27,6 +27,7 @@
 /traits/#TraitId/edit      EditTraitR      GET
 /traits/#TraitId/delete    DeleteTraitR    GET POST
 /traits/#TraitId/revisions TraitRevisionsR GET
+/traits/#TraitId/data      TraitDataR      GET
 
 /theorems                      TheoremsR         GET
 /theorems/!new                 CreateTheoremR    GET POST
