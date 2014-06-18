@@ -1,0 +1,20 @@
+^{searchShow $ Just qt}
+
+<h1> Matching text '#{text}'
+
+<.clear>
+  <.btn-group>
+    <a.btn.btn-default href="?q=#{qt}&type=spaces">
+      Spaces
+      <span.badge> #{spaces}
+    <a.btn.btn-default.active href="?q=#{qt}&type=properties">
+      Properties
+      <span.badge> #{properties}
+
+^{pager}
+
+<dl>
+  $forall (Entity _id property) <- results
+    <dt>
+      <a href=@{PropertyR _id}> #{propertyName property}
+    <dd.markdown> #{preview $ propertyDescription property}

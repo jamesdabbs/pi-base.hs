@@ -1,8 +1,0 @@
-^{searchShow $ Just qt}
-
-<h1> Spaces matching text '#{text}'
-<dl>
-  $forall (Entity _id space) <- spaces
-    <dt>
-      <a href=@{SpaceR _id}> #{spaceName space}
-    <dd.markdown> #{preview $ spaceDescription space}

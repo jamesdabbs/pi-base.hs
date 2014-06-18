@@ -6,6 +6,7 @@ import qualified Data.Set as S
 import qualified Data.Text as T
 import Database.Persist.Sql (rawSql)
 
+import DB (icontains)
 import Handler.Helpers
 import Handler.Partials (searchHelp)
 import Logic (matches)
@@ -25,16 +26,23 @@ searchShow q = $(widgetFile "search/show")
 
 searchByText :: Text -> Text -> Handler Html
 searchByText qt text = do
-  let q = "SELECT ?? FROM spaces WHERE spaces.name ILIKE ?"
-  spaces <- runDB $ rawSql q [PersistText $ "%" <> text <> "%"]
-  render "Search" $(widgetFile "search/text_results")
+  spaces     <- runDB $ count [icontains SpaceName text]
+  properties <- runDB $ count [icontains PropertyName text]
+  _type <- lookupGetParam "type"
+  -- TODO: extract this and filtered trait tab widget
+  case _type of
+    Just "properties" -> do
+      (results, pager) <- paged 10 [icontains PropertyName text] []
+      render (qt <> " properties") $(widgetFile "search/property_text_results")
+    _ -> do
+      (results, pager) <- paged 10 [icontains SpaceName text] []
+      render (qt <> " spaces") $(widgetFile "search/space_text_results")
 
 matchTypeDisplay :: MatchType -> Text
 matchTypeDisplay Yes = "∋"
 matchTypeDisplay No = "∌"
 matchTypeDisplay Unknown = "?"
 
--- TODO: search across spaces, properties, descriptions, aliases ... probably want ES for that
 searchByFormula :: Text -> MatchType -> Text -> Handler Html
 searchByFormula qt _type text = do
   let mf = decodeText text

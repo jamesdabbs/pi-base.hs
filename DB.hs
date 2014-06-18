@@ -9,6 +9,7 @@ module DB
 , addStruts
 , Prefetch
 , prefetch
+, icontains
 ) where
 
 import Import hiding ((==.), (!=.), delete)
@@ -17,8 +18,12 @@ import Database.Esqueleto
 import Data.List (partition, nub)
 import qualified Data.Map as M
 import qualified Data.Set as S
+import qualified Data.Text as T
 
 type Prefetch a = M.Map (Key a) a
+
+icontains :: EntityField r Text -> Text -> Filter r
+icontains field v = Filter field (Left $ T.concat ["%", v, "%"]) (BackendSpecificFilter "ILIKE")
 
 prefetch :: (PersistEntity e, PersistEntityBackend e ~ SqlBackend) => [Filter e] -> Handler (Prefetch e)
 prefetch f = do
