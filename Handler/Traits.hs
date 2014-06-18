@@ -14,11 +14,6 @@ import Presenter.Trait
 import Presenter.Theorem (theoremName)
 
 
--- FIXME
-traitTitle :: Trait -> Text
-traitTitle _ = "Trait"
-
-
 getTraitsR :: Handler Html
 getTraitsR = do
   total <- runDB $ count ([] :: [Filter Trait])
@@ -56,7 +51,7 @@ getEditTraitR _id = do
   trait <- runDB $ get404 _id
   (widget, enctype) <- generateFormPost $ updateTraitForm trait
   (spaces, properties) <- traitPrefetch [Entity _id trait]
-  render ("Edit " <> traitTitle trait) $(widgetFile "traits/edit")
+  render ("Edit " <> traitTitle spaces properties trait) $(widgetFile "traits/edit")
 
 postTraitR :: TraitId -> Handler Html
 postTraitR _id = do
@@ -70,7 +65,7 @@ postTraitR _id = do
       redirect $ TraitR _id
     _ -> do
       (spaces, properties) <- traitPrefetch [Entity _id trait]
-      render ("Edit " <> traitTitle trait) $(widgetFile "traits/edit")
+      render ("Edit " <> traitTitle spaces properties trait) $(widgetFile "traits/edit")
 
 getTraitR :: TraitId -> Handler Html
 getTraitR _id = do
@@ -82,11 +77,11 @@ getTraitR _id = do
       (spaces, properties) <- traitPrefetch $ [Entity _id trait] ++ supports ++ derived
       struts <- traitStruts _id
       theoremProperties <- theoremPrefetch . map entityVal $ struts
-      render (traitTitle trait) $(widgetFile "traits/show_deduced")
+      render (traitTitle spaces properties trait) $(widgetFile "traits/show_deduced")
     False -> do
       consequences <- traitConsequences _id
       (spaces, properties) <- traitPrefetch $ [Entity _id trait] ++ consequences
-      render (traitTitle trait) $(widgetFile "traits/show")
+      render (traitTitle spaces properties trait) $(widgetFile "traits/show")
 
 getTraitDataR :: TraitId -> Handler Value
 getTraitDataR _id = do
@@ -106,7 +101,7 @@ getDeleteTraitR _id = do
   trait <- runDB $ get404 _id
   consequences <- traitConsequences _id
   (spaces, properties) <- traitPrefetch $ [Entity _id trait] ++ consequences
-  render ("Delete " <> traitTitle trait) $(widgetFile "traits/delete")
+  render ("Delete " <> traitTitle spaces properties trait) $(widgetFile "traits/delete")
 
 postDeleteTraitR :: TraitId -> Handler Html
 postDeleteTraitR _id = do
@@ -122,4 +117,5 @@ postDeleteTraitR _id = do
 getTraitRevisionsR :: TraitId -> Handler Html
 getTraitRevisionsR _id = do
   trait <- runDB $ get404 _id
-  render (traitTitle trait <> " Revisions") $(widgetFile "traits/revisions")
+  (spaces, properties) <- traitPrefetch [Entity _id trait]
+  render (traitTitle spaces properties trait <> " Revisions") $(widgetFile "traits/revisions")

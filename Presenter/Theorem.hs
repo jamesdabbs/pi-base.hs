@@ -2,12 +2,14 @@ module Presenter.Theorem
 ( theoremName
 , theoremNameLinked
 , formulaNameLinked
+, theoremTitle
 ) where
 
 import Import
 
 import Data.List (intersperse)
 import qualified Data.Map as M
+import qualified Data.Text as T
 
 import DB (Prefetch)
 import Models
@@ -58,3 +60,8 @@ $newline never
 
 theoremNameLinked :: Prefetch Property -> Theorem -> Widget
 theoremNameLinked properties = renderTheorem properties linkedAtom
+
+theoremTitle :: Prefetch Property -> Theorem -> Text
+theoremTitle ps = T.pack . show . fmap fetchName . theoremImplication
+  where
+    fetchName = propertyName . (M.!) ps

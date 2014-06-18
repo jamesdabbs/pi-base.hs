@@ -14,10 +14,6 @@ import Presenter.Trait (traitName)
 import Presenter.Theorem
 
 
--- FIXME
-theoremTitle :: Theorem -> Text
-theoremTitle _ = "Theorem"
-
 searchHelp :: Widget
 searchHelp = do
   let s = SpaceR . Key . PersistInt64
@@ -70,7 +66,7 @@ getEditTheoremR _id = do
   theorem <- runDB $ get404 _id
   (widget, enctype) <- generateFormPost $ updateTheoremForm theorem
   properties <- theoremPrefetch [theorem]
-  render ("Edit " <> theoremTitle theorem) $(widgetFile "theorems/edit")
+  render ("Edit " <> theoremTitle properties theorem) $(widgetFile "theorems/edit")
 
 postTheoremR :: TheoremId -> Handler Html
 postTheoremR _id = do
@@ -84,14 +80,14 @@ postTheoremR _id = do
       redirect $ TheoremR _id
     _ -> do
       properties <- theoremPrefetch [theorem]
-      render ("Edit " <> theoremTitle theorem) $(widgetFile "theorems/edit")
+      render ("Edit " <> theoremTitle properties theorem) $(widgetFile "theorems/edit")
 
 getTheoremR :: TheoremId -> Handler Html
 getTheoremR _id = do
   theorem <- runDB $ get404 _id
   converses <- theoremConverses theorem
   properties <- theoremPrefetch $ [theorem] ++ map entityVal converses
-  render (theoremTitle theorem) $(widgetFile "theorems/show")
+  render (theoremTitle properties theorem) $(widgetFile "theorems/show")
 
 getDeleteTheoremR :: TheoremId -> Handler Html
 getDeleteTheoremR _id = do
@@ -99,7 +95,7 @@ getDeleteTheoremR _id = do
   tprops <- theoremPrefetch [theorem]
   consequences <- theoremConsequences _id
   (spaces, properties) <- traitPrefetch consequences
-  render ("Delete " <> theoremTitle theorem) $(widgetFile "theorems/delete")
+  render ("Delete " <> theoremTitle tprops theorem) $(widgetFile "theorems/delete")
 
 postDeleteTheoremR :: TheoremId -> Handler Html
 postDeleteTheoremR _id = do
@@ -110,4 +106,5 @@ postDeleteTheoremR _id = do
 getTheoremRevisionsR :: TheoremId -> Handler Html
 getTheoremRevisionsR _id = do
   theorem <- runDB . get404 $ _id
-  render (theoremTitle theorem <> " Revisions") $(widgetFile "theorems/revisions")
+  properties <- theoremPrefetch [theorem]
+  render (theoremTitle properties theorem <> " Revisions") $(widgetFile "theorems/revisions")
