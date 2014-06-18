@@ -2,7 +2,7 @@
   This site is under active development. Got suggestions? Get involved on <a href="https://github.com/jamesdabbs/pi-base.hs">GitHub</a>.
 
 <.jumbotron>
-  <h1> Welcome to the 𝜋-Base
+  <h1> Welcome to the π-Base
   <p> A community database of topological examples with automated deduction and powerful search
 
   <form.form role=form action=@{SearchR}>

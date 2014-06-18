@@ -18,7 +18,7 @@ searchHelp = do
 
 getHomeR :: Handler Html
 getHomeR = defaultLayout $ do
-  setTitle "𝜋-Base"
+  setTitle "π-Base"
   $(widgetFile "homepage")
 
 getHelpR :: Handler Html

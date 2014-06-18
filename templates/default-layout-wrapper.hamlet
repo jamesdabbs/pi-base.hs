@@ -40,7 +40,7 @@ $newline never
         <nav.navbar.navbar-default>
           <.container>
             <.navbar-header>
-              <a.navbar-brand href=@{HomeR}> 𝜋-Base
+              <a.navbar-brand href=@{HomeR}> π-Base
 
             <.collapse.navbar-collapse>
               <ul.nav.navbar-nav>
@@ -61,7 +61,7 @@ $newline never
               <ul.nav.navbar-nav.pull-right>
                 $maybe (Entity _id a) <- ma
                   <li>
-                    <a id=auth-data data-id="#{show $ encode _id}" data-email="#{userIdent a}">#{userIdent a}
+                    <a id=auth-data data-id=#{show $ encode _id} data-email="#{userIdent a}">#{userIdent a}
                   $if userAdmin a
                     <li>
                       <a href=@{AdminR}>Admin

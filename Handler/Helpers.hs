@@ -19,7 +19,7 @@ import Yesod.Routes.Class (Route)
 
 render :: Text -> Widget -> Handler Html
 render title w = defaultLayout $ do
-  setTitle . toHtml $ [shamlet|#{title} | 𝜋-Base|]
+  setTitle . toHtml $ [shamlet|#{title} | π-Base|]
   w
 
 paginationConfig :: PageWidget App
