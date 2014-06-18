@@ -17,4 +17,4 @@
 <ul>
   $forall (Entity _id t) <- derived
     <li>
-      <a href=@{TraitR _id}> ^{traitNameAtom spaces properties t}|]
+      <a href=@{TraitR _id}> ^{traitNameAtom spaces properties t}

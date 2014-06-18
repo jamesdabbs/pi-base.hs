@@ -7,7 +7,7 @@ $if not $ null consequences
   <ul>
     $forall (Entity _id t) <- consequences
       <li>
-        <a href=@{TraitR _id}> ^{traitName spaces properties t}|]
+        <a href=@{TraitR _id}> ^{traitName spaces properties t}
 
 <form method=post action=@{DeleteTraitR _id}>
   <button.btn.btn-danger> Delete
