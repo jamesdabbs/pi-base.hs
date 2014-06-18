@@ -22,6 +22,7 @@ import Yesod.Core.Types (Logger)
 
 import Control.Monad (unless)
 import Data.Aeson (encode)
+import Data.Maybe (fromMaybe)
 import qualified Data.Text as T
 import Data.Time (getCurrentTime)
 import qualified Rollbar
@@ -73,6 +74,12 @@ isAdmin = do
     Nothing    -> AuthenticationRequired
     Just True  -> Authorized
     Just False -> Unauthorized "You must be an admin"
+
+getCurrentPath :: Handler (Maybe T.Text)
+getCurrentPath = do
+  renderer <- getUrlRender
+  route <- getCurrentRoute
+  return $ fmap renderer route
 
 -- Please see the documentation for the Yesod typeclass. There are a number
 -- of settings which can be configured by overriding methods here.
@@ -198,6 +205,7 @@ instance Yesod App where
       app <- getYesod
       unless development $ forkHandler ($logErrorS "errorHandler" . T.pack . show) $ do
           muser <- maybeAuth
+          path <- getCurrentPath
           let rollbarPerson (Entity uid user) =
                  Rollbar.Person
                    { Rollbar.id       = toPathPiece uid
@@ -207,7 +215,7 @@ instance Yesod App where
           let rPerson = fmap rollbarPerson muser
           reportErrorS (appRollbar app)
                        (Rollbar.Options rPerson Nothing)
-                       "errorHandler"
+                       (fromMaybe "errorHandler" path)
                        ($logDebugS) e
       defaultErrorHandler err
     errorHandler err = defaultErrorHandler err
