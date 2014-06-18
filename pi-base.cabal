@@ -43,6 +43,7 @@ library
                      Handler
                      Handler.Admin
                      Handler.Helpers
+                     Handler.Explore
                      Handler.Partials
                      Handler.Properties
                      Handler.Search

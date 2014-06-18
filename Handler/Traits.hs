@@ -83,19 +83,6 @@ getTraitR _id = do
       (spaces, properties) <- traitPrefetch $ [Entity _id trait] ++ consequences
       render (traitTitle spaces properties trait) $(widgetFile "traits/show")
 
-getTraitDataR :: TraitId -> Handler Value
-getTraitDataR _id = do
-  trait    <- runDB $ get404 _id
-  derived  <- derivedTraits _id
-  supports <- traitSupport _id
-  struts   <- traitStruts _id
-  returnJson . object $
-    [ "trait" .= trait
-    , "supports" .= supports
-    , "struts" .= struts
-    , "derived" .= derived
-    ]
-
 getDeleteTraitR :: TraitId -> Handler Html
 getDeleteTraitR _id = do
   trait <- runDB $ get404 _id
