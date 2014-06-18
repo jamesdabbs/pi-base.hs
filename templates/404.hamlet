@@ -1,0 +1,4 @@
+<.jumbotron>
+  <h1> 404
+    <small> Not Found
+  <p> The page you're looking for has been moved or removed. You might want to try <a href=@{SearchR}>searching for it</a>.

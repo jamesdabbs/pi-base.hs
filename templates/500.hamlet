@@ -1,0 +1,4 @@
+<.jumbotron>
+  <h1> Oops…
+  <p> Something has gone wrong. This should have already sent an email reporting the problem, but may not have if something went <i>particularly</i> wrong. If you're seeing this error often, please <a href="mailto:jamesdabbs+pibase@gmail.com">let me know</a>.
+  <code> #{show err}

@@ -81,6 +81,26 @@ getCurrentPath = do
   route <- getCurrentRoute
   return $ fmap renderer route
 
+handleError :: (Show e) => e -> Handler TypedContent
+handleError err = selectRep $ do
+  provideRep . defaultLayout $ do
+    setTitle "Server Error | π-Base"
+    $(widgetFile "500")
+  provideRep . return . object $
+    [ "status" .= (500 :: Int)
+    , "error"  .= show err
+    ]
+
+handleMissing :: Handler TypedContent
+handleMissing = selectRep $ do
+  provideRep . defaultLayout $ do
+    setTitle "404 | π-Base"
+    $(widgetFile "404")
+  provideRep . return . object $
+    [ "status" .= (404 :: Int)
+    , "error"  .= ("Could not find the requested resource" :: T.Text)
+    ]
+
 -- Please see the documentation for the Yesod typeclass. There are a number
 -- of settings which can be configured by overriding methods here.
 instance Yesod App where
@@ -217,7 +237,8 @@ instance Yesod App where
                        (Rollbar.Options rPerson Nothing)
                        (fromMaybe "errorHandler" path)
                        ($logDebugS) e
-      defaultErrorHandler err
+      handleError err
+    errorHandler NotFound = handleMissing
     errorHandler err = defaultErrorHandler err
 
 
