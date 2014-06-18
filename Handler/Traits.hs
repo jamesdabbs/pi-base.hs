@@ -7,9 +7,11 @@ import qualified Data.Text as T
 import DB (derivedTraits)
 import Explore (async, checkTrait, checkSpace)
 import Form.Traits
-import Handler.Partials (traitName, linkedTraitName, theoremName, revisionList, linkedTraitList, traitAtomName)
+import Handler.Partials (revisionList)
 import Handler.Helpers
 import Models
+import Presenter.Trait
+import Presenter.Theorem (theoremName)
 
 
 -- FIXME
@@ -19,8 +21,9 @@ traitTitle _ = "Trait"
 
 getTraitsR :: Handler Html
 getTraitsR = do
-  (traits, pager) <- paged 25 [] [Desc TraitUpdatedAt]
   total <- runDB $ count ([] :: [Filter Trait])
+  (traits, pager) <- paged 25 [] [Desc TraitUpdatedAt]
+  (spaces, properties) <- traitPrefetch traits
   render "Traits" $(widgetFile "traits/index")
 
 getCreateTraitR :: SpaceId -> Handler Html
@@ -52,6 +55,7 @@ getEditTraitR :: TraitId -> Handler Html
 getEditTraitR _id = do
   trait <- runDB $ get404 _id
   (widget, enctype) <- generateFormPost $ updateTraitForm trait
+  (spaces, properties) <- traitPrefetch [Entity _id trait]
   render ("Edit " <> traitTitle trait) $(widgetFile "traits/edit")
 
 postTraitR :: TraitId -> Handler Html
@@ -64,7 +68,9 @@ postTraitR _id = do
       _ <- revisionCreate $ Entity _id updated
       flash Success "Updated trait"
       redirect $ TraitR _id
-    _ -> render ("Edit " <> traitTitle trait) $(widgetFile "traits/edit")
+    _ -> do
+      (spaces, properties) <- traitPrefetch [Entity _id trait]
+      render ("Edit " <> traitTitle trait) $(widgetFile "traits/edit")
 
 getTraitR :: TraitId -> Handler Html
 getTraitR _id = do
@@ -76,15 +82,19 @@ getTraitR _id = do
       assumedTheorem <- proofTheorem proof
       derived        <- derivedTraits _id
       supports       <- traitSupport _id
+      (spaces, properties) <- traitPrefetch $ [Entity _id trait] ++ derived ++ supports ++ assumedTraits
+      theoremProperties    <- theoremPrefetch [entityVal assumedTheorem]
       render (traitTitle trait) $(widgetFile "traits/show_deduced")
     False -> do
       consequences <- traitConsequences _id
+      (spaces, properties) <- traitPrefetch $ [Entity _id trait] ++ consequences
       render (traitTitle trait) $(widgetFile "traits/show")
 
 getDeleteTraitR :: TraitId -> Handler Html
 getDeleteTraitR _id = do
   trait <- runDB $ get404 _id
   consequences <- traitConsequences _id
+  (spaces, properties) <- traitPrefetch $ [Entity _id trait] ++ consequences
   render ("Delete " <> traitTitle trait) $(widgetFile "traits/delete")
 
 postDeleteTraitR :: TraitId -> Handler Html
@@ -95,7 +105,7 @@ postDeleteTraitR _id = do
     else do
       _ <- traitDelete _id
       async checkSpace $ traitSpaceId trait
-      flash Warning "Deleted trait" -- TODO: show deleted / re-added counts
+      flash Warning "Deleted trait"
       redirect . SpaceR . traitSpaceId $ trait
 
 getTraitRevisionsR :: TraitId -> Handler Html

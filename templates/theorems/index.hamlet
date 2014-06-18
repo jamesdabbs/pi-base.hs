@@ -8,6 +8,5 @@
 <dl>
   $forall (Entity _id theorem) <- theorems
     <dt>
-      $# FIXME: n+1
-      <a href=@{TheoremR _id}> ^{theoremName theorem}
+      <a href=@{TheoremR _id}> ^{theoremName properties theorem}
     <dd.markdown> #{preview $ theoremDescription theorem}

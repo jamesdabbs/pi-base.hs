@@ -9,7 +9,10 @@
   <.markdown>#{propertyDescription property}
 
 <h3> Theorems
-^{propertyTheoremsWidget _id}
+<ul>
+  $forall (Entity _id t) <- theorems
+    <li>
+      <a href=@{TheoremR _id}> ^{theoremName properties t}
 
 <h3> Traits
-^{filteredTraits propertyTraitName [TraitPropertyId ==. _id]}
+^{filteredTraits traitName [TraitPropertyId ==. _id]}

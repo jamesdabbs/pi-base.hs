@@ -7,10 +7,10 @@ import qualified Data.Text as T
 import qualified Data.Set as S
 
 import Explore (checkTheorem)
+import Handler.Helpers
 import Logic (counterexamples, converse)
 import Models
-import Handler.Helpers
-import Handler.Partials (theoremName)
+import Presenter.Theorem (theoremName)
 
 #ifdef DEVELOPMENT
 import DB (flushDeductions)
@@ -33,6 +33,7 @@ postContradictionsR = do
   theorems <- runDB $ selectList [] []
   counters <- mapM (counterexamples . theoremImplication . entityVal) $ theorems
   let pairs = filter (not . S.null . snd) $ zip theorems counters
+  properties <- theoremPrefetch . map (entityVal . fst) $ pairs
   render "Contradictions" $(widgetFile "admin/check")
 
 postResetR :: Handler Html
@@ -73,4 +74,5 @@ getTheoremProgressR :: Handler Html
 getTheoremProgressR = do
   unprovenTheorems <- runDB $ selectList [TheoremDescription ==. Textarea ""] [Asc TheoremId]
   reversables <- theoremUnknownReversables
+  properties <- theoremPrefetch . map entityVal $ unprovenTheorems ++ reversables
   render "Theorem Progress" $(widgetFile "admin/theorem_progress")

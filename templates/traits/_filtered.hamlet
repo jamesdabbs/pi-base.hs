@@ -1,6 +1,4 @@
 $# TODO:
-$# - Add class / style to selected
-$# - Add count badges to each tab
 $# - Better way to link_to here?
 <.clear>
   <.btn-group>
@@ -11,7 +9,7 @@ $# - Better way to link_to here?
 ^{pager}
 
 <dl>
-  $forall lt@(_,(Entity _id t),_) <- traitTuples
+  $forall (Entity _id t) <- traits
     <dt>
-      <a href=@{TraitR _id}> #{renderer lt}
+      <a href=@{TraitR _id}> ^{renderer spaces properties t}
     <dd> #{preview $ traitDescription t}

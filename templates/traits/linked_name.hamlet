@@ -2,4 +2,4 @@ $newline never
 <span>
   <a href=@{SpaceR $ traitSpaceId trait}>#{spaceName space}
   \ : #
-  <a href=@{PropertyR $ traitPropertyId trait}>#{atomName property $ traitValueBool trait}
+  <a href=@{PropertyR $ traitPropertyId trait}>#{propertyNameAtom property $ traitValueBool trait}

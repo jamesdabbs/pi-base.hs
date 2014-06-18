@@ -29,6 +29,9 @@ library
                      Model.Theorem
                      Model.Trait
                      Models
+                     Presenter.Property
+                     Presenter.Theorem
+                     Presenter.Trait
                      Settings
                      Settings.StaticFiles
                      Settings.Development

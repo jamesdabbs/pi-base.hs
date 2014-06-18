@@ -1,8 +1,8 @@
-<h1> Deleting ^{theoremName theorem}
+<h1> Deleting ^{theoremName tprops theorem}
 
 $if not $ null consequences
   <p> The following supported traits will also be deleted:
-  ^{linkedTraitList consequences}
+  ^{traitListLinked spaces properties consequences}
 
 <form method=post action=@{DeleteTheoremR _id}>
   <button.btn.btn-danger> Delete

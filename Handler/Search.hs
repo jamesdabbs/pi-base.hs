@@ -7,8 +7,8 @@ import qualified Data.Text as T
 import Database.Persist.Sql (rawSql)
 
 import Handler.Helpers
-import Handler.Partials (linkedFormula)
 import Logic (matches)
+import Presenter.Theorem (formulaNameLinked)
 import Util (decodeText)
 
 searchHelp :: Widget

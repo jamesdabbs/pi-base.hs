@@ -1,11 +1,10 @@
 <a.btn.btn-default href=@{TraitR _id}>Back
 
-<h1>Deleting ^{traitName trait}
+<h1>Deleting ^{traitName spaces properties trait}
 
-  struts <- getStruts assumptions
 $if not $ null consequences
   <p> The following supported traits will also be deleted:
-  ^{linkedTraitList consequences}
+  ^{traitListLinked spaces properties consequences}
 
 <form method=post action=@{DeleteTraitR _id}>
   <button.btn.btn-danger> Delete

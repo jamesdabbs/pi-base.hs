@@ -7,13 +7,23 @@ module DB
 , deleteWithConsequences
 , flushDeductions
 , addStruts
+, Prefetch
+, prefetch
 ) where
 
 import Import hiding ((==.), (!=.), delete)
 
 import Database.Esqueleto
 import Data.List (partition, nub)
+import qualified Data.Map as M
 import qualified Data.Set as S
+
+type Prefetch a = M.Map (Key a) a
+
+prefetch :: (PersistEntity e, PersistEntityBackend e ~ SqlBackend) => [Filter e] -> Handler (Prefetch e)
+prefetch f = do
+  ents <- runDB $ selectList f []
+  return . M.fromList . map (\e -> (entityKey e, entityVal e)) $ ents
 
 matches' :: PropertyId -> TValueId -> MatchType -> Handler [SpaceId]
 matches' p v Yes = runDB . fmap (map entityKey) . select $

@@ -36,7 +36,6 @@ plural :: Int -> Text -> Text -> Text
 plural 1 _ x = "1 " <> x
 plural n x _ = (T.pack $ show n) <> " " <> x
 
--- TODO: why doesn't this type signature seem to work?
 paged :: (PersistEntity e, PersistEntityBackend e ~ SqlBackend) => Int -> [Filter e]  -> [SelectOpt e] -> Handler ([Entity e], Widget)
 paged size q f = runDB $ selectPaginatedWith paginationConfig size q f
 

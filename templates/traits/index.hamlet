@@ -3,9 +3,9 @@
   <span.badge>#{total}
 
 ^{pager}
+
 <dl>
   $forall (Entity _id trait) <- traits
     <dt>
-      $# FIXME: n+1
-      <a href=@{TraitR _id}> ^{traitName trait}
+      <a href=@{TraitR _id}> ^{traitName spaces properties trait}
     <dd> #{preview $ traitDescription trait}

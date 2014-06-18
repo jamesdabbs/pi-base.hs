@@ -1,6 +1,6 @@
 ^{searchShow $ Just qt}
 
-<h1> #{plural total "Spaces" "Space"} #{matchTypeDisplay _type} ^{linkedFormula f}
+<h1> #{plural total "Spaces" "Space"} #{matchTypeDisplay _type} ^{formulaNameLinked f}
 $# TODO: extract partial w/ space index
 ^{pager}
 <dl>

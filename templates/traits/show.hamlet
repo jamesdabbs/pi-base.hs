@@ -2,7 +2,7 @@
 ^{authButton (TraitRevisionsR _id) "Revisions"}
 <a.btn.btn-default href=@{DeleteTraitR _id}> Delete
 
-<h1> ^{linkedTraitName trait}
+<h1> ^{traitNameLinked spaces properties trait}
 
 <.well>
   $if T.null $ unTextarea $ traitDescription trait
@@ -13,7 +13,6 @@
 $if not $ null consequences
   <p>Traits which depend on this fact
   <ul>
-    $# FIXME: n+1
     $forall (Entity _id t) <- consequences
       <li>
-        <a href=@{TraitR _id}> ^{traitAtomName t}
+        <a href=@{TraitR _id}> ^{traitNameAtom spaces properties t}

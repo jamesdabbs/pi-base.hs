@@ -1,16 +1,15 @@
-<h1> ^{linkedTraitName trait}
+<h1> ^{traitNameLinked spaces properties trait}
 
 <.well>
   <ul>
-    $# FIXME n+1
     $forall (Entity _id t) <- assumedTraits
       <li>
-        <a href=@{TraitR _id}> ^{traitName t}
+        <a href=@{TraitR _id}> ^{traitName spaces properties t}
     <li>
-      <a href=@{TheoremR $ proofTheoremId proof}> ^{theoremName $ entityVal assumedTheorem}
+      <a href=@{TheoremR $ proofTheoremId proof}> ^{theoremName theoremProperties $ entityVal assumedTheorem}
 
 <h5> Derived traits
-^{linkedTraitList derived}
+^{traitListLinked spaces properties derived}
 
 <h5> Supporting assertions
-^{linkedTraitList supports}
+^{traitListLinked spaces properties supports}

@@ -1,6 +1,6 @@
 <a.btn.btn-default href=@{TraitR _id}> Back
 
-<h1> ^{linkedTraitName trait}
+<h1> ^{traitNameLinked spaces properties trait}
 
 <form.form.form-horizontal.form-markdown role=form method=post action=@{TraitR _id} enctype=#{enctype}>
   ^{widget}

@@ -1,3 +1,3 @@
-<.alert.alert-danger> Cannot save ^{linkedTheoremName theorem}, as it has <a href=@{SpaceR cx} target=_blank>a counterexample</a>
+<.alert.alert-danger> Cannot save ^{theoremNameLinked properties theorem}, as it has <a href=@{SpaceR cx} target=_blank>a counterexample</a>
 
 ^{baseW}

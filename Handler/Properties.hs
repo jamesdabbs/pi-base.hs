@@ -5,19 +5,11 @@ import Data.Text (intercalate)
 
 import Form.Properties
 import Handler.Helpers
-import Handler.Partials (filteredTraits, revisionList, theoremName)
+import Handler.Partials (filteredTraits, revisionList)
 import Models
+import Presenter.Trait (traitName)
+import Presenter.Theorem (theoremName)
 
-
-propertyTheoremsWidget :: PropertyId -> Widget
-propertyTheoremsWidget _id = do
-  theorems <- handlerToWidget $ propertyTheorems _id
-  $(widgetFile "properties/_theorems")
-
-propertyTraitName :: (Entity Space, Entity Trait, Entity Property) -> Text
-propertyTraitName ((Entity _ s), (Entity _ t), _) = if traitValueBool t
-  then spaceName s <> " = True"
-  else spaceName s <> " = False"
 
 getPropertiesR :: Handler Html
 getPropertiesR = do
@@ -69,6 +61,8 @@ postPropertyR _id = do
 getPropertyR :: PropertyId -> Handler Html
 getPropertyR _id = do
   property <- runDB $ get404 _id
+  theorems <- propertyTheorems _id
+  properties <- theoremPrefetch $ map entityVal theorems
   render (propertyName property) $(widgetFile "properties/show")
 
 getDeletePropertyR :: PropertyId -> Handler Html

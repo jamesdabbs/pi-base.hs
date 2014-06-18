@@ -4,6 +4,7 @@ module Model.Theorem
 , theoremImplication
 , theoremConverses
 , theoremRecordProperties
+, theoremPrefetch
 ) where
 
 import Import hiding ((==.))
@@ -13,8 +14,9 @@ import qualified Data.Set as S
 
 import Database.Esqueleto hiding (delete)
 
-import DB (deleteWithConsequences)
+import DB (deleteWithConsequences, prefetch, Prefetch)
 import Model.Revision
+import Util (unionN)
 
 theoremConsequences :: TheoremId -> Handler [Entity Trait]
 theoremConsequences _id = runDB . select $
@@ -43,3 +45,8 @@ theoremRecordProperties _id t = mapM_ recordProperty properties
   where
     recordProperty p = runDB . insert $ TheoremProperty _id p
     properties = S.toList . implicationProperties . theoremImplication $ t
+
+theoremPrefetch :: [Theorem] -> Handler (Prefetch Property)
+theoremPrefetch ts = prefetch [PropertyId <-. S.toList pids]
+  where
+    pids = unionN . map (implicationProperties . theoremImplication) $ ts

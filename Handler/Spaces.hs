@@ -6,11 +6,8 @@ import Form.Spaces
 import Handler.Helpers
 import Handler.Partials (filteredTraits, revisionList)
 import Models
+import Presenter.Trait (traitNameAtom)
 
-spaceTraitName :: (Entity Space, Entity Trait, Entity Property) -> Text
-spaceTraitName (_, (Entity _ t), (Entity _ p)) = if traitValueBool t
-  then propertyName p
-  else "¬" <> propertyName p
 
 getSpacesR :: Handler Html
 getSpacesR = do

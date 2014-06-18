@@ -1,89 +1,16 @@
--- TODO: modularize
 module Handler.Partials
-( traitName
-, linkedTraitName
-, theoremName
-, linkedTheoremName
-, linkedFormula
-, filteredTraits
+( filteredTraits
 , revisionList
-, linkedTraitList
-, traitAtomName
 ) where
 
 import Import
 
-import Data.List (find, intersperse)
-import qualified Data.Map as M
-import qualified Data.Set as S
+import Data.List (find)
 
-import Models
+import DB (Prefetch)
 import Handler.Helpers (paged, preview)
+import Models
 
-
-traitAtomName :: Trait -> Widget
-traitAtomName trait = do
-  property <- handlerToWidget . runDB . get404 . traitPropertyId $ trait
-  [whamlet|#{atomName property $ traitValueBool trait}|]
-
-traitName :: Trait -> Widget
-traitName trait = do
-  space <- handlerToWidget . runDB . get404 . traitSpaceId $ trait
-  [whamlet|<span>#{spaceName space}: ^{traitAtomName trait}|]
-
-linkedTraitName :: Trait -> Widget
-linkedTraitName trait = do
-  space <- handlerToWidget . runDB . get404 . traitSpaceId $ trait
-  property <- handlerToWidget . runDB . get404 . traitPropertyId $ trait
-  $(widgetFile "traits/linked_name")
-
-widgetJoin :: Widget -> [Widget] -> Widget
-widgetJoin sep ws = foldl1 (<>) $ intersperse sep ws
-
-andW, orW :: Widget
-andW = [whamlet|\ & |]
-orW  = [whamlet|\ | |]
-
-enclose :: Widget -> Widget
-enclose w = [whamlet|
-$newline never
-(^{w})|]
-
-formulaWidget :: (a -> Bool -> Widget) -> Formula a -> Widget
-formulaWidget r (And  sf ) = enclose . widgetJoin andW $ map (formulaWidget r) sf
-formulaWidget r (Or   sf ) = enclose . widgetJoin  orW $ map (formulaWidget r) sf
-formulaWidget r (Atom p v) = r p v
-
-renderTheorem :: (Entity Property -> Bool -> Widget) -> Theorem -> Widget
-renderTheorem f theorem = do
-  let i@(Implication ant cons) = theoremImplication theorem
-  props <- handlerToWidget . runDB $ selectList [PropertyId <-. (S.toList $ implicationProperties i)] []
-  let _lookup = M.fromList . map (\p -> (entityKey p, p)) $ props
-  let f' = f . (M.!) _lookup
-  [whamlet|
-$newline never
-^{formulaWidget f' ant} ⇒ ^{formulaWidget f' cons}|]
-
-atomName :: Property -> Bool -> Text
-atomName p True = propertyName p
-atomName p False = "¬" <> (propertyName p)
-
-theoremName :: Theorem -> Widget
-theoremName = renderTheorem $ \(Entity _ p) v ->
-  [whamlet|
-$newline never
-<span>#{atomName p v}|]
-
-linkedAtom :: (Entity Property) -> Bool -> Widget
-linkedAtom (Entity _id p) v = [whamlet|
-$newline never
-<a href=@{PropertyR _id}>#{atomName p v}|]
-
-linkedTheoremName :: Theorem -> Widget
-linkedTheoremName = renderTheorem linkedAtom
-
-linkedFormula :: Formula (Entity Property) -> Widget
-linkedFormula = formulaWidget linkedAtom
 
 data TraitTab = TraitTab { ttParam :: Text, ttLabel :: Text, ttFilter :: [Filter Trait] }
 
@@ -118,38 +45,15 @@ traitTab fs selected t = do
     then [whamlet|<a class="btn btn-default #{klass}" href="?traits=#{ttParam t}">#{ttLabel t} <span class="badge">#{n}</span>|]
     else [whamlet||]
 
--- IDEA:
--- class Loadable m where
---   type Loaded = Loaded m
---   load :: [m] -> Handler [Loaded m]
-type ELTrait = (Entity Space, Entity Trait, Entity Property)
-
-
-fetchOne et@(Entity _ t) = do
-  s <- getEntity $ traitSpaceId t
-  p <- getEntity $ traitPropertyId t
-  return (s,et,p)
-  where
-    getEntity _id = do
-      v <- runDB . get404 $ _id
-      return $ Entity _id v
-
--- FIXME: n+1
-prefetchTraits :: [Entity Trait] -> Handler [ELTrait]
-prefetchTraits = mapM fetchOne
-
-filteredTraits :: (ELTrait -> Text) -> [Filter Trait] -> Widget
+filteredTraits :: (Prefetch Space -> Prefetch Property -> Trait -> Widget) -> [Filter Trait] -> Widget
 filteredTraits renderer fs = do
   param <- lookupGetParam "traits"
   let tab = tabFromParam param
   (traits, pager) <- handlerToWidget $ paged 10 (withTTFilter tab fs) [Desc TraitId]
-  traitTuples <- handlerToWidget $ prefetchTraits traits
+  (spaces, properties) <- handlerToWidget $ traitPrefetch traits
   $(widgetFile "traits/_filtered")
 
 revisionList :: (Revisable a) => Entity a -> Widget
 revisionList e = do
   revs <- handlerToWidget . revisions $ e
   $(widgetFile "revisions/_list")
-
-linkedTraitList :: [Entity Trait] -> Widget
-linkedTraitList traits = $(widgetFile "traits/_linked_list")

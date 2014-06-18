@@ -1,5 +1,5 @@
 $forall ((Entity _ t), cxs) <- pairs
-  <h5> ^{theoremName t}
+  <h5> ^{theoremName properties t}
   <ul>
     $forall c <- S.toList cxs
       <li>

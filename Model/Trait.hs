@@ -3,12 +3,14 @@ module Model.Trait
 , traitDelete
 , traitSupport
 , traitValueBool
+, traitPrefetch
 ) where
 
 import Import hiding ((==.))
+import Data.List (nub)
 import Database.Esqueleto hiding (delete)
 
-import DB (supportedTraits, deleteWithConsequences)
+import DB (supportedTraits, deleteWithConsequences, Prefetch, prefetch)
 import Model.Revision
 
 traitConsequences :: TraitId -> Handler [Entity Trait]
@@ -34,3 +36,12 @@ traitValueBool t = case traitValueId t of
   Key (PersistInt64 1) -> True
   Key (PersistInt64 2) -> False
   _ -> error "Can't coerce traitValueId to Bool"
+
+traitPrefetch :: [Entity Trait] -> Handler (Prefetch Space, Prefetch Property)
+traitPrefetch ts = do
+  spaces <- prefetch [SpaceId <-. pluck traitSpaceId ts]
+  properties <- prefetch [PropertyId <-. pluck traitPropertyId ts]
+  return (spaces, properties)
+  where
+    pluck f = nub . map (f . entityVal)
+
