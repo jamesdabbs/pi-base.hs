@@ -40,6 +40,7 @@ library
                      Form.Theorems
                      Form.Traits
                      Form
+                     Handler
                      Handler.Admin
                      Handler.Helpers
                      Handler.Partials

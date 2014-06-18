@@ -33,6 +33,7 @@ import qualified Data.Text as T
 
 -- Import all relevant handler modules here.
 -- Don't forget to add new modules to your cabal file!
+import Handler
 import Handler.Admin
 import Handler.Properties
 import Handler.Search

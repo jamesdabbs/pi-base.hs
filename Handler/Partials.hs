@@ -1,6 +1,7 @@
 module Handler.Partials
 ( filteredTraits
 , revisionList
+, searchHelp
 ) where
 
 import Import
@@ -57,3 +58,8 @@ revisionList :: (Revisable a) => Entity a -> Widget
 revisionList e = do
   revs <- handlerToWidget . revisions $ e
   $(widgetFile "revisions/_list")
+
+searchHelp :: Widget
+searchHelp = do
+  let s = SpaceR . Key . PersistInt64
+  $(widgetFile "search/help")

@@ -7,22 +7,11 @@ import qualified Data.Text as T
 import Database.Persist.Sql (rawSql)
 
 import Handler.Helpers
+import Handler.Partials (searchHelp)
 import Logic (matches)
 import Presenter.Theorem (formulaNameLinked)
 import Util (decodeText)
 
-searchHelp :: Widget
-searchHelp = do
-  let s = SpaceR . Key . PersistInt64
-  $(widgetFile "search/help")
-
-getHomeR :: Handler Html
-getHomeR = defaultLayout $ do
-  setTitle "π-Base"
-  $(widgetFile "homepage")
-
-getHelpR :: Handler Html
-getHelpR = render "Help" $(widgetFile "help/site")
 
 formulaLookup :: Formula PropertyId -> Handler (Formula (Entity Property))
 formulaLookup f = do
