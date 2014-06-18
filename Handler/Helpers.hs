@@ -32,9 +32,9 @@ paginationConfig = paginationWidget $ PageWidgetConfig
   , listClasses  = ["pagination", "pagination-centered"]
   }
 
-plural :: Int -> Text -> Text -> Text
-plural 1 _ x = "1 " <> x
-plural n x _ = (T.pack $ show n) <> " " <> x
+plural :: Int -> Text -> Text
+plural 1 x = "1 " <> x
+plural n x = (T.pack $ show n) <> " " <> x
 
 paged :: (PersistEntity e, PersistEntityBackend e ~ SqlBackend) => Int -> [Filter e]  -> [SelectOpt e] -> Handler ([Entity e], Widget)
 paged size q f = runDB $ selectPaginatedWith paginationConfig size q f

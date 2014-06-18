@@ -5,5 +5,5 @@
 $if null traits
   <p>No new traits found.
 $else
-  <p>Found #{plural (length traits) "new traits" "new trait"}.
+  <p>Found #{plural (length traits) "new trait"}.
   ^{linkedTraitList traits}

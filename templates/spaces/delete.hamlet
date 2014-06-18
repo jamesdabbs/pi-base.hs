@@ -1,7 +1,7 @@
 <a.btn.btn-default href=@{SpaceR _id}>Back
 
 <h1>Deleting #{spaceName space}
-<p>with #{plural traits "traits" "trait"}
+<p>with #{plural traits "trait"}
 
 <form method=post action=@{DeleteSpaceR _id}>
   <button.btn.btn-danger>Delete

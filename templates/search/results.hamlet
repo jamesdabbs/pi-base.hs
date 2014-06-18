@@ -1,6 +1,6 @@
 ^{searchShow $ Just qt}
 
-<h1> #{plural total "Spaces" "Space"} #{matchTypeDisplay _type} ^{formulaNameLinked f}
+<h1> #{plural total "Space"} #{matchTypeDisplay _type} ^{formulaNameLinked f}
 ^{pager}
 <dl>
   $forall (Entity _id space) <- spaces
