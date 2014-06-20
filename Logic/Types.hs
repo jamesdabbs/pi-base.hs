@@ -32,9 +32,9 @@ data Formula a = Atom a Bool
                | Or   [Formula a]
                deriving (Eq,Functor)
 
-instance Show a => Show (Formula a) where
-  show (Atom p True ) = show p
-  show (Atom p False) = "¬"++ (show p)
+instance Show (Formula String) where
+  show (Atom p True ) = p
+  show (Atom p False) = "¬"++ (p)
   show (And  fs     ) = "(" ++ (intercalate " & " . map show $ fs) ++ ")"
   show (Or   fs     ) = "(" ++ (intercalate " | " . map show $ fs) ++ ")"
 
@@ -71,9 +71,12 @@ instance PersistFieldSql (Formula Int64) where
   sqlType _ = SqlString
 
 
-data Implication a = Implication (Formula a) (Formula a) deriving Functor
+data Implication a = Implication (Formula a) (Formula a)
 
-instance Show a => Show (Implication a) where
+instance Functor Implication where
+  fmap f (Implication ant cons) = Implication (fmap f ant) (fmap f cons)
+
+instance Show (Implication String) where
   show (Implication a c) = show a ++ " ⇒ " ++ show c
 
 instance FromJSON (Implication Int64) where

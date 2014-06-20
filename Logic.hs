@@ -97,7 +97,7 @@ check' ts (Atom p e) = case M.lookup p ts of
 
 apply :: TheoremId -> Implication PropertyId -> SpaceId -> Handler [TraitId]
 apply a i s = do
-  $(logDebug) $ "Applying " <> Text.pack (show i) <> " to space " <> encodeText s
+  $(logDebug) $ "Applying " <> Text.pack (show . fmap show $ i) <> " to space " <> encodeText s
   ts <- spaceTraitMap s (implicationProperties i)
   let found = apply' a i ts
   mids <- mapM (addProof s) found

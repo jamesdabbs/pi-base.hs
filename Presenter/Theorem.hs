@@ -64,4 +64,4 @@ theoremNameLinked properties = renderTheorem properties linkedAtom
 theoremTitle :: Prefetch Property -> Theorem -> Text
 theoremTitle ps = T.pack . show . fmap fetchName . theoremImplication
   where
-    fetchName = propertyName . (M.!) ps
+    fetchName = T.unpack . propertyName . (M.!) ps
