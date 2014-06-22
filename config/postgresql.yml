@@ -1,24 +1,24 @@
 Default: &defaults
-  user: ""
-  password: ""
+  user: pi_base
+  password: pi_base
   host: localhost
   port: 5432
-  database: brubeck_dev
+  database: pi_base_dev
   poolsize: 10
 
 Development:
   <<: *defaults
 
 Testing:
-  database: brubeck_test
+  database: pi_base_test
   <<: *defaults
 
 Staging:
-  database: brubeck_staging
+  database: pi_base_staging
   poolsize: 100
   <<: *defaults
 
 Production:
-  database: brubeck_production
+  database: pi_base_production
   poolsize: 100
   <<: *defaults

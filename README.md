@@ -10,7 +10,11 @@ If you'd like to contribute code, open up a pull request. I'll review it, merge 
 
 ### Running locally
 
-__Note:__ there is an [open issue](https://github.com/jamesdabbs/pi-base.hs/issues/20) to distribute a Vagrant box to make this setup easier. Let me know if this is important to you, so that I can prioritize it.
+There are two options for getting a version of the site running locally. In either case, get in touch if you'd like a data set to test against.
+
+In both cases it's important that the port match the one expected in the settings file (3000), so be sure to change that file if you're binding to another port.
+
+#### Direct Setup
 
 Before you begin, you will need to install [the Haskell platform](http://www.haskell.org/platform/).
 
@@ -24,4 +28,17 @@ $ cabal install
 $ yesod --dev devel
 ```
 
-to install the dependencies to your local sandbox and then start dev-mode auto-reloading. Note that the first install make take a while.
+to install the dependencies to your local sandbox and then start dev-mode auto-reloading. Note that the first install may take a while.
+
+#### With Vagrant
+
+You may prefer to develop against a [Vagrant](http://www.vagrantup.com/) box. If so, be sure you have Vagrant installed and do:
+
+```bash
+locally $ vagrant up && vagrant ssh
+
+vagrant $ sudo su
+vagrant $ cd /vagrant && PATH=$HOME/.cabal/bin:$PATH yesod devel
+```
+
+Note that the included Vagrantfile uses some Virtualbox-specific hooks to increase the available memory. If you are using a different provider and processes are getting killed (which may happen - old versions of cabal can be especially memory heavy), you may need to include similar log to up your vm's memory.
