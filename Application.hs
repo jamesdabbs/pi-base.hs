@@ -45,6 +45,7 @@ import Handler.User
 
 import qualified Data.HashMap.Strict as M
 import qualified Data.Aeson.Types as AT
+import System.Environment (lookupEnv)
 #ifndef DEVELOPMENT
 import System.Environment (getEnv)
 import qualified Web.Heroku
@@ -114,6 +115,13 @@ loadHerokuConfig = do
     Web.Heroku.dbConnParams >>= return . toMapping . map canonicalizeKey
 #endif
 
+getEnvVar :: String -> IO Text
+getEnvVar key = do
+  mval <- lookupEnv key
+  return $ case mval of
+    Just val -> T.pack val
+    Nothing  -> ""
+
 -- | Loads up any necessary settings, creates your foundation datatype, and
 -- performs some initialization.
 makeFoundation :: AppConfig DefaultEnv Extra -> IO App
@@ -151,8 +159,11 @@ makeFoundation conf = do
             updateLoop
     _ <- forkIO updateLoop
 
+    gClientId <- getEnvVar "GOOGLE_CLIENT_ID"
+    gSecret <- getEnvVar "GOOGLE_SECRET_KEY"
+
     let logger = Yesod.Core.Types.Logger loggerSet' getter
-        foundation = App conf s p manager dbconf logger rc
+        foundation = App conf s p manager dbconf logger rc gClientId gSecret
 
     -- Perform database migration using our application's logging settings.
     runLoggingT

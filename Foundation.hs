@@ -5,7 +5,7 @@ import Yesod
 import Yesod.Static
 import Yesod.Auth
 import Yesod.Auth.BrowserId
-import Yesod.Auth.GoogleEmail
+import Yesod.Auth.GoogleEmail2
 import Yesod.Default.Config
 import Yesod.Default.Util (addStaticContentExternal)
 import Network.HTTP.Client.Conduit (Manager, HasHttpManager (getHttpManager))
@@ -41,6 +41,8 @@ data App = App
     , persistConfig :: Settings.PersistConf
     , appLogger :: Logger
     , appRollbar :: Rollbar.Settings
+    , appGoogleId :: T.Text
+    , appGoogleSecret :: T.Text
     }
 
 instance HasHttpManager App where
@@ -241,6 +243,8 @@ instance Yesod App where
     errorHandler NotFound = handleMissing
     errorHandler err = defaultErrorHandler err
 
+authGoogleEmail' :: App -> AuthPlugin App
+authGoogleEmail' app = authGoogleEmail (appGoogleId app) (appGoogleSecret app)
 
 -- How to run database actions.
 instance YesodPersist App where
@@ -274,7 +278,7 @@ instance YesodAuth App where
                     }
 
     -- You can add other plugins like BrowserID, email or OAuth here
-    authPlugins _ = [authBrowserId def, authGoogleEmail]
+    authPlugins app = [authBrowserId def, authGoogleEmail' app]
 
     authHttpManager = httpManager
 
