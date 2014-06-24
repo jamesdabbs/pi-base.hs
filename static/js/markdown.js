@@ -8,7 +8,9 @@ $(function() {
   var markdown = function(text) {
     text = text.replace(/\$(.*?)\$/g, '<mathjax data-contents="$1"></mathjax>');
     text = converter.makeHtml(text);
-    text = text.replace(/<mathjax data-contents="(.*?)"><\/mathjax>/g, '\\($1\\)');
+    text = text.replace(/<mathjax data-contents="(.*?)"><\/mathjax>/g, function(match, jax) {
+      return '$' + jax + '$';
+    });
     return text;
   }
 
