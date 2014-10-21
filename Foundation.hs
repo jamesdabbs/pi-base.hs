@@ -162,13 +162,13 @@ instance Yesod App where
     authRoute _ = Just $ AuthR LoginR
 
     -- Must be an admin to delete
-    isAuthorized (DeleteSpaceR    _) _ = isAdmin
+    --isAuthorized (DeleteSpaceR    _) _ = isAdmin
     isAuthorized (DeletePropertyR _) _ = isAdmin
     isAuthorized (DeleteTraitR    _) _ = isAdmin
     isAuthorized (DeleteTheoremR  _) _ = isAdmin
 
     -- Must be an admin to inspect revisions
-    isAuthorized (SpaceRevisionsR    _) _ = isAdmin
+    --isAuthorized (SpaceRevisionsR    _) _ = isAdmin
     isAuthorized (PropertyRevisionsR _) _ = isAdmin
     isAuthorized (TraitRevisionsR    _) _ = isAdmin
     isAuthorized (TheoremRevisionsR  _) _ = isAdmin
@@ -186,16 +186,21 @@ instance Yesod App where
     isAuthorized (UserR _) _ = isAdmin
 
     -- Must be logged in to create
-    isAuthorized CreateSpaceR     _ = isLoggedIn
+    --isAuthorized CreateSpaceR     _ = isLoggedIn
     isAuthorized CreatePropertyR  _ = isLoggedIn
     isAuthorized CreateTheoremR   _ = isLoggedIn
-    isAuthorized (CreateTraitR _) _ = isLoggedIn
+    --isAuthorized (CreateTraitR _) _ = isLoggedIn
 
     -- Must be logged in to edit
-    isAuthorized (EditSpaceR    _) _ = isLoggedIn
+    --isAuthorized (EditSpaceR    _) _ = isLoggedIn
     isAuthorized (EditPropertyR _) _ = isLoggedIn
     isAuthorized (EditTraitR    _) _ = isLoggedIn
     isAuthorized (EditTheoremR  _) _ = isLoggedIn
+
+    -- TODO - these methods are auth'd conditionally in the handlers
+    isAuthorized TestResetR _ = return Authorized
+    isAuthorized SpacesR    _ = return Authorized
+    isAuthorized (SpaceR _) _ = return Authorized
 
     -- Must be an admin for any other write request
     isAuthorized _ True = isAdmin

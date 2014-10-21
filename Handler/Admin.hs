@@ -4,7 +4,9 @@ import Import
 
 import Control.Monad (filterM)
 import qualified Data.Text as T
+import Data.Time (getCurrentTime)
 import qualified Data.Set as S
+import Yesod.Default.Config
 
 import Explore (checkTheorem)
 import Handler.Helpers
@@ -45,6 +47,34 @@ postResetR = do
   flash Danger "Can only reset in development mode"
 #endif
   redirect AdminR
+
+postTestResetR :: Handler Value
+postTestResetR = do
+#ifdef DEVELOPMENT
+  now <- liftIO getCurrentTime
+
+  runDB $ do
+    deleteWhere ([] :: [Filter Strut])
+    deleteWhere ([] :: [Filter Assumption])
+    deleteWhere ([] :: [Filter Supporter])
+    deleteWhere ([] :: [Filter Proof])
+    deleteWhere ([] :: [Filter Revision])
+    deleteWhere ([] :: [Filter TheoremProperty])
+    deleteWhere ([] :: [Filter Trait])
+    deleteWhere ([] :: [Filter Property])
+    deleteWhere ([] :: [Filter Space])
+    deleteWhere ([] :: [Filter Theorem])
+    deleteWhere ([] :: [Filter Email])
+    deleteWhere ([] :: [Filter User])
+
+  runDB $ do
+    _ <- insert $ User "admin" (Just "admin") True  now now
+    insert $ User "user"  (Just "user" ) False now now
+
+  returnJson $ object [ "status" .= ("Ok" :: Text) ]
+#else
+  sendResponseStatus unauthorized401 $ object [ "error" .= ("Cannot reset database" :: Text) ]
+#endif
 
 progressRow :: Entity Space -> Widget
 progressRow (Entity _id s) = do

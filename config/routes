@@ -6,20 +6,23 @@
 
 / HomeR GET
 
-/api/v1/spaces          SpacesR GET
-/api/v1/spaces/#SpaceId SpaceR  GET
+-- TODO: API v1 subsite?
+/api/v1/spaces          SpacesR GET POST
+/api/v1/spaces/#SpaceId SpaceR  GET PUT DELETE
 
 /api/v1/properties             PropertiesR GET
 /api/v1/properties/#PropertyId PropertyR   GET
 
+/api/v1/test/reset TestResetR POST
+
 --
 
 -- /spaces                     SpacesR         GET
-/spaces/!new                CreateSpaceR    GET POST
+-- /spaces/!new                CreateSpaceR    GET POST
 -- /spaces/#SpaceId            SpaceR          GET POST
-/spaces/#SpaceId/edit       EditSpaceR      GET
-/spaces/#SpaceId/delete     DeleteSpaceR    GET POST
-/spaces/#SpaceId/revisions  SpaceRevisionsR GET
+-- /spaces/#SpaceId/edit       EditSpaceR      GET
+-- /spaces/#SpaceId/delete     DeleteSpaceR    GET POST
+-- /spaces/#SpaceId/revisions  SpaceRevisionsR GET
 /spaces/#SpaceId/traits/new CreateTraitR    GET POST
 
 -- /properties                       PropertiesR        GET
@@ -45,8 +48,8 @@
 /theorems/#TheoremId/revisions TheoremRevisionsR GET
 
 /contribute ContributeR GET
-/search     SearchR GET
-/help       HelpR GET
+/search     SearchR     GET
+/help       HelpR       GET
 
 /admin                   AdminR            GET
 /admin/contradictions    ContradictionsR   POST
@@ -54,6 +57,7 @@
 /admin/reset             ResetR            POST
 /admin/progress/traits   TraitProgressR    GET
 /admin/progress/theorems TheoremProgressR  GET
+
 
 /users         UsersR GET
 /users/#UserId UserR  GET

@@ -3,11 +3,11 @@ module Handler.Explore
 ) where
 
 import Import
-import Yesod.Routes.TH
+--import Yesod.Routes.TH
 
 import qualified Data.Map as M
 
-import DB (derivedTraits, Prefetch)
+import DB (derivedTraits) --, Prefetch)
 import Models
 import Presenter.Theorem (theoremTitle)
 import Presenter.Trait (traitTitle)
