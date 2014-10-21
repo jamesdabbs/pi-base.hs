@@ -4,9 +4,7 @@ import Import
 
 import Control.Monad (filterM)
 import qualified Data.Text as T
-import Data.Time (getCurrentTime)
 import qualified Data.Set as S
-import Yesod.Default.Config
 
 import Explore (checkTheorem)
 import Handler.Helpers
@@ -15,7 +13,10 @@ import Models
 import Presenter.Theorem (theoremName)
 
 #ifdef DEVELOPMENT
+import Data.Time (getCurrentTime)
 import DB (flushDeductions)
+#else
+import Network.HTTP.Types (unauthorized401)
 #endif
 
 getAdminR :: Handler Html
@@ -67,7 +68,7 @@ postTestResetR = do
     deleteWhere ([] :: [Filter Email])
     deleteWhere ([] :: [Filter User])
 
-  runDB $ do
+  _ <- runDB $ do
     _ <- insert $ User "admin" (Just "admin") True  now now
     insert $ User "user"  (Just "user" ) False now now
 

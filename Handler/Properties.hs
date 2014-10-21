@@ -6,10 +6,8 @@ import Data.Text (intercalate)
 
 import Form.Properties
 import Handler.Helpers
-import Handler.Partials (filteredTraits, revisionList)
+import Handler.Partials (revisionList)
 import Models
-import Presenter.Trait (traitName)
-import Presenter.Theorem (theoremName)
 
 
 getPropertiesR :: Handler Value
