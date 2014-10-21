@@ -7,6 +7,7 @@ module Handler.Partials
 import Import
 
 import Data.List (find)
+import Database.Persist.Sql
 
 import DB (Prefetch)
 import Handler.Helpers (paged, preview)
@@ -61,5 +62,5 @@ revisionList e = do
 
 searchHelp :: Widget
 searchHelp = do
-  let s = SpaceR . Key . PersistInt64
+  let s = SpaceR . SpaceKey . SqlBackendKey
   $(widgetFile "search/help")

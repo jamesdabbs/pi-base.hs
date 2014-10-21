@@ -4,7 +4,7 @@ import Import
 import qualified Data.Map as M
 import qualified Data.Set as S
 import qualified Data.Text as T
-import Database.Persist.Sql (rawSql)
+import Database.Persist.Sql
 
 import DB (icontains)
 import Handler.Helpers
@@ -50,7 +50,7 @@ searchByFormula qt _type text = do
     Nothing -> do
       render "Search" $(widgetFile "search/malformed")
     Just f'' -> do
-      let f' = fmap (Key . PersistInt64) f''
+      let f' = fmap (PropertyKey . SqlBackendKey) f''
       spaceIds <- matches _type f'
       let total = S.size spaceIds
       (spaces, pager) <- paged 10 [SpaceId <-. (S.toList spaceIds)] [Asc SpaceName]

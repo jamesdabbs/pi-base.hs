@@ -1,6 +1,7 @@
 module Handler.Properties where
 
 import Import
+import Control.Monad ((>=>))
 import Data.Text (intercalate)
 
 import Form.Properties
@@ -11,11 +12,13 @@ import Presenter.Trait (traitName)
 import Presenter.Theorem (theoremName)
 
 
-getPropertiesR :: Handler Html
-getPropertiesR = do
-  (properties, pager) <- paged 10 [] [Asc PropertyName]
-  total <- runDB $ count ([] :: [Filter Property])
-  render "Properties" $(widgetFile "properties/index")
+getPropertiesR :: Handler Value
+getPropertiesR = paged' [] [Asc PropertyName] >>= returnJson
+
+-- FIXME: add theorems, aliases, properties? to JSON response
+getPropertyR :: PropertyId -> Handler Value
+getPropertyR = (runDB . get404) >=> returnJson
+
 
 getPropertiesNamesR :: Handler Value
 getPropertiesNamesR = do
@@ -57,13 +60,6 @@ postPropertyR _id = do
       flash Success "Updated property"
       redirect $ PropertyR _id
     _ -> render ("Edit " <> propertyName property) $(widgetFile "properties/edit")
-
-getPropertyR :: PropertyId -> Handler Html
-getPropertyR _id = do
-  property <- runDB $ get404 _id
-  theorems <- propertyTheorems _id
-  properties <- theoremPrefetch $ map entityVal theorems
-  render (propertyName property) $(widgetFile "properties/show")
 
 getDeletePropertyR :: PropertyId -> Handler Html
 getDeletePropertyR _id = do

@@ -1,6 +1,8 @@
 module Handler.Spaces where
 
 import Import
+import Control.Monad ((>=>))
+
 
 import Form.Spaces
 import Handler.Helpers
@@ -9,11 +11,13 @@ import Models
 import Presenter.Trait (traitNameAtom)
 
 
-getSpacesR :: Handler Html
-getSpacesR = do
-  (spaces, pager) <- paged 10 [] [Asc SpaceName]
-  total <- runDB $ count ([] :: [Filter Space])
-  render "Spaces" $(widgetFile "spaces/index")
+
+getSpacesR :: Handler Value
+getSpacesR = paged' [] [Asc SpaceName] >>= returnJson
+
+getSpaceR :: SpaceId -> Handler Value
+getSpaceR = (runDB . get404) >=> returnJson
+
 
 getCreateSpaceR :: Handler Html
 getCreateSpaceR = do
@@ -48,11 +52,6 @@ postSpaceR _id = do
       flash Success "Updated space"
       redirect $ SpaceR _id
     _ -> render ("Edit " <> spaceName space) $(widgetFile "spaces/edit")
-
-getSpaceR :: SpaceId -> Handler Html
-getSpaceR _id = do
-  space <- runDB $ get404 _id
-  render (spaceName space) $(widgetFile "spaces/show")
 
 getDeleteSpaceR :: SpaceId -> Handler Html
 getDeleteSpaceR _id = do

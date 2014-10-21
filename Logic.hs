@@ -20,6 +20,7 @@ import Data.Maybe (listToMaybe, catMaybes)
 import qualified Data.Set as S
 import qualified Data.Text as Text
 import Data.Time (getCurrentTime)
+import Database.Persist.Sql
 
 import DB (matches', addSupports, addStruts)
 import Models
@@ -29,8 +30,8 @@ import Util (intersectionN, unionN, encodeText)
 -- TODO: don't hardcode this
 boolToValueId :: Bool -> TValueId
 boolToValueId v = if v
-  then (Key . PersistInt64 $ 1)
-  else (Key . PersistInt64 $ 2)
+  then (TValueKey . SqlBackendKey $ 1)
+  else (TValueKey . SqlBackendKey $ 2)
 
 
 negate :: Formula p -> Formula p

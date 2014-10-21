@@ -3,6 +3,7 @@ module Handler.Theorems where
 import Import
 import qualified Data.Set as S
 import Prelude (head)
+import Database.Persist.Sql
 
 import Explore (async, checkTheorem)
 import Form.Theorems
@@ -16,7 +17,7 @@ import Presenter.Theorem
 
 searchHelp :: Widget
 searchHelp = do
-  let s = SpaceR . Key . PersistInt64
+  let s = SpaceR . SpaceKey . SqlBackendKey
   $(widgetFile "search/help")
 
 theoremConverseCounterexamples :: Theorem -> Widget

@@ -26,9 +26,8 @@ instance Revisable Trait where
 instance Revisable Theorem where
   tableName _ = "Theorem"
 
-keyToInt64 :: Key a -> Int64
-keyToInt64 (Key (PersistInt64 i)) = i
-keyToInt64 _ = error "Can't coerce key to an integer"
+-- FIXME
+keyToInt64 = read . show
 
 revisionFilters :: (Revisable a) => Entity a -> [Filter Revision]
 revisionFilters (Entity _id o) =

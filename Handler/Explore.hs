@@ -3,7 +3,7 @@ module Handler.Explore
 ) where
 
 import Import
-import Yesod.Routes.Class (Route)
+import Yesod.Routes.TH
 
 import qualified Data.Map as M
 
@@ -13,9 +13,9 @@ import Presenter.Theorem (theoremTitle)
 import Presenter.Trait (traitTitle)
 
 type L a = M.Map TraitId [a]
-type R = Route (HandlerSite Handler) -> Text
+--type R = Route (HandlerSite Handler) -> Text
 
-renderTrait :: R -> Prefetch Space -> Prefetch Property -> L TheoremId -> L TraitId -> Entity Trait -> Value
+--renderTrait :: R -> Prefetch Space -> Prefetch Property -> L TheoremId -> L TraitId -> Entity Trait -> Value
 renderTrait urlR ss ps struts supports (Entity _id t) = object
   [ "_id" .= _id
   , "name" .= traitTitle ss ps t
@@ -27,7 +27,7 @@ renderTrait urlR ss ps struts supports (Entity _id t) = object
     ]
   ]
 
-renderTheorem :: R -> Prefetch Property -> Entity Theorem -> Value
+--renderTheorem :: R -> Prefetch Property -> Entity Theorem -> Value
 renderTheorem urlR ps (Entity _id t) = object
   [ "_id" .= _id
   , "name" .= theoremTitle ps t

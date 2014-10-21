@@ -6,18 +6,26 @@
 
 / HomeR GET
 
-/spaces                     SpacesR         GET
+/api/v1/spaces          SpacesR GET
+/api/v1/spaces/#SpaceId SpaceR  GET
+
+/api/v1/properties             PropertiesR GET
+/api/v1/properties/#PropertyId PropertyR   GET
+
+--
+
+-- /spaces                     SpacesR         GET
 /spaces/!new                CreateSpaceR    GET POST
-/spaces/#SpaceId            SpaceR          GET POST
+-- /spaces/#SpaceId            SpaceR          GET POST
 /spaces/#SpaceId/edit       EditSpaceR      GET
 /spaces/#SpaceId/delete     DeleteSpaceR    GET POST
 /spaces/#SpaceId/revisions  SpaceRevisionsR GET
 /spaces/#SpaceId/traits/new CreateTraitR    GET POST
 
-/properties                       PropertiesR        GET
+-- /properties                       PropertiesR        GET
 /properties/!names                PropertiesNamesR   GET
 /properties/!new                  CreatePropertyR    GET POST
-/properties/#PropertyId           PropertyR          GET POST
+-- /properties/#PropertyId           PropertyR          GET POST
 /properties/#PropertyId/edit      EditPropertyR      GET
 /properties/#PropertyId/delete    DeletePropertyR    GET POST
 /properties/#PropertyId/revisions PropertyRevisionsR GET

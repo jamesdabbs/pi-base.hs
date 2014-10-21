@@ -10,6 +10,7 @@ module Model.Trait
 import Import hiding ((==.))
 import Data.List (nub)
 import Database.Esqueleto hiding (delete)
+import qualified Database.Persist.Sql as SQL
 
 import DB (supportedTraits, deleteWithConsequences, Prefetch, prefetch)
 import Model.Revision
@@ -41,8 +42,8 @@ traitSupport _id = runDB . select $
 
 traitValueBool :: Trait -> Bool
 traitValueBool t = case traitValueId t of
-  Key (PersistInt64 1) -> True
-  Key (PersistInt64 2) -> False
+  TValueKey (SQL.SqlBackendKey 1) -> True
+  TValueKey (SQL.SqlBackendKey 2) -> False
   _ -> error "Can't coerce traitValueId to Bool"
 
 traitPrefetch :: [Entity Trait] -> Handler (Prefetch Space, Prefetch Property)

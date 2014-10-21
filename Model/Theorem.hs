@@ -13,6 +13,7 @@ import qualified Import as I ((==.))
 import qualified Data.Set as S
 
 import Database.Esqueleto hiding (delete)
+import qualified Database.Persist.Sql as SQL
 
 import DB (deleteWithConsequences, prefetch, Prefetch)
 import Model.Revision
@@ -35,7 +36,7 @@ theoremDelete _id = do
   return n
 
 theoremImplication :: Theorem -> Implication PropertyId
-theoremImplication t = (Key . PersistInt64) <$> Implication (theoremAntecedent t) (theoremConsequent t)
+theoremImplication t = (PropertyKey . SQL.SqlBackendKey) <$> Implication (theoremAntecedent t) (theoremConsequent t)
 
 theoremConverses :: Theorem -> Handler [Entity Theorem]
 theoremConverses t = runDB $ selectList [TheoremId <-. theoremConverseIds t] []
