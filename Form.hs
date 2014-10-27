@@ -5,10 +5,16 @@ module Form
 , fs
 , fLayout
 , save
+, runJsonForm
 ) where
 
 import Import
+
+import Control.Arrow ((***))
+import Control.Monad (liftM)
+import qualified Data.Map as Map
 import Model.Space (spaceUnknownProperties)
+import Network.HTTP.Types
 import Util (encodeText, decodeText)
 
 import Yesod.Form.Bootstrap3
@@ -63,3 +69,19 @@ fLayout = BootstrapHorizontalForm {
 
 save :: MonadHandler m => AForm m ()
 save = bootstrapSubmit ("Save" :: BootstrapSubmit Text)
+
+toMap :: [(Text, a)] -> Map.Map Text [a]
+toMap = Map.unionsWith (++) . map (\(x, y) -> Map.singleton x [y])
+
+invalid422 :: Status
+invalid422 = Status 422 "Invalid"
+
+runJsonForm :: MonadHandler m => FormInput m a -> m a
+runJsonForm (FormInput f) = do
+  (env, fenv) <- liftM (toMap *** toMap) runRequestBody
+  m <- getYesod
+  l <- languages
+  emx <- f m l env fenv
+  case emx of
+    Left errs -> sendResponseStatus invalid422 $ object [ "errors" .= (errs []) ]
+    Right x -> return x

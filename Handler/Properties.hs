@@ -2,76 +2,71 @@ module Handler.Properties where
 
 import Import
 import Control.Monad ((>=>))
-import Data.Text (intercalate)
+import Data.Time (getCurrentTime, UTCTime)
 
-import Form.Properties
+import Form (runJsonForm)
 import Handler.Helpers
-import Handler.Partials (revisionList)
 import Models
+
+
+createPropertyForm :: (RenderMessage (HandlerSite m) FormMessage, Monad m) => UTCTime -> ValueSetId -> FormInput m Property
+createPropertyForm now valueSet = Property
+  <$> ireq textField "name"
+  <*> pure []
+  <*> ireq textareaField "description"
+  <*> pure valueSet
+  <*> pure now
+  <*> pure now
+
+updatePropertyForm :: (RenderMessage (HandlerSite m) FormMessage, Monad m) => Property -> UTCTime -> FormInput m Property
+updatePropertyForm p now = Property
+  <$> pure (propertyName p)
+  <*> pure (propertyAliases p)
+  <*> ireq textareaField "description"
+  <*> pure (propertyValueSetId p)
+  <*> pure (propertyCreatedAt p)
+  <*> pure now
+
+
+getBoolean :: Handler ValueSetId
+getBoolean = do
+  mb <- runDB . getBy $ UValueSetName "boolean"
+  case mb of
+    Just (Entity _id _) -> return _id
+    Nothing -> do
+      now <- liftIO getCurrentTime
+      runDB . insert $ ValueSet "boolean" now now
 
 
 getPropertiesR :: Handler Value
 getPropertiesR = paged' [] [Asc PropertyName] >>= returnJson
 
+postPropertiesR :: Handler Value
+postPropertiesR = do
+  _ <- requireUser
+  now <- lift getCurrentTime
+  boolean <- getBoolean
+  property <- runJsonForm $ createPropertyForm now boolean
+  _id <- runDB $ insert property
+  returnJson $ Entity _id property
+
 -- FIXME: add theorems, aliases, properties? to JSON response
 getPropertyR :: PropertyId -> Handler Value
 getPropertyR = (runDB . get404) >=> returnJson
 
-
-getPropertiesNamesR :: Handler Value
-getPropertiesNamesR = do
-  properties <- runDB $ selectList [] []
-  returnJson . object . concat . map pNameMap $ properties
-  where pNameMap (Entity _id p) = map (\name -> (name, toJSON _id)) $ propertyNames p
-
-getCreatePropertyR :: Handler Html
-getCreatePropertyR = do
-  (widget, enctype) <- generateFormPost createPropertyForm
-  render "New Property" $(widgetFile "properties/new")
-
-postCreatePropertyR :: Handler Html
-postCreatePropertyR = do
-  ((result, widget), enctype) <- runFormPost createPropertyForm
-  case result of
-    FormSuccess property -> do
-      _id <- runDB $ insert property
-      _ <- revisionCreate $ Entity _id property
-      flash Success "Created property"
-      redirect $ PropertyR _id
-    _ -> render "New Property" $(widgetFile "properties/new")
-
-
-getEditPropertyR :: PropertyId -> Handler Html
-getEditPropertyR _id = do
+putPropertyR :: PropertyId -> Handler Value
+putPropertyR _id = do
+  _ <- requireAdmin
   property <- runDB $ get404 _id
-  (widget, enctype) <- generateFormPost $ updatePropertyForm property
-  render ("Edit " <> propertyName property) $(widgetFile "properties/edit")
+  now <- liftIO getCurrentTime
+  updated <- runJsonForm $ updatePropertyForm property now
+  runDB $ replace _id updated
+  -- TODO: revision tracking
+  returnJson $ Entity _id updated
 
-postPropertyR :: PropertyId -> Handler Html
-postPropertyR _id = do
+deletePropertyR :: PropertyId -> Handler Value
+deletePropertyR _id = do
+  _ <- requireAdmin
   property <- runDB $ get404 _id
-  ((result, widget), enctype) <- runFormPost $ updatePropertyForm property
-  case result of
-    FormSuccess updated -> do
-      runDB $ replace _id updated
-      _ <- revisionCreate $ Entity _id updated
-      flash Success "Updated property"
-      redirect $ PropertyR _id
-    _ -> render ("Edit " <> propertyName property) $(widgetFile "properties/edit")
-
-getDeletePropertyR :: PropertyId -> Handler Html
-getDeletePropertyR _id = do
-  property <- runDB $ get404 _id
-  traits <- runDB $ count [TraitPropertyId ==. _id]
-  render ("Delete " <> propertyName property) $(widgetFile "properties/delete")
-
-postDeletePropertyR :: PropertyId -> Handler Html
-postDeletePropertyR _id = do
   _ <- propertyDelete _id
-  flash Warning "Deleted property"
-  redirect PropertiesR
-
-getPropertyRevisionsR :: PropertyId -> Handler Html
-getPropertyRevisionsR _id = do
-  property <- runDB $ get404 _id
-  render (propertyName property <> " Revisions") $(widgetFile "properties/revisions")
+  returnJson $ Entity _id property

@@ -6,10 +6,13 @@ module Model.Revision
 ) where
 
 import Import
-import Yesod.Auth (requireAuthId)
 
 import Data.Time (getCurrentTime)
 import Util (encodeText)
+
+import Handler.Helpers (requireAdmin)
+
+import qualified Data.Text as T
 
 class ToJSON a => Revisable a where
   tableName :: a -> Text
@@ -38,13 +41,13 @@ revisions e = runDB $ selectList (revisionFilters e) [Desc RevisionCreatedAt]
 
 revisionCreate' :: (Revisable a) => Bool -> Entity a -> Handler RevisionId
 revisionCreate' del (Entity _id obj) = do
-  auth <- requireAuthId
+  user <- requireAdmin
   now  <- liftIO getCurrentTime
   runDB . insert $ Revision
     { revisionItemId = keyToInt64 _id
     , revisionItemClass = tableName obj
     , revisionBody = encodeText obj
-    , revisionUserId = auth
+    , revisionUserId = entityKey user
     , revisionCreatedAt = now
     , revisionDeletes = del
     }
@@ -54,5 +57,6 @@ revisionCreate = revisionCreate' False
 
 logDeletion :: (Revisable a) => Entity a -> Handler ()
 logDeletion e = do
-  _ <- revisionCreate' True e
+  -- FIXME!
+  -- _ <- revisionCreate' True e
   return ()
