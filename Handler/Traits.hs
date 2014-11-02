@@ -2,107 +2,55 @@ module Handler.Traits where
 
 import Import
 
+import Control.Monad ((>=>))
 import qualified Data.Text as T
+import Data.Time (getCurrentTime)
 
 import DB (derivedTraits)
 import Explore (async, checkTrait, checkSpace)
-import Form.Traits
+import Form (runJsonForm)
 import Handler.Partials (revisionList)
 import Handler.Helpers
 import Models
-import Presenter.Trait
-import Presenter.Theorem (theoremName)
+
+createTraitForm = undefined
+updateTraitForm = undefined
 
 
-getTraitsR :: Handler Html
-getTraitsR = do
-  total <- runDB $ count ([] :: [Filter Trait])
-  (traits, pager) <- paged 25 [] [Desc TraitUpdatedAt]
-  (spaces, properties) <- traitPrefetch traits
-  render "Traits" $(widgetFile "traits/index")
+getTraitsR :: Handler Value
+getTraitsR = paged' [] [Desc TraitUpdatedAt] >>= returnJson
 
-getCreateTraitR :: SpaceId -> Handler Html
-getCreateTraitR sid = do
-  space <- runDB $ get404 sid
-  (widget, enctype) <- generateFormPost $ createTraitForm sid
-  render "New Trait" $(widgetFile "traits/new")
+postTraitsR :: Handler Value
+postTraitsR = do
+  _ <- requireUser
+  now <- lift getCurrentTime
+  trait <- runJsonForm $ createTraitForm now
+  existing <- runDB . getBy $ TraitSP (traitSpaceId trait) (traitPropertyId trait)
+  case existing of
+    Just trait -> do
+      error "Should render 422"
+    Nothing -> do
+      _id <- runDB $ insert trait
+      -- FIXME: _ <- revisionCreate $ Entity _id trait
+      async checkTrait _id
+      returnJson $ Entity _id trait
 
-postCreateTraitR :: SpaceId -> Handler Html
-postCreateTraitR sid = do
-  space <- runDB $ get404 sid
-  ((result, widget), enctype) <- runFormPost $ createTraitForm sid
-  case result of
-    FormSuccess trait -> do
-      existing <- runDB . getBy $ TraitSP (traitSpaceId trait) (traitPropertyId trait)
-      case existing of
-        Just (Entity _id _) -> do
-          flash Danger "Trait already exists"
-          redirect $ TraitR _id
-        Nothing -> do
-          _id <- runDB $ insert trait
-          _ <- revisionCreate $ Entity _id trait
-          async checkTrait _id
-          flash Success "Created trait"
-          redirect $ TraitR _id
-    _ -> render "New Trait" $(widgetFile "traits/new")
+-- TODO: show deduced, supports, etc
+getTraitR :: TraitId -> Handler Value
+getTraitR = (runDB . get404) >=> returnJson
 
-getEditTraitR :: TraitId -> Handler Html
-getEditTraitR _id = do
+putTraitR :: TraitId -> Handler Value
+putTraitR _id = do
+  _ <- requireAdmin
   trait <- runDB $ get404 _id
-  (widget, enctype) <- generateFormPost $ updateTraitForm trait
-  (spaces, properties) <- traitPrefetch [Entity _id trait]
-  render ("Edit " <> traitTitle spaces properties trait) $(widgetFile "traits/edit")
+  now <- liftIO getCurrentTime
+  updated <- runJsonForm $ updateTraitForm trait now
+  runDB $ replace _id updated
+  returnJson $ Entity _id updated
 
-postTraitR :: TraitId -> Handler Html
-postTraitR _id = do
+deleteTraitR :: TraitId -> Handler Value
+deleteTraitR _id = do
+  _ <- requireAdmin
   trait <- runDB $ get404 _id
-  ((result, widget), enctype) <- runFormPost $ updateTraitForm trait
-  case result of
-    FormSuccess updated -> do
-      runDB $ replace _id updated
-      _ <- revisionCreate $ Entity _id updated
-      flash Success "Updated trait"
-      redirect $ TraitR _id
-    _ -> do
-      (spaces, properties) <- traitPrefetch [Entity _id trait]
-      render ("Edit " <> traitTitle spaces properties trait) $(widgetFile "traits/edit")
-
-getTraitR :: TraitId -> Handler Html
-getTraitR _id = do
-  trait <- runDB $ get404 _id
-  case traitDeduced trait of
-    True -> do
-      derived  <- derivedTraits _id
-      supports <- traitSupport _id
-      (spaces, properties) <- traitPrefetch $ [Entity _id trait] ++ supports ++ derived
-      struts <- traitStruts _id
-      theoremProperties <- theoremPrefetch . map entityVal $ struts
-      render (traitTitle spaces properties trait) $(widgetFile "traits/show_deduced")
-    False -> do
-      consequences <- traitConsequences _id
-      (spaces, properties) <- traitPrefetch $ [Entity _id trait] ++ consequences
-      render (traitTitle spaces properties trait) $(widgetFile "traits/show")
-
-getDeleteTraitR :: TraitId -> Handler Html
-getDeleteTraitR _id = do
-  trait <- runDB $ get404 _id
-  consequences <- traitConsequences _id
-  (spaces, properties) <- traitPrefetch $ [Entity _id trait] ++ consequences
-  render ("Delete " <> traitTitle spaces properties trait) $(widgetFile "traits/delete")
-
-postDeleteTraitR :: TraitId -> Handler Html
-postDeleteTraitR _id = do
-  trait <- runDB $ get404 _id
-  if traitDeduced trait
-    then invalidArgs ["Please delete the root assumption for this trait"]
-    else do
-      _ <- traitDelete _id
-      async checkSpace $ traitSpaceId trait
-      flash Warning "Deleted trait"
-      redirect . SpaceR . traitSpaceId $ trait
-
-getTraitRevisionsR :: TraitId -> Handler Html
-getTraitRevisionsR _id = do
-  trait <- runDB $ get404 _id
-  (spaces, properties) <- traitPrefetch [Entity _id trait]
-  render (traitTitle spaces properties trait <> " Revisions") $(widgetFile "traits/revisions")
+  _ <- traitDelete _id
+  returnJson $ Entity _id trait

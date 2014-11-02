@@ -13,25 +13,15 @@
 /api/v1/properties             PropertiesR GET POST
 /api/v1/properties/#PropertyId PropertyR   GET PUT DELETE
 
+/api/v1/theorems            TheoremsR GET POST
+/api/v1/theorems/#TheoremId TheoremR  GET PUT DELETE
+
+/api/v1/traits          TraitsR GET POST
+/api/v1/traits/#TraitId TraitR  GET PUT DELETE
+
 /api/v1/test/reset TestResetR POST
 
 --
-
-/spaces/#SpaceId/traits/new CreateTraitR    GET POST
-
-/traits                    TraitsR         GET
-/traits/#TraitId           TraitR          GET POST
-/traits/#TraitId/edit      EditTraitR      GET
-/traits/#TraitId/delete    DeleteTraitR    GET POST
-/traits/#TraitId/revisions TraitRevisionsR GET
-/traits/#TraitId/data      TraitDataR      GET
-
-/theorems                      TheoremsR         GET
-/theorems/!new                 CreateTheoremR    GET POST
-/theorems/#TheoremId           TheoremR          GET POST
-/theorems/#TheoremId/edit      EditTheoremR      GET
-/theorems/#TheoremId/delete    DeleteTheoremR    GET POST
-/theorems/#TheoremId/revisions TheoremRevisionsR GET
 
 /contribute ContributeR GET
 /search     SearchR     GET

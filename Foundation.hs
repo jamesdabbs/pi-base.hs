@@ -161,14 +161,6 @@ instance Yesod App where
     -- The page to be redirected to when authentication is required.
     authRoute _ = Just $ AuthR LoginR
 
-    -- Must be an admin to delete
-    isAuthorized (DeleteTraitR    _) _ = isAdmin
-    isAuthorized (DeleteTheoremR  _) _ = isAdmin
-
-    -- Must be an admin to inspect revisions
-    isAuthorized (TraitRevisionsR    _) _ = isAdmin
-    isAuthorized (TheoremRevisionsR  _) _ = isAdmin
-
     -- Must be an admin for admin functions
     isAuthorized AdminR           _ = isAdmin
     isAuthorized ContradictionsR  _ = isAdmin
@@ -181,23 +173,7 @@ instance Yesod App where
     isAuthorized  UsersR   _ = isAdmin
     isAuthorized (UserR _) _ = isAdmin
 
-    -- Must be logged in to create
-    isAuthorized CreateTheoremR   _ = isLoggedIn
-    --isAuthorized (CreateTraitR _) _ = isLoggedIn
-
-    -- Must be logged in to edit
-    isAuthorized (EditTraitR    _) _ = isLoggedIn
-    isAuthorized (EditTheoremR  _) _ = isLoggedIn
-
-    -- TODO - these methods are auth'd conditionally in the handlers
-    isAuthorized TestResetR    _ = return Authorized
-    isAuthorized SpacesR       _ = return Authorized
-    isAuthorized (SpaceR _)    _ = return Authorized
-    isAuthorized PropertiesR   _ = return Authorized
-    isAuthorized (PropertyR _) _ = return Authorized
-
-    -- Must be an admin for any other write request
-    isAuthorized _ True = isAdmin
+    -- TODO - other methods are auth'd conditionally in the handlers
     isAuthorized _ _    = return Authorized
 
     -- This function creates static content files in the static folder

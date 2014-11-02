@@ -1,111 +1,86 @@
 module Handler.Theorems where
 
 import Import
+import Control.Monad ((>=>))
 import qualified Data.Set as S
-import Prelude (head)
-import Database.Persist.Sql
+import Data.Time (getCurrentTime, UTCTime)
 
 import Explore (async, checkTheorem)
-import Form.Theorems
-import Handler.Helpers
-import Handler.Partials (revisionList)
-import Logic (counterexamples, converse)
+import Form (formulaField, runJsonForm)
+import Handler.Helpers (paged', requireUser, requireAdmin)
+import Logic (counterexamples)
 import Models
-import Presenter.Trait (traitName)
-import Presenter.Theorem
 
 
-searchHelp :: Widget
-searchHelp = do
-  let s = SpaceR . SpaceKey . SqlBackendKey
-  $(widgetFile "search/help")
+-- createTheoremForm :: (RenderMessage (HandlerSite m) FormMessage, Monad m) => UTCTime -> FormInput m Theorem
+createTheoremForm now = Theorem
+  <$> ireq formulaField "antecedent"
+  <*> ireq formulaField "consequent"
+  <*> ireq textareaField "description"
+  <*> pure []
+  <*> pure now
+  <*> pure now
 
-theoremConverseCounterexamples :: Theorem -> Widget
-theoremConverseCounterexamples theorem = do
-  cxids <- handlerToWidget . counterexamples . converse $ theoremImplication theorem
-  let total = S.size cxids
-  cxs <- handlerToWidget . runDB $ selectList [SpaceId <-. S.toList cxids] [LimitTo 5]
-  $(widgetFile "theorems/_converse_counterexamples")
+updateTheoremForm :: (RenderMessage (HandlerSite m) FormMessage, Monad m) => Theorem -> UTCTime -> FormInput m Theorem
+updateTheoremForm t now = Theorem
+  <$> pure (theoremAntecedent t)
+  <*> pure (theoremConsequent t)
+  <*> ireq textareaField "description"
+  <*> pure (theoremConverseIds t)
+  <*> pure (theoremCreatedAt t)
+  <*> pure now
 
-getTheoremsR :: Handler Html
-getTheoremsR = do
-  total <- runDB $ count ([] :: [Filter Theorem])
-  (theorems, pager) <- paged 10 [] [Desc TheoremUpdatedAt]
-  properties <- theoremPrefetch $ map entityVal theorems
-  render "Theorems" $(widgetFile "theorems/index")
 
-getCreateTheoremR :: Handler Html
-getCreateTheoremR = do
-  (widget, enctype) <- generateFormPost createTheoremForm
-  render "New Theorem" $(widgetFile "theorems/new")
+-- FIXME!
+theoremName :: Theorem -> Text
+theoremName _ = ""
 
-postCreateTheoremR :: Handler Html
-postCreateTheoremR = do
-  ((result, widget), enctype) <- runFormPost createTheoremForm
-  case result of
-    FormSuccess theorem -> do
-      cxs <- counterexamples . theoremImplication $ theorem
-      if S.null cxs
-        then do
-          _id <- runDB $ insert theorem
-          _ <- revisionCreate $ Entity _id theorem
-          theoremRecordProperties _id theorem
-          async checkTheorem _id
-          flash Success "Created theorem"
-          redirect $ TheoremR _id
-        else do
-          -- TODO: better way to do this include?
-          --   This should probably redirect to a conjecturer
-          let baseW = $(widgetFile "theorems/new")
-          let cx = head . S.toList $ cxs
-          properties <- theoremPrefetch [theorem]
-          render "New Theorem" $(widgetFile "theorems/counterexamples")
-    _ -> render "New Theorem" $(widgetFile "theorems/new")
+-- TODO: should this be the ToJSON instance of Theorems?
+showTheorem :: Entity Theorem -> Value
+showTheorem (Entity _id t) = object
+  [ "id"         .= _id
+  , "name"       .= theoremName t
+  , "description".= theoremDescription t
+  , "antecedent" .= theoremAntecedent t
+  , "consequent" .= theoremConsequent t
+  , "converse"   .= theoremConverseIds t
+  ]
 
-getEditTheoremR :: TheoremId -> Handler Html
-getEditTheoremR _id = do
+getTheoremsR :: Handler Value
+getTheoremsR = paged' [] [Desc TheoremUpdatedAt] >>= returnJson . map showTheorem
+
+postTheoremsR :: Handler Value
+postTheoremsR = do
+  _ <- requireUser
+  now <- lift getCurrentTime
+  theorem <- runJsonForm $ createTheoremForm now
+  cxs <- counterexamples . theoremImplication $ theorem
+  if S.null cxs
+    then do
+      _id <- runDB $ insert theorem
+      -- FIXME: _ <- revisionCreate $ Entity _id theorem
+      theoremRecordProperties _id theorem
+      async checkTheorem _id
+      returnJson . showTheorem $ Entity _id theorem
+    else do
+      error "Need to show counterexamples"
+
+getTheoremR :: TheoremId -> Handler Value
+getTheoremR = (runDB . get404) >=> returnJson
+
+putTheoremR :: TheoremId -> Handler Value
+putTheoremR _id = do
+  _ <- requireAdmin
   theorem <- runDB $ get404 _id
-  (widget, enctype) <- generateFormPost $ updateTheoremForm theorem
-  properties <- theoremPrefetch [theorem]
-  render ("Edit " <> theoremTitle properties theorem) $(widgetFile "theorems/edit")
+  now <- liftIO getCurrentTime
+  updated <- runJsonForm $ updateTheoremForm theorem now
+  runDB $ replace _id updated
+  -- FIXME: revision tracking
+  returnJson . showTheorem $ Entity _id updated
 
-postTheoremR :: TheoremId -> Handler Html
-postTheoremR _id = do
+deleteTheoremR :: TheoremId -> Handler Value
+deleteTheoremR _id = do
+  _ <- requireAdmin
   theorem <- runDB $ get404 _id
-  ((result, widget), enctype) <- runFormPost $ updateTheoremForm theorem
-  case result of
-    FormSuccess updated -> do
-      runDB $ replace _id updated
-      _ <- revisionCreate $ Entity _id updated
-      flash Success "Updated theorem"
-      redirect $ TheoremR _id
-    _ -> do
-      properties <- theoremPrefetch [theorem]
-      render ("Edit " <> theoremTitle properties theorem) $(widgetFile "theorems/edit")
-
-getTheoremR :: TheoremId -> Handler Html
-getTheoremR _id = do
-  theorem <- runDB $ get404 _id
-  converses <- theoremConverses theorem
-  properties <- theoremPrefetch $ [theorem] ++ map entityVal converses
-  render (theoremTitle properties theorem) $(widgetFile "theorems/show")
-
-getDeleteTheoremR :: TheoremId -> Handler Html
-getDeleteTheoremR _id = do
-  theorem <- runDB $ get404 _id
-  tprops <- theoremPrefetch [theorem]
-  consequences <- theoremConsequences _id
-  (spaces, properties) <- traitPrefetch consequences
-  render ("Delete " <> theoremTitle tprops theorem) $(widgetFile "theorems/delete")
-
-postDeleteTheoremR :: TheoremId -> Handler Html
-postDeleteTheoremR _id = do
   _ <- theoremDelete _id
-  flash Warning "Deleted theorem"
-  redirect TheoremsR
-
-getTheoremRevisionsR :: TheoremId -> Handler Html
-getTheoremRevisionsR _id = do
-  theorem <- runDB . get404 $ _id
-  properties <- theoremPrefetch [theorem]
-  render (theoremTitle properties theorem <> " Revisions") $(widgetFile "theorems/revisions")
+  returnJson . showTheorem $ Entity _id theorem
