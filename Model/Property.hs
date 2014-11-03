@@ -38,15 +38,13 @@ propertyCreate d = do
   bool <- getBoolean
   now <- lift getCurrentTime
   let property = Property (pcdName d) [] (pcdDescription d) bool now now
-  _id <- runDB $ insert property
-  return $ Entity _id property
+  createWithRevision property
 
 propertyUpdate :: Entity Property -> PropertyUpdateData -> Handler (Entity Property)
 propertyUpdate (Entity _id p) d = do
   now <- lift getCurrentTime
   let updated = p { propertyDescription = pudDescription d, propertyUpdatedAt = now }
-  runDB $ replace _id updated
-  return $ Entity _id updated
+  updateWithRevision _id updated
 
 propertyTheorems :: PropertyId -> Handler [Entity Theorem]
 propertyTheorems pid = runDB . select $
@@ -58,9 +56,8 @@ propertyTheorems pid = runDB . select $
 propertyDelete :: PropertyId -> Handler ()
 propertyDelete _id = do
   property <- runDB $ get404 _id
-  logDeletion $ Entity _id property
   runDB $ deleteWhere [TraitPropertyId I.==. _id]
-  runDB $ delete _id
+  deleteWithRevision _id property
 
 propertyNames :: Property -> [Text]
 propertyNames p = propertyName p : propertyAliases p

@@ -43,11 +43,6 @@ instance ToJSON a => ToJSON (Formula a) where
   toJSON (And  sf ) = object ["and" .= sf]
   toJSON (Or   sf ) = object ["or" .= sf]
 
-valueIdToBool :: Int -> Bool
-valueIdToBool 1 = True
-valueIdToBool 2 = False
-valueIdToBool _ = error "Unrecognized value"
-
 instance FromJSON (Formula Int64) where
   parseJSON (Object v) = case head . M.toList $ v of
       ("and", val) -> do
@@ -56,8 +51,6 @@ instance FromJSON (Formula Int64) where
       ("or", val) -> do
         ors <- parseJSON val
         return $ Or ors
-      (key, Number valId) -> do
-        return $ Atom (read . unpack $ key) (valueIdToBool . round $ valId)
       (key, Bool b) -> do
         return $ Atom (read . unpack $ key) b
       _ -> mzero

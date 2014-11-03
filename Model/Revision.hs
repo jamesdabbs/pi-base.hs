@@ -1,15 +1,16 @@
 module Model.Revision
 ( Revisable
-, revisionCreate
+, createWithRevision
+, updateWithRevision
+, deleteWithRevision
 , revisions
-, logDeletion
 ) where
 
 import Import
 
 import Util (encodeText)
 
-import Handler.Helpers (requireAdmin)
+import Handler.Helpers (requireUser)
 
 
 class ToJSON a => Revisable a where
@@ -27,8 +28,28 @@ instance Revisable Trait where
 instance Revisable Theorem where
   tableName _ = "Theorem"
 
--- FIXME
-keyToInt64 = read . show
+
+createWithRevision val = do
+  _id <- runDB $ insert val
+  let e = Entity _id val
+  _ <- revisionCreate e
+  return e
+
+updateWithRevision _id val = do
+  runDB $ replace _id val
+  let e = Entity _id val
+  _ <- revisionCreate e
+  return e
+
+deleteWithRevision _id val = do
+  logDeletion $ Entity _id val
+  runDB $ delete _id
+
+
+keyToInt64 :: (PersistEntity a) => Key a -> Int64
+keyToInt64 key = case keyToValues key of
+  [PersistInt64 _id] -> _id
+  _ -> error "Can't extract integer key"
 
 revisionFilters :: (Revisable a) => Entity a -> [Filter Revision]
 revisionFilters (Entity _id o) =
@@ -39,8 +60,9 @@ revisions e = runDB $ selectList (revisionFilters e) [Desc RevisionCreatedAt]
 
 revisionCreate' :: (Revisable a) => Bool -> Entity a -> Handler RevisionId
 revisionCreate' del (Entity _id obj) = do
-  user <- requireAdmin
+  user <- requireUser
   now  <- liftIO getCurrentTime
+  $(logInfo) "Creating revision"
   runDB . insert $ Revision
     { revisionItemId = keyToInt64 _id
     , revisionItemClass = tableName obj
@@ -55,6 +77,5 @@ revisionCreate = revisionCreate' False
 
 logDeletion :: (Revisable a) => Entity a -> Handler ()
 logDeletion e = do
-  -- FIXME!
-  -- _ <- revisionCreate' True e
+  _ <- revisionCreate' True e
   return ()

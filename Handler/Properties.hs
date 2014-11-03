@@ -4,6 +4,7 @@ module Handler.Properties
 , getPropertyR
 , putPropertyR
 , deletePropertyR
+, getPropertyRevisionsR
 ) where
 
 import Import
@@ -33,3 +34,6 @@ putPropertyR = H.update updateForm propertyUpdate id
 
 deletePropertyR :: PropertyId -> Handler Value
 deletePropertyR = H.delete propertyDelete id
+
+getPropertyRevisionsR :: PropertyId -> Handler Value
+getPropertyRevisionsR = H.revisions

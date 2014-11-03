@@ -5,6 +5,7 @@ module Handler.Base
 , show
 , update
 , delete
+, revisions
 ) where
 
 import qualified Prelude as P (head, show)
@@ -15,6 +16,7 @@ import Database.Persist.Sql (SqlBackend)
 
 import Handler.Helpers (requireAdmin, requireUser)
 import Form (runJsonForm)
+import qualified Model.Revision as R
 
 
 coerceInt :: Text -> Int -> Int
@@ -68,3 +70,8 @@ delete destructor presenter _id = do
   o <- runDB $ get404 _id
   _ <- destructor _id
   returnJson . presenter $ Entity _id o
+
+revisions _id = do
+  o <- runDB $ get404 _id
+  r <- R.revisions $ Entity _id o
+  returnJson r

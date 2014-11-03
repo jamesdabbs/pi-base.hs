@@ -1,4 +1,11 @@
-module Handler.Theorems where
+module Handler.Theorems
+( getTheoremsR
+, postTheoremsR
+, getTheoremR
+, putTheoremR
+, deleteTheoremR
+, getTheoremRevisionsR
+) where
 
 import Import
 import qualified Data.Set as S
@@ -56,11 +63,10 @@ postTheoremsR = do
   cxs <- counterexamples . theoremImplication $ theorem
   if S.null cxs
     then do
-      _id <- runDB $ insert theorem
-      -- FIXME: _ <- revisionCreate $ Entity _id theorem
+      e@(Entity _id _) <- createWithRevision theorem
       theoremRecordProperties _id theorem
       async checkTheorem _id
-      returnJson . showTheorem $ Entity _id theorem
+      returnJson . showTheorem $ e
     else do
       sendErrorMessage invalid422 $ "Found counterexamples"
 
@@ -74,8 +80,7 @@ putTheoremR _id = do
   now <- liftIO getCurrentTime
   updated <- runJsonForm $ updateTheoremForm theorem now
   runDB $ replace _id updated
-  -- FIXME: revision tracking
-  returnJson . showTheorem $ Entity _id updated
+  updateWithRevision _id updated >>= returnJson . showTheorem
 
 deleteTheoremR :: TheoremId -> Handler Value
 deleteTheoremR _id = do
@@ -83,3 +88,6 @@ deleteTheoremR _id = do
   theorem <- runDB $ get404 _id
   _ <- theoremDelete _id
   returnJson . showTheorem $ Entity _id theorem
+
+getTheoremRevisionsR :: TheoremId -> Handler Value
+getTheoremRevisionsR = H.revisions

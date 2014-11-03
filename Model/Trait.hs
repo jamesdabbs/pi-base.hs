@@ -22,9 +22,8 @@ traitConsequences _id = supportedTraits [_id]
 traitDelete :: TraitId -> Handler Int64
 traitDelete _id = do
   trait <- runDB $ get404 _id
-  logDeletion $ Entity _id trait
   n <- deleteWithConsequences traitConsequences _id
-  runDB $ delete _id
+  deleteWithRevision _id trait
   return n
 
 traitStruts :: TraitId -> Handler [Entity Theorem]

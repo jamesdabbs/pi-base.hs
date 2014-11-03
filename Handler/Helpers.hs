@@ -18,8 +18,6 @@ import qualified Data.Text as T
 import Data.Text.Encoding (decodeUtf8)
 import Network.HTTP.Types
 
-import Database.Persist.Sql (SqlBackend)
-
 render :: Text -> Widget -> Handler Html
 render title w = defaultLayout $ do
   setTitle . toHtml $ [shamlet|#{title} | π-Base|]

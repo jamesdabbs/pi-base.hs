@@ -29,10 +29,9 @@ theoremConsequences _id = runDB . select $
 theoremDelete :: TheoremId -> Handler Int64
 theoremDelete _id = do
   theorem <- runDB $ get404 _id
-  logDeletion $ Entity _id theorem
   runDB $ deleteWhere [TheoremPropertyTheoremId I.==. _id]
   n <- deleteWithConsequences theoremConsequences _id
-  runDB $ delete _id
+  deleteWithRevision _id theorem
   return n
 
 theoremImplication :: Theorem -> Implication PropertyId

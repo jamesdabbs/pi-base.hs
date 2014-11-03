@@ -1,4 +1,12 @@
-module Handler.Traits where
+module Handler.Traits
+( getTraitsR
+, getSpaceTraitsR
+, postTraitsR
+, getTraitR
+, putTraitR
+, deleteTraitR
+, getTraitRevisionsR
+) where
 
 import Import
 
@@ -67,10 +75,10 @@ postTraitsR = do
     Just trait -> do
       error "Should render 422"
     Nothing -> do
-      _id <- runDB $ insert trait
+      e@(Entity _id _) <- createWithRevision trait
       -- FIXME: _ <- revisionCreate $ Entity _id trait
       async checkTrait _id
-      returnJson $ Entity _id trait
+      returnJson e
 
 -- TODO: show deduced, supports, etc
 getTraitR :: TraitId -> Handler Value
@@ -82,8 +90,10 @@ putTraitR _id = do
   trait <- runDB $ get404 _id
   now <- liftIO getCurrentTime
   updated <- runJsonForm $ updateTraitForm trait now
-  runDB $ replace _id updated
-  returnJson $ Entity _id updated
+  updateWithRevision _id updated >>= returnJson
 
 deleteTraitR :: TraitId -> Handler Value
 deleteTraitR = H.delete traitDelete id
+
+getTraitRevisionsR :: TraitId -> Handler Value
+getTraitRevisionsR = H.revisions

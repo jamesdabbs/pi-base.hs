@@ -32,15 +32,13 @@ spaceCreate :: SpaceCreateData -> Handler (Entity Space)
 spaceCreate d = do
   now <- lift getCurrentTime
   let space = Space (scdName d) (scdDescription d) now now (scdProofOfTopology d)
-  _id <- runDB $ insert space
-  return $ Entity _id space
+  createWithRevision space
 
 spaceUpdate :: Entity Space -> SpaceUpdateData -> Handler (Entity Space)
 spaceUpdate (Entity _id s) d = do
   now <- lift getCurrentTime
   let updated = s { spaceDescription = sudDescription d, spaceProofOfTopology = sudProofOfTopology d, spaceUpdatedAt = now }
-  runDB $ replace _id updated
-  return $ Entity _id updated
+  updateWithRevision _id updated
 
 spaceTraitMap :: SpaceId -> Set PropertyId -> Handler (TraitMap PropertyId)
 spaceTraitMap sid ps = do
@@ -59,6 +57,5 @@ spaceUnknownProperties _id = do
 spaceDelete :: SpaceId -> Handler ()
 spaceDelete _id = do
   space <- runDB $ get404 _id
-  logDeletion $ Entity _id space
   runDB $ deleteWhere [TraitSpaceId ==. _id]
-  runDB $ delete _id
+  deleteWithRevision _id space

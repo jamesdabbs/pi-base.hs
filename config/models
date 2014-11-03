@@ -13,7 +13,7 @@ Email sql=emails
     verkey Text Maybe
     UniqueEmail email
 
-Revision sql=revisions
+Revision json sql=revisions
   itemId Int64
   itemClass Text
   body Text
@@ -32,6 +32,7 @@ TValue sql=values
   valueSetId ValueSetId
   createdAt UTCTime
   updatedAt UTCTime
+  UTValueName name
 
 Space json sql=spaces
   name Text
