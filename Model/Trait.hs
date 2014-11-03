@@ -1,5 +1,9 @@
 module Model.Trait
 ( traitConsequences
+, TraitCreateData (..)
+, traitCreate
+, TraitUpdateData (..)
+, traitUpdate
 , traitDelete
 , traitStruts
 , traitSupport
@@ -13,8 +17,36 @@ import Database.Esqueleto hiding (delete)
 import qualified Database.Persist.Sql as SQL
 
 import DB (supportedTraits, deleteWithConsequences, Prefetch, prefetch)
+import Handler.Helpers (sendErrorMessage, invalid422)
 import Model.Revision
 
+
+data TraitCreateData = TraitCreateData
+  { tcdSpace :: SpaceId
+  , tcdProperty :: PropertyId
+  , tcdValue :: TValueId
+  , tcdDescription :: Textarea
+  }
+
+data TraitUpdateData = TraitUpdateData
+  { tudDescription :: Textarea
+  }
+
+traitCreate :: TraitCreateData -> Handler (Entity Trait)
+traitCreate d = do
+  now <- lift getCurrentTime
+  existing <- runDB . getBy $ TraitSP (tcdSpace d) (tcdProperty d)
+  case existing of
+    Just _ -> sendErrorMessage invalid422 "Space / property pair already exists"
+    _ -> do
+      let trait = Trait (tcdSpace d) (tcdProperty d) (tcdValue d) (tcdDescription d) now now False
+      createWithRevision trait
+
+traitUpdate :: Entity Trait -> TraitUpdateData -> Handler (Entity Trait)
+traitUpdate (Entity _id t) d = do
+  now <- lift getCurrentTime
+  let updated = t { traitDescription = tudDescription d, traitUpdatedAt = now }
+  updateWithRevision _id updated
 
 traitConsequences :: TraitId -> Handler [Entity Trait]
 traitConsequences _id = supportedTraits [_id]

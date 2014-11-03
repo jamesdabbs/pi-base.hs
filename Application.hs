@@ -36,7 +36,6 @@ import qualified Data.Text as T
 -- Don't forget to add new modules to your cabal file!
 import Handler
 import Handler.Admin
-import Handler.Explore
 import Handler.Properties
 import Handler.Search
 import Handler.Spaces
