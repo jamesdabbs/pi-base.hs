@@ -169,10 +169,6 @@ instance Yesod App where
     isAuthorized TraitProgressR   _ = isAdmin
     isAuthorized TheoremProgressR _ = isAdmin
 
-    -- Must be an admin to administrate users
-    isAuthorized  UsersR   _ = isAdmin
-    isAuthorized (UserR _) _ = isAdmin
-
     -- TODO - other methods are auth'd conditionally in the handlers
     isAuthorized _ _    = return Authorized
 

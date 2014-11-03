@@ -26,6 +26,9 @@
 
 /v1/test/reset TestResetR POST
 
+/v1/users         UsersR GET
+/v1/users/#UserId UserR  GET
+
 --
 
 /contribute ContributeR GET
@@ -37,6 +40,3 @@
 /admin/reset             ResetR            POST
 /admin/progress/traits   TraitProgressR    GET
 /admin/progress/theorems TheoremProgressR  GET
-
-/users         UsersR GET
-/users/#UserId UserR  GET

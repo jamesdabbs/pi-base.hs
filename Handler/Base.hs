@@ -6,6 +6,7 @@ module Handler.Base
 , update
 , delete
 , revisions
+, paged
 ) where
 
 import qualified Prelude as P (head, show)

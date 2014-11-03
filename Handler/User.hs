@@ -2,16 +2,15 @@ module Handler.User where
 
 import Import
 
+import qualified Handler.Base as H
+import Handler.Helpers (requireAdmin)
 
-getUsersR :: Handler Html
-getUsersR = error "NotImplemented - getUsersR"
-  -- (users, pager) <- paged 10 [] [Desc UserLastLoggedInAt]
-  -- total <- runDB $ count ([] :: [Filter User])
-  -- mRev <- runDB $ selectFirst [] [Desc RevisionCreatedAt]
-  -- render "Users" $(widgetFile "users/index")
 
-getUserR :: UserId -> Handler Html
-getUserR = error "NotImplemented - getUserR"
-  -- user <- runDB $ get404 _id
-  -- (revs, pager) <- paged 10 [RevisionUserId ==. _id] [Desc RevisionCreatedAt]
-  -- render (userIdent user) $(widgetFile "users/show")
+getUsersR :: Handler Value
+getUsersR = requireAdmin >> H.index [Desc UserLastLoggedInAt] id
+
+getUserR :: UserId -> Handler Value
+getUserR _id = do
+  _ <- requireAdmin
+  user <- runDB . get404 $ _id
+  returnJson $ Entity _id user

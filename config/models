@@ -1,4 +1,4 @@
-User sql=remote_users
+User json sql=remote_users
     ident Text
     name Text Maybe
     admin Bool
