@@ -12,6 +12,7 @@ import qualified Data.Map as M
 
 import Model.Revision
 
+
 spaceTraitMap :: SpaceId -> Set PropertyId -> Handler (TraitMap PropertyId)
 spaceTraitMap sid ps = do
   ets <- runDB $ selectList [TraitSpaceId ==. sid, TraitPropertyId <-. (S.toList ps)] []

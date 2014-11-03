@@ -2,9 +2,10 @@ module Handler.Admin where
 
 import Import
 
-import Control.Monad (filterM)
+import Control.Monad (filterM, forM_)
 import qualified Data.Text as T
 import qualified Data.Set as S
+import Database.Persist.Sql (rawExecute)
 
 import Explore (checkTheorem)
 import Handler.Helpers
@@ -54,23 +55,18 @@ postTestResetR = do
 #ifdef DEVELOPMENT
   now <- liftIO getCurrentTime
 
-  runDB $ do
-    deleteWhere ([] :: [Filter Strut])
-    deleteWhere ([] :: [Filter Assumption])
-    deleteWhere ([] :: [Filter Supporter])
-    deleteWhere ([] :: [Filter Proof])
-    deleteWhere ([] :: [Filter Revision])
-    deleteWhere ([] :: [Filter TheoremProperty])
-    deleteWhere ([] :: [Filter Trait])
-    deleteWhere ([] :: [Filter Property])
-    deleteWhere ([] :: [Filter Space])
-    deleteWhere ([] :: [Filter Theorem])
-    deleteWhere ([] :: [Filter Email])
-    deleteWhere ([] :: [Filter User])
+  runDB $ rawExecute "TRUNCATE struts, assumptions, supporters, proofs, revisions, theorem_properties, traits, properties, spaces, theorems, emails, remote_users RESTART IDENTITY CASCADE" []
+
+  (Entity boolId _) <- runDB . getBy404 $ UValueSetName "boolean"
 
   _ <- runDB $ do
-    _ <- insert $ User "admin" (Just "admin") True  now now
-    insert $ User "user"  (Just "user" ) False now now
+    insert_ $ User "admin" (Just "admin") True  now now
+    insert_ $ User "user"  (Just "user" ) False now now
+
+    forM_ ([1..100] :: [Integer])$ \n -> do
+      let n' = T.pack $ show n
+      insert_ $ Space ("Space " <> n') (Textarea "-") now now Nothing
+      insert_ $ Property ("Property " <> n') [] (Textarea "-") boolId now now
 
   returnJson $ object [ "status" .= ("Ok" :: Text) ]
 #else

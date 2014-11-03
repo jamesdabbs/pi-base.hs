@@ -10,6 +10,7 @@ module Logic
 , candidates
 , relevantTheorems
 , counterexamples
+, boolToValueId
 ) where
 
 import Import hiding (negate)

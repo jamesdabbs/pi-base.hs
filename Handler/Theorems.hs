@@ -7,7 +7,7 @@ import Data.Time (getCurrentTime, UTCTime)
 
 import Explore (async, checkTheorem)
 import Form (formulaField, runJsonForm)
-import Handler.Helpers (paged', requireUser, requireAdmin)
+import Handler.Helpers (paged', requireUser, requireAdmin, sendErrorMessage, invalid422)
 import Logic (counterexamples)
 import Models
 
@@ -63,7 +63,7 @@ postTheoremsR = do
       async checkTheorem _id
       returnJson . showTheorem $ Entity _id theorem
     else do
-      error "Need to show counterexamples"
+      sendErrorMessage invalid422 $ "Found counterexamples"
 
 getTheoremR :: TheoremId -> Handler Value
 getTheoremR = (runDB . get404) >=> returnJson

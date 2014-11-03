@@ -10,6 +10,8 @@ module Handler.Helpers
 , authButton
 , flash
 , FlashClass (..)
+, sendErrorMessage
+, invalid422
 ) where
 
 import Import
@@ -82,8 +84,11 @@ data FlashClass = Success | Info | Warning | Danger deriving (Show)
 flash :: FlashClass -> Text -> Handler ()
 flash c msg = setMessage [shamlet|<.alert.alert-#{map toLower $ show c}>#{msg}|]
 
+sendErrorMessage :: MonadHandler m => Status -> Text -> m a
+sendErrorMessage status msg = sendResponseStatus status $ object [ "error" .= msg ]
+
 sendError :: MonadHandler m => Status -> m a
-sendError status = sendResponseStatus status $ object [ "error" .= (decodeUtf8 . statusMessage $ status) ]
+sendError status = sendErrorMessage status (decodeUtf8 . statusMessage $ status)
 
 requireUser :: Handler (Entity User)
 requireUser = do
