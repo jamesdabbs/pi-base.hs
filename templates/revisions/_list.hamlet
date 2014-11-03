@@ -1,3 +1,0 @@
-$forall (Entity _ r) <- revs
-  <h3> #{show $ revisionCreatedAt r} by #{show $ revisionUserId r}
-  <pre> #{revisionBody r}
