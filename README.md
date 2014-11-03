@@ -14,18 +14,20 @@ There are two options for getting a version of the site running locally. In eith
 
 In both cases it's important that the port match the one expected in the settings file (3000), so be sure to change that file if you're binding to another port.
 
+You may also consider to change the Google Analytics code in the settings file as well.
+
 #### Direct Setup
 
-Before you begin, you will need to install [the Haskell platform](http://www.haskell.org/platform/).
+Before you begin, you will need to install [the Haskell platform](http://www.haskell.org/platform/). Cabal should have at least version 1.18 (to use sandboxes).
 
 You will need to make sure that the database specified in `config/` actually exists - either by installing Postgres and creating a database, or by changing the database settings to suit your local environment.
 
 Then run:
 
 ```bash
-$ cabal sandbox
+$ cabal sandbox init
 $ cabal install
-$ yesod --dev devel
+$ yesod devel
 ```
 
 to install the dependencies to your local sandbox and then start dev-mode auto-reloading. Note that the first install may take a while.
