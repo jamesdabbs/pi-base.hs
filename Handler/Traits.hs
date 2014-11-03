@@ -18,7 +18,7 @@ import Explore (async, checkTrait, checkSpace)
 import Form (runJsonForm)
 import qualified Handler.Base as H
 import Handler.Helpers
-import Logic (boolToValueId)
+import Logic (boolToValueId, valueIdToBool)
 import Models
 
 
@@ -59,11 +59,21 @@ updateTraitForm t now = Trait
   <*> pure (traitDeduced t)
 
 
+showTrait :: Entity Trait -> Value
+showTrait (Entity _id t) = object
+  [ "id"         .= _id
+  , "property_id".= traitPropertyId t
+  , "space_id"   .= traitSpaceId t
+  , "value"      .= (valueIdToBool $ traitValueId t)
+  , "description".= traitDescription t
+  , "deduced"    .= traitDeduced t
+  ]
+
 getSpaceTraitsR :: SpaceId -> Handler Value
-getSpaceTraitsR _sid = H.index' [TraitSpaceId ==. _sid] [Desc TraitUpdatedAt] id
+getSpaceTraitsR _sid = H.index' [TraitSpaceId ==. _sid] [Desc TraitUpdatedAt] showTrait
 
 getTraitsR :: Handler Value
-getTraitsR = H.index [Desc TraitUpdatedAt] id
+getTraitsR = H.index [Desc TraitUpdatedAt] showTrait
 
 postTraitsR :: Handler Value
 postTraitsR = do
@@ -78,7 +88,7 @@ postTraitsR = do
       e@(Entity _id _) <- createWithRevision trait
       -- FIXME: _ <- revisionCreate $ Entity _id trait
       async checkTrait _id
-      returnJson e
+      returnJson . showTrait $ e
 
 -- TODO: show deduced, supports, etc
 getTraitR :: TraitId -> Handler Value
@@ -90,7 +100,7 @@ putTraitR _id = do
   trait <- runDB $ get404 _id
   now <- liftIO getCurrentTime
   updated <- runJsonForm $ updateTraitForm trait now
-  updateWithRevision _id updated >>= returnJson
+  updateWithRevision _id updated >>= returnJson . showTrait
 
 deleteTraitR :: TraitId -> Handler Value
 deleteTraitR = H.delete traitDelete id

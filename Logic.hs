@@ -11,6 +11,7 @@ module Logic
 , relevantTheorems
 , counterexamples
 , boolToValueId
+, valueIdToBool
 ) where
 
 import Import hiding (negate)
@@ -32,6 +33,11 @@ boolToValueId :: Bool -> TValueId
 boolToValueId v = if v
   then (TValueKey . SqlBackendKey $ 1)
   else (TValueKey . SqlBackendKey $ 2)
+
+valueIdToBool :: TValueId -> Bool
+valueIdToBool (TValueKey (SqlBackendKey 1)) = True
+valueIdToBool (TValueKey (SqlBackendKey 2)) = False
+valueIdToBool _ = error "Can't convert TValueId to Bool"
 
 
 negate :: Formula p -> Formula p
