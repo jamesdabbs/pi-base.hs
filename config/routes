@@ -29,14 +29,14 @@
 /v1/users         UsersR GET
 /v1/users/#UserId UserR  GET
 
+/v1/admin/contradictions    ContradictionsR   GET
+/v1/admin/explore           ExploreR          POST
+/v1/admin/reset             ResetR            POST
+/v1/admin/progress/traits   TraitProgressR    GET
+/v1/admin/progress/theorems TheoremProgressR  GET
+
 --
 
 /contribute ContributeR GET
 /search     SearchR     GET
 
-/admin                   AdminR            GET
-/admin/contradictions    ContradictionsR   POST
-/admin/explore           ExploreR          POST
-/admin/reset             ResetR            POST
-/admin/progress/traits   TraitProgressR    GET
-/admin/progress/theorems TheoremProgressR  GET

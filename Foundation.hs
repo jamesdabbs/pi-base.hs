@@ -161,14 +161,6 @@ instance Yesod App where
     -- The page to be redirected to when authentication is required.
     authRoute _ = Just $ AuthR LoginR
 
-    -- Must be an admin for admin functions
-    isAuthorized AdminR           _ = isAdmin
-    isAuthorized ContradictionsR  _ = isAdmin
-    isAuthorized ExploreR         _ = isAdmin
-    isAuthorized ResetR           _ = isAdmin
-    isAuthorized TraitProgressR   _ = isAdmin
-    isAuthorized TheoremProgressR _ = isAdmin
-
     -- TODO - other methods are auth'd conditionally in the handlers
     isAuthorized _ _    = return Authorized
 

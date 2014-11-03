@@ -62,9 +62,6 @@ $newline never
                 $maybe (Entity _id a) <- ma
                   <li>
                     <a id=auth-data data-id=#{show $ encode _id} data-email="#{userIdent a}">#{userIdent a}
-                  $if userAdmin a
-                    <li>
-                      <a href=@{AdminR}>Admin
                   <li>
                     <a href=@{AuthR LogoutR}>Logout
                 $nothing
