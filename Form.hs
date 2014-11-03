@@ -1,10 +1,5 @@
 module Form
-( propertyField
-, valueField
-, formulaField
-, fs
-, fLayout
-, save
+( formulaField
 , runJsonForm
 ) where
 
@@ -13,22 +8,10 @@ import Import
 import Control.Arrow ((***))
 import Control.Monad (liftM)
 import qualified Data.Map as Map
-import Model.Space (spaceUnknownProperties)
 import Network.HTTP.Types
 import Util (encodeText, decodeText)
 
-import Yesod.Form.Bootstrap3
 
-
-propertyField :: SpaceId -> Field Handler PropertyId
-propertyField sid = selectField $ do
-  available <- spaceUnknownProperties sid
-  optionsPairs $ map (\(Entity _id p) -> (propertyName p, _id)) available
-
-valueField :: Field Handler TValueId
-valueField = selectField $ do
-  entities <- runDB $ selectList [] [Asc TValueId]
-  optionsPairs $ map (\(Entity _id v) -> (tValueName v, _id)) entities
 
 parseFormula :: Text -> Either FormMessage (Formula Int64)
 parseFormula t = case decodeText t of
@@ -55,20 +38,6 @@ $newline never
     }
   where
     showVal = either id encodeText
-
-fs :: Text -> FieldSettings App
-fs = bfs
-
-fLayout :: BootstrapFormLayout
-fLayout = BootstrapHorizontalForm {
-  bflLabelOffset = ColMd 0,
-  bflLabelSize   = ColMd 4,
-  bflInputOffset = ColMd 0,
-  bflInputSize   = ColMd 8
-}
-
-save :: MonadHandler m => AForm m ()
-save = bootstrapSubmit ("Save" :: BootstrapSubmit Text)
 
 toMap :: [(Text, a)] -> Map.Map Text [a]
 toMap = Map.unionsWith (++) . map (\(x, y) -> Map.singleton x [y])

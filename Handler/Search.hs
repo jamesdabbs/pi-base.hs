@@ -8,11 +8,11 @@ import Database.Persist.Sql
 
 import DB (icontains)
 import Handler.Helpers
-import Handler.Partials (searchHelp)
 import Logic (matches)
 import Presenter.Theorem (formulaNameLinked)
 import Util (decodeText)
 
+searchHelp = error "searchHelp | Handler/Search"
 
 formulaLookup :: Formula PropertyId -> Handler (Formula (Entity Property))
 formulaLookup f = do
@@ -22,21 +22,21 @@ formulaLookup f = do
   return . fmap ((M.!) h) $ f
 
 searchShow :: Maybe Text -> Widget
-searchShow q = $(widgetFile "search/show")
+searchShow q = error "searchShow" -- $(widgetFile "search/show")
 
 searchByText :: Text -> Text -> Handler Html
-searchByText qt text = do
-  spaces     <- runDB $ count [icontains SpaceName text]
-  properties <- runDB $ count [icontains PropertyName text]
-  _type <- lookupGetParam "type"
-  -- TODO: extract this and filtered trait tab widget
-  case _type of
-    Just "properties" -> do
-      (results, pager) <- paged 10 [icontains PropertyName text] []
-      render (qt <> " properties") $(widgetFile "search/property_text_results")
-    _ -> do
-      (results, pager) <- paged 10 [icontains SpaceName text] []
-      render (qt <> " spaces") $(widgetFile "search/space_text_results")
+searchByText qt text = error "searchByText"
+  -- spaces     <- runDB $ count [icontains SpaceName text]
+  -- properties <- runDB $ count [icontains PropertyName text]
+  -- _type <- lookupGetParam "type"
+  -- -- TODO: extract this and filtered trait tab widget
+  -- case _type of
+  --   Just "properties" -> do
+  --     (results, pager) <- paged 10 [icontains PropertyName text] []
+  --     render (qt <> " properties") $(widgetFile "search/property_text_results")
+  --   _ -> do
+  --     (results, pager) <- paged 10 [icontains SpaceName text] []
+  --     render (qt <> " spaces") $(widgetFile "search/space_text_results")
 
 matchTypeDisplay :: MatchType -> Text
 matchTypeDisplay Yes = "∋"
@@ -44,18 +44,18 @@ matchTypeDisplay No = "∌"
 matchTypeDisplay Unknown = "?"
 
 searchByFormula :: Text -> MatchType -> Text -> Handler Html
-searchByFormula qt _type text = do
-  let mf = decodeText text
-  case mf of
-    Nothing -> do
-      render "Search" $(widgetFile "search/malformed")
-    Just f'' -> do
-      let f' = fmap (PropertyKey . SqlBackendKey) f''
-      spaceIds <- matches _type f'
-      let total = S.size spaceIds
-      (spaces, pager) <- paged 10 [SpaceId <-. (S.toList spaceIds)] [Asc SpaceName]
-      f <- formulaLookup f'
-      render "Search" $(widgetFile "search/results")
+searchByFormula qt _type text = error "searchByFormula"
+  -- let mf = decodeText text
+  -- case mf of
+  --   Nothing -> do
+  --     render "Search" $(widgetFile "search/malformed")
+  --   Just f'' -> do
+  --     let f' = fmap (PropertyKey . SqlBackendKey) f''
+  --     spaceIds <- matches _type f'
+  --     let total = S.size spaceIds
+  --     (spaces, pager) <- paged 10 [SpaceId <-. (S.toList spaceIds)] [Asc SpaceName]
+  --     f <- formulaLookup f'
+  --     render "Search" $(widgetFile "search/results")
 
 getSearchR :: Handler Html
 getSearchR = do

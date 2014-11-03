@@ -7,62 +7,34 @@ module Handler.Spaces
 ) where
 
 import Import
-import Control.Monad ((>=>))
-import Data.Time (getCurrentTime, UTCTime)
 
-
-import Form (runJsonForm)
-import Handler.Helpers (paged', requireUser, requireAdmin)
+import qualified Handler.Base as H
 import Models
 
 
-createSpaceForm :: (RenderMessage (HandlerSite m) FormMessage, Monad m) => UTCTime -> FormInput m Space
-createSpaceForm now = Space
-  <$> ireq textField "name"
-  <*> ireq textareaField "description"
-  <*> pure now
-  <*> pure now
-  <*> iopt textareaField "proof_of_topology"
-
-updateSpaceForm :: (RenderMessage (HandlerSite m) FormMessage, Monad m) => Space -> UTCTime -> FormInput m Space
-updateSpaceForm s now = Space
-  <$> pure (spaceName s)
-  <*> ireq textareaField "description"
-  <*> pure (spaceCreatedAt s)
-  <*> pure now
-  <*> iopt textareaField "proof_of_topology"
-
-
 getSpacesR :: Handler Value
-getSpacesR = paged' [] [Asc SpaceName] >>= returnJson
+getSpacesR = H.index [Asc SpaceName] id
 
 postSpacesR :: Handler Value
-postSpacesR = do
-  _ <- requireUser
-  now <- lift getCurrentTime
-  space <- runJsonForm $ createSpaceForm now
-  _id <- runDB $ insert space
-  returnJson $ Entity _id space
+postSpacesR = H.create createForm spaceCreate id
+  where
+    createForm = SpaceCreateData
+      <$> ireq textField "name"
+      <*> ireq textareaField "description"
+      <*> iopt textareaField "proof_of_topology"
 
 getSpaceR :: SpaceId -> Handler Value
-getSpaceR = (runDB . get404) >=> returnJson
+getSpaceR = H.show id
 
 putSpaceR :: SpaceId -> Handler Value
-putSpaceR _id = do
-  _ <- requireAdmin
-  space <- runDB $ get404 _id
-  now <- liftIO getCurrentTime
-  updated <- runJsonForm $ updateSpaceForm space now
-  runDB $ replace _id updated
-  -- TODO: revision tracking
-  returnJson $ Entity _id updated
+putSpaceR = H.update updateForm spaceUpdate id
+  where
+    updateForm = SpaceUpdateData
+      <$> ireq textareaField "description"
+      <*> iopt textareaField "proof_of_topology"
 
 deleteSpaceR :: SpaceId -> Handler Value
-deleteSpaceR _id = do
-  _ <- requireAdmin
-  space <- runDB $ get404 _id
-  _ <- spaceDelete _id
-  returnJson $ Entity _id space
+deleteSpaceR = H.delete spaceDelete id
 
 -- TODO: delete preview
 --getDeleteSpaceR :: SpaceId -> Handler Html

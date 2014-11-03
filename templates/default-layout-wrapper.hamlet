@@ -70,9 +70,6 @@ $newline never
                 $nothing
                   <li>
                     <a href=@{AuthR LoginR}>Login
-                <li>
-                  <a href=@{HelpR}>
-                    <i.fa.fa-question-circle>
 
         <div class="container">
             ^{pageBody pc}

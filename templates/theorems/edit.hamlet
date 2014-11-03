@@ -1,6 +1,0 @@
-<a.btn.btn-default href=@{TheoremR _id}> Back
-
-<h1> ^{theoremNameLinked properties theorem}
-
-<form.form.form-horizontal.form-markdown role=form method=post action=@{TheoremR _id} enctype=#{enctype}>
-  ^{widget}

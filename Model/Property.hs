@@ -1,5 +1,9 @@
 module Model.Property
 ( propertyTheorems
+, PropertyCreateData (..)
+, propertyCreate
+, PropertyUpdateData (..)
+, propertyUpdate
 , propertyDelete
 , propertyNames
 ) where
@@ -10,6 +14,39 @@ import qualified Import as I ((==.))
 import Database.Esqueleto hiding (delete)
 
 import Model.Revision
+
+getBoolean :: Handler ValueSetId
+getBoolean = do
+  mb <- runDB . getBy $ UValueSetName "boolean"
+  case mb of
+    Just (Entity _id _) -> return _id
+    Nothing -> do
+      now <- liftIO getCurrentTime
+      runDB . insert $ ValueSet "boolean" now now
+
+data PropertyCreateData = PropertyCreateData
+  { pcdName :: Text
+  , pcdDescription :: Textarea
+  }
+
+data PropertyUpdateData = PropertyUpdateData
+  { pudDescription :: Textarea
+  }
+
+propertyCreate :: PropertyCreateData -> Handler (Entity Property)
+propertyCreate d = do
+  bool <- getBoolean
+  now <- lift getCurrentTime
+  let property = Property (pcdName d) [] (pcdDescription d) bool now now
+  _id <- runDB $ insert property
+  return $ Entity _id property
+
+propertyUpdate :: Entity Property -> PropertyUpdateData -> Handler (Entity Property)
+propertyUpdate (Entity _id p) d = do
+  now <- lift getCurrentTime
+  let updated = p { propertyDescription = pudDescription d, propertyUpdatedAt = now }
+  runDB $ replace _id updated
+  return $ Entity _id updated
 
 propertyTheorems :: PropertyId -> Handler [Entity Theorem]
 propertyTheorems pid = runDB . select $

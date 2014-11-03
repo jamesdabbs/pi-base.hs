@@ -14,7 +14,6 @@ import Models
 import Presenter.Theorem (theoremName)
 
 #ifdef DEVELOPMENT
-import Data.Time (getCurrentTime)
 import DB (flushDeductions)
 #else
 import Network.HTTP.Types (unauthorized401)

@@ -1,9 +1,0 @@
-<a.btn.btn-default href=@{TheoremR _id}> Back
-
-<h1>Checked ^{theoremName _id}
-
-$if null traits
-  <p>No new traits found.
-$else
-  <p>Found #{plural (length traits) "new trait"}.
-  ^{linkedTraitList traits}

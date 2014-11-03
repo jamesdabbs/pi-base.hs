@@ -1,13 +1,12 @@
 module Handler.Theorems where
 
 import Import
-import Control.Monad ((>=>))
 import qualified Data.Set as S
-import Data.Time (getCurrentTime, UTCTime)
 
 import Explore (async, checkTheorem)
 import Form (formulaField, runJsonForm)
-import Handler.Helpers (paged', requireUser, requireAdmin, sendErrorMessage, invalid422)
+import qualified Handler.Base as H
+import Handler.Helpers (requireUser, requireAdmin, sendErrorMessage, invalid422)
 import Logic (counterexamples)
 import Models
 
@@ -47,7 +46,7 @@ showTheorem (Entity _id t) = object
   ]
 
 getTheoremsR :: Handler Value
-getTheoremsR = paged' [] [Desc TheoremUpdatedAt] >>= returnJson . map showTheorem
+getTheoremsR = H.index [Desc TheoremUpdatedAt] showTheorem
 
 postTheoremsR :: Handler Value
 postTheoremsR = do

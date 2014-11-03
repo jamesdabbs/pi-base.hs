@@ -35,16 +35,12 @@ library
                      Settings
                      Settings.StaticFiles
                      Settings.Development
-                     Form.Properties
-                     Form.Spaces
-                     Form.Theorems
-                     Form.Traits
                      Form
                      Handler
                      Handler.Admin
+                     Handler.Base
                      Handler.Helpers
                      Handler.Explore
-                     Handler.Partials
                      Handler.Properties
                      Handler.Search
                      Handler.Spaces

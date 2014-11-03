@@ -2,15 +2,13 @@ module Handler.Traits where
 
 import Import
 
-import Control.Monad ((>=>))
 import qualified Data.Text as T
-import Data.Time (getCurrentTime)
 import Database.Persist.Sql as SQL
 
 import DB (derivedTraits)
 import Explore (async, checkTrait, checkSpace)
 import Form (runJsonForm)
-import Handler.Partials (revisionList)
+import qualified Handler.Base as H
 import Handler.Helpers
 import Logic (boolToValueId)
 import Models
@@ -54,19 +52,16 @@ updateTraitForm t now = Trait
 
 
 getSpaceTraitsR :: SpaceId -> Handler Value
-getSpaceTraitsR _sid = paged' [TraitSpaceId ==. _sid] [Desc TraitUpdatedAt] >>= returnJson
+getSpaceTraitsR _sid = H.index' [TraitSpaceId ==. _sid] [Desc TraitUpdatedAt] id
 
 getTraitsR :: Handler Value
-getTraitsR = paged' [] [Desc TraitUpdatedAt] >>= returnJson
+getTraitsR = H.index [Desc TraitUpdatedAt] id
 
 postTraitsR :: Handler Value
 postTraitsR = do
   _ <- requireUser
   now <- lift getCurrentTime
-  pid <- lookupPostParam "property_id"
-  $(logInfo) $ "property_id - " <> (T.pack . show $ pid)
   trait <- runJsonForm $ createTraitForm now
-  $(logInfo) $ "Property Id - " <> (T.pack . show . traitPropertyId $ trait)
   existing <- runDB . getBy $ TraitSP (traitSpaceId trait) (traitPropertyId trait)
   case existing of
     Just trait -> do
@@ -79,7 +74,7 @@ postTraitsR = do
 
 -- TODO: show deduced, supports, etc
 getTraitR :: TraitId -> Handler Value
-getTraitR = (runDB . get404) >=> returnJson
+getTraitR = H.show id
 
 putTraitR :: TraitId -> Handler Value
 putTraitR _id = do
@@ -91,8 +86,4 @@ putTraitR _id = do
   returnJson $ Entity _id updated
 
 deleteTraitR :: TraitId -> Handler Value
-deleteTraitR _id = do
-  _ <- requireAdmin
-  trait <- runDB $ get404 _id
-  _ <- traitDelete _id
-  returnJson $ Entity _id trait
+deleteTraitR = H.delete traitDelete id

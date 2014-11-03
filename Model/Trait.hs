@@ -15,6 +15,7 @@ import qualified Database.Persist.Sql as SQL
 import DB (supportedTraits, deleteWithConsequences, Prefetch, prefetch)
 import Model.Revision
 
+
 traitConsequences :: TraitId -> Handler [Entity Trait]
 traitConsequences _id = supportedTraits [_id]
 

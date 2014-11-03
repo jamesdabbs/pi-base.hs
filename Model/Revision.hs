@@ -7,12 +7,10 @@ module Model.Revision
 
 import Import
 
-import Data.Time (getCurrentTime)
 import Util (encodeText)
 
 import Handler.Helpers (requireAdmin)
 
-import qualified Data.Text as T
 
 class ToJSON a => Revisable a where
   tableName :: a -> Text

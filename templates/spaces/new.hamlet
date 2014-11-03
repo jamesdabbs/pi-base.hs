@@ -1,2 +1,0 @@
-<form.form.form-horizontal.form-markdown role=form method=post action=@{CreateSpaceR} enctype=#{enctype}>
-  ^{widget}

@@ -20,7 +20,6 @@ import qualified Data.Map as M
 import Data.Maybe (listToMaybe, catMaybes)
 import qualified Data.Set as S
 import qualified Data.Text as Text
-import Data.Time (getCurrentTime)
 import Database.Persist.Sql
 
 import DB (matches', addSupports, addStruts)
