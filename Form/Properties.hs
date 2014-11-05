@@ -16,7 +16,12 @@ boolean = do
   mid <- runDB . getBy $ UValueSetName "boolean"
   case mid of
     Just (Entity _id _) -> return _id
-    Nothing -> error "Could not find expected 'boolean' value set"
+    Nothing -> do
+      now <- liftIO getCurrentTime
+      _id <- runDB $ insert $ ValueSet "boolean" now now
+      _forget1 <- runDB $ insert $ TValue "True" _id now now
+      _forget2 <- runDB $ insert $ TValue "False" _id now now
+      return _id
 
 createPropertyForm :: Html -> MForm Handler (FormResult Property, Widget)
 createPropertyForm = renderBootstrap3 fLayout $ Property
