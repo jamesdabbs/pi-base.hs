@@ -7,7 +7,7 @@ import           Prelude              as Import hiding (head, init, last,
 import           Yesod                as Import hiding (Route (..))
 
 import           Control.Applicative  as Import (pure, (<$>), (<*>))
-import           Control.Monad        as Import ((>=>))
+import           Control.Monad        as Import ((>=>), filterM, forM, forM_)
 import           Data.Int             as Import (Int64)
 import           Data.Map             as Import (Map)
 import           Data.Set             as Import (Set)

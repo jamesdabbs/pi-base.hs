@@ -40,10 +40,12 @@ import Handler.Spaces
 import Handler.Theorems
 import Handler.Traits
 import Handler.User
+import Handler.Test
 
 import qualified Data.HashMap.Strict as M
 import qualified Data.Aeson.Types as AT
 import System.Environment (lookupEnv)
+
 #ifndef DEVELOPMENT
 import System.Environment (getEnv)
 import qualified Web.Heroku

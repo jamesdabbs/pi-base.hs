@@ -45,6 +45,7 @@ library
                      Handler.Properties
                      Handler.Search
                      Handler.Spaces
+                     Handler.Test
                      Handler.Theorems
                      Handler.Traits
                      Handler.User
@@ -105,9 +106,9 @@ library
                  , esqueleto                     == 2.1.0
                  , wai                           == 3.0.2
                  , http-types                    
-                 --, yesod-paginator               >= 0.9.1      && < 0.10
                  , rollbar                       
                  , network                       
+                 , unix
 
 executable         pi-base
     if flag(library-only)

@@ -2,6 +2,7 @@ module Handler.Helpers
 ( preview
 , plural
 , render
+, developmentOnly
 , requireUser
 , requireAdmin
 , requireGetParam
@@ -17,6 +18,7 @@ import Data.Char (toLower)
 import qualified Data.Text as T
 import Data.Text.Encoding (decodeUtf8)
 import Network.HTTP.Types
+import System.Posix.Env (getEnv)
 
 render :: Text -> Widget -> Handler Html
 render title w = defaultLayout $ do
@@ -67,6 +69,13 @@ requireAdmin = do
   case userAdmin . entityVal $ user of
     True  -> return user
     False -> sendError forbidden403
+
+developmentOnly :: Handler a -> Handler a
+developmentOnly h = do
+  mode <- liftIO $ getEnv "YESOD_ENV"
+  case mode of
+    Just "development" -> h
+    _ -> sendErrorMessage forbidden403 "This action is only available in development"
 
 invalid422 :: Status
 invalid422 = Status 422 "Invalid"
