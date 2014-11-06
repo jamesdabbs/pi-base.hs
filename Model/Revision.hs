@@ -7,6 +7,7 @@ module Model.Revision
 ) where
 
 import Import
+import Database.Persist.Sql (SqlBackend)
 
 import Util (encodeText)
 
@@ -29,18 +30,24 @@ instance Revisable Theorem where
   tableName _ = "Theorem"
 
 
+createWithRevision :: (Revisable a, PersistEntity a, PersistEntityBackend a ~ SqlBackend) =>
+                      a -> Handler (Entity a)
 createWithRevision val = do
   _id <- runDB $ insert val
   let e = Entity _id val
   _ <- revisionCreate e
   return e
 
+updateWithRevision :: (Revisable a, PersistEntity a, PersistEntityBackend a ~ SqlBackend) =>
+                      Key a -> a -> Handler (Entity a)
 updateWithRevision _id val = do
   runDB $ replace _id val
   let e = Entity _id val
   _ <- revisionCreate e
   return e
 
+deleteWithRevision :: (Revisable a, PersistEntity a, PersistEntityBackend a ~ SqlBackend) =>
+                      Key a -> a -> Handler ()
 deleteWithRevision _id val = do
   logDeletion $ Entity _id val
   runDB $ delete _id

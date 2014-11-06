@@ -17,8 +17,7 @@ import Handler.Helpers (requireUser, requireAdmin, sendErrorMessage, invalid422)
 import Logic (counterexamples)
 import Models
 
-
--- createTheoremForm :: (RenderMessage (HandlerSite m) FormMessage, Monad m) => UTCTime -> FormInput m Theorem
+createTheoremForm :: UTCTime -> FormInput Handler Theorem
 createTheoremForm now = Theorem
   <$> ireq formulaField "antecedent"
   <*> ireq formulaField "consequent"

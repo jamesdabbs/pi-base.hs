@@ -47,17 +47,39 @@ paged filters options = do
   return results
 
 
+index' :: (PersistEntity e, PersistEntityBackend e ~ SqlBackend, ToJSON b) =>
+          [Filter e] -> [SelectOpt e] -> (Entity e -> b) -> Handler Value
 index' fs order presenter = paged fs order >>= returnJson . map presenter
+
+index :: (PersistEntity e, PersistEntityBackend e ~ SqlBackend, ToJSON b) =>
+         [SelectOpt e] -> (Entity e -> b) -> Handler Value
 index = index' []
 
+create :: ToJSON presentation =>
+          FormInput Handler createData ->
+          (createData -> Handler resource) ->
+          (resource -> presentation) ->
+          Handler Value
 create form creator presenter = do
   _ <- requireUser
   d <- runJsonForm form
   o <- creator d
   returnJson . presenter $ o
 
-show presenter = (runDB . get404) >=> returnJson . presenter
+show :: (PersistEntity rec, PersistEntityBackend rec ~ SqlBackend, ToJSON presentation) =>
+        (Entity rec -> presentation) ->
+        Key rec ->
+        Handler Value
+show presenter _id = do
+  o <- runDB $ get404 _id
+  returnJson . presenter $ Entity _id o
 
+update :: (PersistEntity rec, PersistEntityBackend rec ~ SqlBackend, ToJSON presentation) =>
+          FormInput Handler updateData ->
+          (Entity rec -> updateData -> Handler resource) ->
+          (resource -> presentation) ->
+          Key rec ->
+          Handler Value
 update form updater presenter _id = do
   _ <- requireAdmin
   d <- runJsonForm form
@@ -66,12 +88,19 @@ update form updater presenter _id = do
   u <- updater e d
   returnJson . presenter $ u
 
+delete :: (PersistEntity rec, PersistEntityBackend rec ~ SqlBackend, ToJSON presentation) =>
+          (Key rec -> Handler ()) ->
+          (Entity rec -> presentation) ->
+          Key rec ->
+          Handler Value
 delete destructor presenter _id = do
   _ <- requireAdmin
   o <- runDB $ get404 _id
-  _ <- destructor _id
+  destructor _id
   returnJson . presenter $ Entity _id o
 
+revisions :: (R.Revisable rec, PersistEntity rec, PersistEntityBackend rec ~ SqlBackend) =>
+             Key rec -> Handler Value
 revisions _id = do
   o <- runDB $ get404 _id
   r <- R.revisions $ Entity _id o
