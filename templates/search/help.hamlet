@@ -6,7 +6,7 @@
 
     <p> For example, you would specify <a href=@{s 16}>Compact</a> (id 16), <a href=@{s 36}>Connected</a> (id 36), non-<a href=@{s 53}>Metrizable</a> spaces with
 
-      <a href="/search?q=%7B&quot;and&quot;%3A+%5B+%7B&quot;16&quot;%3A+1%7D%2C+%7B&quot;36&quot;%3A+1%7D%2C+%7B&quot;53&quot;%3A+2%7D+%5D+%7D">
+      <a href="/search?q=%7B%22and%22%3A+%5B+%7B%2216%22%3A+1%7D%2C+%7B%2236%22%3A+1%7D%2C+%7B%2253%22%3A+2%7D+%5D+%7D">
         <pre> {"and": [ {"16": true}, {"36": true}, {"53": false} ] }
 
 <.row>
@@ -28,11 +28,11 @@
     <h4.search-examples> Examples
 
     <h5> All Non-Metric Continua
-    <a href="/search?q=%7B&quot;and&quot;%3A%5B%7B&quot;16&quot;%3Atrue%7D%2C%7B&quot;36&quot;%3Atrue%7D%2C%7B&quot;3&quot;%3Atrue%7D%2C%7B&quot;53&quot;%3Afalse%7D%5D%7D">
+    <a href="/search?q=%7B%22and%22%3A%5B%7B%2216%22%3Atrue%7D%2C%7B%2236%22%3Atrue%7D%2C%7B%223%22%3Atrue%7D%2C%7B%2253%22%3Afalse%7D%5D%7D">
       <pre> {and: [compact, connected, t_2, ~metrizable]}
 
     <h5> A Common Non-Theorem
-    <a href="/search?q=%7B&quot;and&quot;%3A%5B%7B&quot;28&quot;%3Atrue%7D%2C%7B&quot;26&quot;%3Atrue%7D%2C%7B&quot;27&quot;%3Afalse%7D%5D%7D">
+    <a href="/search?q=%7B%22and%22%3A%5B%7B%2228%22%3Atrue%7D%2C%7B%2226%22%3Atrue%7D%2C%7B%2227%22%3Afalse%7D%5D%7D">
       <pre> {and: ["first countable", separable, "~second countable"]}
 
     <h5> A Class of Examples by Name
@@ -40,5 +40,5 @@
       <pre> :plank
 
     <h5> New Things to Prove
-    <a href="/search?q=%3F%7B&quot;31&quot;%3Atrue%7D">
+    <a href="/search?q=%3F%7B%2231%22%3Atrue%7D">
       <pre> ?metacompact
