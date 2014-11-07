@@ -9,11 +9,8 @@ import Handler.Helpers
 import Logic (counterexamples, converse)
 import Models
 
-#ifdef DEVELOPMENT
 import DB (flushDeductions)
-#else
 import Network.HTTP.Types (unauthorized401)
-#endif
 
 postExploreR :: Handler Value
 postExploreR = requireAdmin >> do
