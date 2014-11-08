@@ -1,8 +1,38 @@
-exec: ../dist/build/pi-base/pi-base
-args:
-    - production
-host: <<HOST-NOT-SET>>
+stanzas:
+  - type: webapp
+    exec: ../dist/build/pi-base/pi-base
+    args:
+      - production
+    hosts:
+      - pi-base.prod
+      - pi-base.vm
+      - topology.jdabbs.com
+  - type: static-files
+    hosts:
+      - static.pi-base.prod
+      - static.pi-base.vm
+      - static.topology.jdabbs.com
+    root: ../static
+    directory-listing: true
+
+  # Redirect plain domain name to www.
+  #- type: redirect
+  #hosts:
+  #    - demo.com
+  #  actions:
+  #    - host: www.demo.com
+        # secure: false
+        # port: 80
+
+    # Uncomment to switch to a non-permanent redirect.
+    # status: 303
 
 # Use the following to automatically copy your bundle upon creation via `yesod
 # keter`. Uses `scp` internally, so you can set it to a remote destination
 # copy-to: user@host:/opt/keter/incoming
+
+# If you would like to have Keter automatically create a PostgreSQL database
+# and set appropriate environment variables for it to be discovered, uncomment
+# the following line.
+plugins:
+  postgres: true

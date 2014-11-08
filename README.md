@@ -75,3 +75,14 @@ vagrant $ cd /vagrant && PATH=$HOME/.cabal/bin:$PATH yesod devel
 ```
 
 Note that the included Vagrantfile uses some Virtualbox-specific hooks to increase the available memory. If you are using a different provider and processes are getting killed (which may happen - old versions of cabal can be especially memory heavy), you may need to include similar log to up your vm's memory.
+
+#### Deployment
+
+The production site is running under [Keter](https://github.com/snoyberg/keter). At some point, we should codify how to spin up a prod / build server. For now you get these notes:
+
+* General security hardening - disable root, password login, fail2ban, change ports, firewall, updates, etc.
+* Install and configure keter, start upstart job
+* Configure periodic postgres backups
+* Configure some sort of monitoring (?)
+
+Use the keter standard `scp pi-base.keter ...:/opts/keter/incoming` to deploy.
