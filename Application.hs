@@ -43,8 +43,6 @@ import Handler.Theorems
 import Handler.Traits
 import Handler.User
 
-import System.Environment (lookupEnv)
-
 -- This line actually creates our YesodDispatch instance. It is the second half
 -- of the call to mkYesodData which occurs in Foundation.hs. Please see the
 -- comments there for more details.
@@ -87,13 +85,6 @@ makeApplication conf = do
     let logFunc = messageLoggerSource foundation (appLogger foundation)
     return (cors . logWare $ defaultMiddlewaresNoLogging app, logFunc)
 
-getEnvVar :: String -> IO Text
-getEnvVar key = do
-  mval <- lookupEnv key
-  return $ case mval of
-    Just val -> T.pack val
-    Nothing  -> ""
-
 -- | Loads up any necessary settings, creates your foundation datatype, and
 -- performs some initialization.
 makeFoundation :: AppConfig DefaultEnv Extra -> IO App
@@ -108,10 +99,10 @@ makeFoundation conf = do
     loggerSet' <- newStdoutLoggerSet defaultBufSize
     (getter, updater) <- clockDateCacher
 
-    tok <- getEnvVar "ROLLBAR_ACCESS_TOKEN"
+    let x = appExtra conf
     let rc = Rollbar.Settings
             { Rollbar.environment = Rollbar.Environment . T.pack . show $ appEnv conf
-            , Rollbar.token = Rollbar.ApiToken tok
+            , Rollbar.token = Rollbar.ApiToken . extraRollbarToken $ x
             , Rollbar.hostName = "pi-base"
             }
 
@@ -126,8 +117,8 @@ makeFoundation conf = do
             updateLoop
     _ <- forkIO updateLoop
 
-    gClientId <- getEnvVar "GOOGLE_CLIENT_ID"
-    gSecret <- getEnvVar "GOOGLE_SECRET_KEY"
+    let gClientId = extraGoogleClientId x
+    let gSecret = extraGoogleSecretKey x
 
     let logger = Yesod.Core.Types.Logger loggerSet' getter
         foundation = App conf s p manager dbconf logger rc gClientId gSecret

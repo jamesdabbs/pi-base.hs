@@ -68,9 +68,15 @@ widgetFile = (if development then widgetFileReload
 data Extra = Extra
     { extraCopyright :: Text
     , extraAnalytics :: Maybe Text -- ^ Google Analytics
+    , extraGoogleClientId :: Text
+    , extraGoogleSecretKey :: Text
+    , extraRollbarToken :: Text
     } deriving Show
 
 parseExtra :: DefaultEnv -> Object -> Parser Extra
 parseExtra _ o = Extra
     <$> o .:  "copyright"
     <*> o .:? "analytics"
+    <*> o .: "google_client_id"
+    <*> o .: "google_secret_key"
+    <*> o .: "rollbar_access_token"

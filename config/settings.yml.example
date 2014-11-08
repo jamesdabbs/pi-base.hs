@@ -1,0 +1,26 @@
+Default: &defaults
+  host: "*4" # any IPv4 host
+  port: 3000
+  approot: "http://localhost:3000"
+  copyright: © James Dabbs 2012-2014
+  analytics: ""
+  google_client_id: ""
+  google_secret_key: ""
+  rollbar_access_token: ""
+
+Development:
+  <<: *defaults
+
+Testing:
+  <<: *defaults
+
+Staging:
+  <<: *defaults
+
+Production:
+  <<: *defaults
+  approot: "http://topology.jdabbs.com"
+  analytics: UA-40474239-1
+  google_client_id: 225166537536-7ncpf64l1fmers6uid2s32q1a3fp5cql.apps.googleusercontent.com
+  google_secret_key: BneRmmxVUHeFBrmbMsL_vdQL
+  rollbar_access_token: fd254a2585304f399088aa17b7bd9d1b

@@ -12,9 +12,7 @@ If you'd like to contribute code, open up a pull request. I'll review it, merge 
 
 There are two options for getting a version of the site running locally. In either case, get in touch if you'd like a data set to test against.
 
-In both cases it's important that the port match the one expected in `config/settings.yml` (3000 by default), so be sure to change that file if you're binding to another port.
-
-You may also consider to change the Google Analytics code in `config/settings.yml` as well.
+You will need to create a settings file at `config/settings.yml` - refer to `config/settings.yml.example` for an example. Be sure the port declared there is actually the port in use (3000 is the default).
 
 #### Direct Setup
 
