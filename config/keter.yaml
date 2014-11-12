@@ -4,14 +4,14 @@ stanzas:
     args:
       - production
     hosts:
+      - topology.jdabbs.com
       - pi-base.prod
       - pi-base.vm
-      - topology.jdabbs.com
   - type: static-files
     hosts:
+      - static.topology.jdabbs.com
       - static.pi-base.prod
       - static.pi-base.vm
-      - static.topology.jdabbs.com
     root: ../static
     directory-listing: true
 
