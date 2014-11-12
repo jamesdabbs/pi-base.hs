@@ -197,6 +197,14 @@ instance Yesod App where
     isAuthorized (EditTraitR    _) _ = isLoggedIn
     isAuthorized (EditTheoremR  _) _ = isLoggedIn
 
+    isAuthorized (SpaceR    _) True = isLoggedIn
+    isAuthorized (PropertyR _) True = isLoggedIn
+    isAuthorized (TraitR    _) True = isLoggedIn
+    isAuthorized (TheoremR  _) True = isLoggedIn
+
+    -- Anyone can log in / out
+    isAuthorized (AuthR _) _ = return Authorized
+
     -- Must be an admin for any other write request
     isAuthorized _ True = isAdmin
     isAuthorized _ _    = return Authorized
