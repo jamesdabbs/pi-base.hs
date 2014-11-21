@@ -254,6 +254,9 @@ instance YesodAuthPersist App
 instance RenderMessage App FormMessage where
     renderMessage _ _ = defaultFormMessage
 
+getYesodEnv :: Handler DefaultEnv
+getYesodEnv = fmap (appEnv . settings) getYesod
+
 -- | Get the 'Extra' value, used to hold data from the settings.yml file.
 getExtra :: Handler Extra
 getExtra = fmap (appExtra . settings) getYesod

@@ -10,7 +10,9 @@ import Network.Wai.Internal (Response(..))
 
 
 cors :: Middleware
-cors = withHeader ("Access-Control-Allow-Origin", "http://127.0.0.1:9000")
+cors =
+  withHeader ("Access-Control-Allow-Headers", "Authorization,Content-Type") .
+  withHeader ("Access-Control-Allow-Origin", "*") -- "http://127.0.0.1:9000")
 
 withHeader :: Header -> Middleware
 withHeader h app req respond = app req $ respond . addHeader h

@@ -52,7 +52,7 @@ showTheorem (Entity _id t) = object
   ]
 
 getTheoremsR :: Handler Value
-getTheoremsR = H.index [Desc TheoremUpdatedAt] showTheorem
+getTheoremsR = H.index "theorems" [Desc TheoremUpdatedAt] showTheorem
 
 postTheoremsR :: Handler Value
 postTheoremsR = do

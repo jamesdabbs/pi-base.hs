@@ -18,13 +18,13 @@ stanzas:
       # You can specify one or more hostnames for your application to respond
       # to. The primary hostname will be used for generating your application
       # root.
-      - pi-base.vm
-      - pi-base.prod
+      - pi-base-api.vm
+      - pi-base-api.prod
 
   # Static files.
   - type: static-files
     hosts:
-      - static.pi-base.prod
+      - static.pi-base-api.prod
     root: ../static
 
     # Uncomment to turn on directory listings.

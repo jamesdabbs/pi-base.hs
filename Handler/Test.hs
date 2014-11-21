@@ -27,7 +27,7 @@ postTestResetR = developmentOnly $ do
     insert_ $ User "admin" (Just "admin") True  now now
     insert_ $ User "user"  (Just "user" ) False now now
 
-    forM_ ([1..100] :: [Integer])$ \n -> do
+    forM_ ([1..20] :: [Integer])$ \n -> do
       let n' = T.pack $ show n
       insert_ $ Space ("Space " <> n') (Textarea "-") now now Nothing
       insert_ $ Property ("Property " <> n') [] (Textarea "-") boolId now now

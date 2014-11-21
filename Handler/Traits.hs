@@ -64,10 +64,10 @@ showTrait (Entity _id t) = object
   ]
 
 getSpaceTraitsR :: SpaceId -> Handler Value
-getSpaceTraitsR _sid = H.index' [TraitSpaceId ==. _sid] [Desc TraitUpdatedAt] showTrait
+getSpaceTraitsR _sid = H.index' "traits" [TraitSpaceId ==. _sid] [Desc TraitUpdatedAt] showTrait
 
 getTraitsR :: Handler Value
-getTraitsR = H.index [Desc TraitUpdatedAt] showTrait
+getTraitsR = H.index "traits" [Desc TraitUpdatedAt] showTrait
 
 postTraitsR :: Handler Value
 postTraitsR = do

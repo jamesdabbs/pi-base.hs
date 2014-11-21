@@ -34,6 +34,7 @@ import Middleware (cors)
 -- Don't forget to add new modules to your cabal file!
 import Handler
 import Handler.Admin
+import Handler.Cors
 import Handler.Properties
 import Handler.Search
 import Handler.Spaces

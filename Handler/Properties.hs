@@ -12,11 +12,19 @@ import Import
 import qualified Handler.Base as H
 import Models
 
+presenter :: Entity Property -> Value
+presenter (Entity _id p) = object
+  [ "id"          .= _id
+  , "name"        .= propertyName p
+  , "description" .= propertyDescription p
+  , "value_set_id".= propertyValueSetId p
+  ]
+
 getPropertiesR :: Handler Value
-getPropertiesR = H.index [Asc PropertyName] id
+getPropertiesR = H.index "properties" [Asc PropertyName] presenter
 
 postPropertiesR :: Handler Value
-postPropertiesR = H.create createForm propertyCreate id
+postPropertiesR = H.create createForm propertyCreate presenter
   where
     createForm = PropertyCreateData
       <$> ireq textField "name"
@@ -24,16 +32,16 @@ postPropertiesR = H.create createForm propertyCreate id
 
 -- FIXME: add theorems, aliases, properties? to JSON response
 getPropertyR :: PropertyId -> Handler Value
-getPropertyR = H.show id
+getPropertyR = H.show presenter
 
 putPropertyR :: PropertyId -> Handler Value
-putPropertyR = H.update updateForm propertyUpdate id
+putPropertyR = H.update updateForm propertyUpdate presenter
   where
     updateForm = PropertyUpdateData
       <$> ireq textareaField "description"
 
 deletePropertyR :: PropertyId -> Handler Value
-deletePropertyR = H.delete propertyDelete id
+deletePropertyR = H.delete propertyDelete presenter
 
 getPropertyRevisionsR :: PropertyId -> Handler Value
 getPropertyRevisionsR = H.revisions

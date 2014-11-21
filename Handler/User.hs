@@ -7,7 +7,7 @@ import Handler.Helpers (requireAdmin)
 
 
 getUsersR :: Handler Value
-getUsersR = requireAdmin >> H.index [Desc UserLastLoggedInAt] id
+getUsersR = requireAdmin >> H.index "users" [Desc UserLastLoggedInAt] id
 
 getUserR :: UserId -> Handler Value
 getUserR _id = do

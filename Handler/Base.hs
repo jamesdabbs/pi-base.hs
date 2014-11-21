@@ -9,7 +9,7 @@ module Handler.Base
 , paged
 ) where
 
-import qualified Prelude as P (head, show)
+import qualified Prelude as P (head)
 import Import hiding (show, delete, update)
 
 import qualified Data.Text as T
@@ -34,26 +34,34 @@ getIntParam name fallback = do
     Just n  -> coerceInt n fallback
     Nothing -> fallback
 
-paged :: (PersistEntity e, PersistEntityBackend e ~ SqlBackend) => [Filter e] -> [SelectOpt e] -> Handler [Entity e]
+paged :: (PersistEntity e, PersistEntityBackend e ~ SqlBackend) => [Filter e] -> [SelectOpt e] -> Handler ([Entity e], Int, Int)
 paged filters options = do
-  total <- runDB $ count filters
-  addHeader "X-Total-Count" (T.pack $ P.show total)
-
   page    <- getIntParam "page" 1
   perPage <- getIntParam "perPage" 50
   let limit  = min perPage 50
   let offset = (page - 1) * limit
   results <- runDB $ selectList filters ([LimitTo limit, OffsetBy offset] ++ options)
-  return results
+
+  total <- runDB $ count filters
+  let total_pages = (total - 1) `div` perPage + 1
+  return (results, total, total_pages)
 
 
 index' :: (PersistEntity e, PersistEntityBackend e ~ SqlBackend, ToJSON b) =>
-          [Filter e] -> [SelectOpt e] -> (Entity e -> b) -> Handler Value
-index' fs order presenter = paged fs order >>= returnJson . map presenter
+          Text -> [Filter e] -> [SelectOpt e] -> (Entity e -> b) -> Handler Value
+index' name fs order presenter = do
+  (results, total, total_pages) <- paged fs order
+  returnJson $ object
+    [ name .= map presenter results
+    , "meta" .= object
+      [ "total" .= total
+      , "total_pages" .= total_pages
+      ]
+    ]
 
 index :: (PersistEntity e, PersistEntityBackend e ~ SqlBackend, ToJSON b) =>
-         [SelectOpt e] -> (Entity e -> b) -> Handler Value
-index = index' []
+         Text -> [SelectOpt e] -> (Entity e -> b) -> Handler Value
+index name = index' name []
 
 create :: ToJSON presentation =>
           FormInput Handler createData ->
