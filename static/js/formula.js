@@ -28,9 +28,18 @@ var jsonliteEscape = function(str) {
 
 
 var condense = function(val, cb) {
+  var parsed;
+
   if (!val || val[0] === ":") return cb(null, val);
 
-  var modifier ="";
+  try {
+    parsed = JSON.parse(val);
+  } catch(e) {
+    cb("Could not condense '" + val + "'. Failed to parse as JSON.");
+    return;
+  }
+
+  var modifier = "";
   if (val[0] === "!" || val[0] === "?") {
     modifier = val[0];
     val = val.slice(1, val.length);
@@ -49,11 +58,7 @@ var condense = function(val, cb) {
       }
     }
 
-    //try {
-      cb(null, modifier + condenser(JSON.parse(val)));
-    //} catch(e) {
-    //  cb(e);
-    //}
+    cb(null, modifier + condenser(parsed));
   });
 }
 
