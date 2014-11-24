@@ -110,6 +110,7 @@ library
                  , yesod-paginator               >= 0.9.1      && < 0.10
                  , rollbar                       >= 0.3        && < 0.4
                  , network                       >= 2.4.1.2    && < 2.5
+                 , aeson-pretty                  >= 0.7.1      && < 0.8
 
 executable         pi-base
     if flag(library-only)

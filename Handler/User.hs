@@ -2,7 +2,11 @@ module Handler.User where
 
 import Import
 
+
+import Model.Revision (revisionLink, revisionPrettyBody)
 import Handler.Helpers
+
+import Prelude (head)
 
 getUsersR :: Handler Html
 getUsersR = do

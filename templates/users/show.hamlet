@@ -3,5 +3,6 @@
 ^{pager}
 
 $forall (Entity _ r) <- revs
-  <h5> #{show $ revisionCreatedAt r}
-  <pre> #{revisionBody r}
+  <h5>
+    <a href=@{revisionLink r}> #{show $ revisionCreatedAt r}
+  <pre> #{revisionPrettyBody r}
