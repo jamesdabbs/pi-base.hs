@@ -80,6 +80,8 @@ $newline never
       <#footer>
         <footer.container>
             #{extraCopyright $ appExtra $ settings master}
+            $maybe build <- buildCommit master
+              \ | Version #{build}
 
         $maybe analytics <- extraAnalytics $ appExtra $ settings master
             <script>

@@ -43,6 +43,7 @@ data App = App
     , appRollbar :: Rollbar.Settings
     , appGoogleId :: T.Text
     , appGoogleSecret :: T.Text
+    , buildCommit :: Maybe String
     }
 
 instance HasHttpManager App where

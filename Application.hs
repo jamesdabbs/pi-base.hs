@@ -27,6 +27,8 @@ import Network.Wai.Internal (Response(..))
 import Network.Wai.Logger (clockDateCacher)
 import Data.Default (def)
 import Yesod.Core.Types (loggerSet, Logger (Logger))
+import System.Process (readProcessWithExitCode)
+import System.Exit (ExitCode(ExitSuccess))
 
 import qualified Rollbar
 import qualified Data.Text as T
@@ -99,11 +101,17 @@ makeFoundation conf = do
     loggerSet' <- newStdoutLoggerSet defaultBufSize
     (getter, updater) <- clockDateCacher
 
+
+    (code, rev, _) <- readProcessWithExitCode "git" ["rev-parse", "--short", "HEAD"] []
+    let build = case code of
+                  ExitSuccess -> Just rev
+                  _ -> Nothing
+
     let x = appExtra conf
     let rc = Rollbar.Settings
             { Rollbar.environment = Rollbar.Environment . T.pack . show $ appEnv conf
             , Rollbar.token = Rollbar.ApiToken . extraRollbarToken $ x
-            , Rollbar.hostName = "pi-base"
+            , Rollbar.hostName = "pi-base | v" ++ (show build)
             }
 
     -- If the Yesod logger (as opposed to the request logger middleware) is
@@ -121,7 +129,7 @@ makeFoundation conf = do
     let gSecret = extraGoogleSecretKey x
 
     let logger = Yesod.Core.Types.Logger loggerSet' getter
-        foundation = App conf s p manager dbconf logger rc gClientId gSecret
+        foundation = App conf s p manager dbconf logger rc gClientId gSecret build
 
     -- Perform database migration using our application's logging settings.
     runLoggingT

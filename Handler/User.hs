@@ -6,8 +6,6 @@ import Import
 import Model.Revision (revisionLink, revisionPrettyBody)
 import Handler.Helpers
 
-import Prelude (head)
-
 getUsersR :: Handler Html
 getUsersR = do
   (users, pager) <- paged 10 [] [Desc UserLastLoggedInAt]
