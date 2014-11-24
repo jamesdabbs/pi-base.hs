@@ -71,6 +71,7 @@ data Extra = Extra
     , extraGoogleClientId :: Text
     , extraGoogleSecretKey :: Text
     , extraRollbarToken :: Text
+    , extraBuildCommit :: Text
     } deriving Show
 
 parseExtra :: DefaultEnv -> Object -> Parser Extra
@@ -80,3 +81,4 @@ parseExtra _ o = Extra
     <*> o .: "google_client_id"
     <*> o .: "google_secret_key"
     <*> o .: "rollbar_access_token"
+    <*> o .: "commit"

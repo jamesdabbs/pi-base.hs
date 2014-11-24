@@ -1,0 +1,15 @@
+#!/usr/bin/env ruby
+
+require 'yaml'
+
+# Update commit in settings YAML file
+CONFIG_PATH = File.expand_path '../config/settings.yml', __FILE__
+
+commit   = `git rev-parse --short HEAD`.strip
+settings = YAML.load_file CONFIG_PATH
+settings.each { |env, data| data['commit'] = commit }
+
+File.open(CONFIG_PATH, 'w') { |f| f.write settings.to_yaml }
+
+# Run the actual build
+exec 'yesod keter'

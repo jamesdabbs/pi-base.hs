@@ -7,6 +7,7 @@ Default: &defaults
   google_client_id: ""
   google_secret_key: ""
   rollbar_access_token: ""
+  commit: "-"
 
 Development:
   <<: *defaults
