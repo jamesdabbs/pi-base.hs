@@ -10,7 +10,7 @@ module Logic.Types
 import Prelude
 
 import Control.Applicative ((<*>))
-import Control.Monad (mzero)
+import Control.Monad (mzero, liftM)
 import Data.Aeson
 import Data.Functor ((<$>))
 import Data.Int (Int64)
@@ -34,7 +34,7 @@ data Formula a = Atom a Bool
 
 instance Show (Formula String) where
   show (Atom p True ) = p
-  show (Atom p False) = "¬"++ (p)
+  show (Atom p False) = "¬"++ p
   show (And  fs     ) = "(" ++ (intercalate " & " . map show $ fs) ++ ")"
   show (Or   fs     ) = "(" ++ (intercalate " | " . map show $ fs) ++ ")"
 
@@ -50,16 +50,11 @@ valueIdToBool _ = error "Unrecognized value"
 
 instance FromJSON (Formula Int64) where
   parseJSON (Object v) = case head . M.toList $ v of
-      ("and", val) -> do
-        ands <- parseJSON val
-        return $ And ands
-      ("or", val) -> do
-        ors <- parseJSON val
-        return $ Or ors
-      (key, Number valId) -> do
+      ("and", val)  -> liftM And $ parseJSON val
+      ("or", val)   -> liftM  Or $ parseJSON val
+      (key, Bool b) -> return $ Atom (read . unpack $ key) b
+      (key, Number valId) ->
         return $ Atom (read . unpack $ key) (valueIdToBool . round $ valId)
-      (key, Bool b) -> do
-        return $ Atom (read . unpack $ key) b
       _ -> mzero
   parseJSON _ = mzero
 
@@ -95,4 +90,4 @@ formulaProperties (Or   sf ) = unionN . map formulaProperties $ sf
 
 implicationProperties :: (Ord a) => Implication a -> S.Set a
 implicationProperties (Implication a c) =
-  (formulaProperties a) `S.union` (formulaProperties c)
+  formulaProperties a `S.union` formulaProperties c

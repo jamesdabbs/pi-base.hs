@@ -20,7 +20,7 @@ getPropertiesR = do
 getPropertiesNamesR :: Handler Value
 getPropertiesNamesR = do
   properties <- runDB $ selectList [] []
-  returnJson . object . concat . map pNameMap $ properties
+  returnJson . object . concatMap pNameMap $ properties
   where pNameMap (Entity _id p) = map (\name -> (name, toJSON _id)) $ propertyNames p
 
 getCreatePropertyR :: Handler Html

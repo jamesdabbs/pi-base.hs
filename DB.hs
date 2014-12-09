@@ -14,6 +14,7 @@ module DB
 
 import Import hiding ((==.), (!=.), delete)
 
+import Control.Arrow ((&&&))
 import Database.Esqueleto
 import Data.List (partition, nub)
 import qualified Data.Map as M
@@ -28,28 +29,28 @@ icontains field v = Filter field (Left $ T.concat ["%", v, "%"]) (BackendSpecifi
 prefetch :: (PersistEntity e, PersistEntityBackend e ~ SqlBackend) => [Filter e] -> Handler (Prefetch e)
 prefetch f = do
   ents <- runDB $ selectList f []
-  return . M.fromList . map (\e -> (entityKey e, entityVal e)) $ ents
+  return . M.fromList . map (entityKey &&& entityVal) $ ents
 
 matches' :: PropertyId -> TValueId -> MatchType -> Handler [SpaceId]
 matches' p v Yes = runDB . fmap (map entityKey) . select $
   from $ \(s `InnerJoin` t) -> do
   on (s ^. SpaceId ==. t ^. TraitSpaceId)
-  where_ (t ^. TraitPropertyId ==. (val p) &&. t ^. TraitValueId ==. (val v))
+  where_ (t ^. TraitPropertyId ==. val p &&. t ^. TraitValueId ==. val v)
   return s
 matches' p v No = runDB . fmap (map entityKey) . select $
   from $ \(s `InnerJoin` t) -> do
   on (s ^. SpaceId ==. t ^. TraitSpaceId)
-  where_ (t ^. TraitPropertyId ==. (val p) &&. t ^. TraitValueId !=. (val v))
+  where_ (t ^. TraitPropertyId ==. val p &&. t ^. TraitValueId !=. val v)
   return s
 matches' p _ Unknown = runDB $ do
   ts <- select $
     from $ \t -> do
-    where_ (t ^. TraitPropertyId ==. (val p))
+    where_ (t ^. TraitPropertyId ==. val p)
     return t
-  let knownIds = map (traitSpaceId . entityVal) $ ts
+  let knownIds = map (traitSpaceId . entityVal) ts
   ss <- select $
     from $ \s -> do
-    where_ (s ^. SpaceId `notIn` (valList knownIds))
+    where_ (s ^. SpaceId `notIn` valList knownIds)
     return s
   return . map entityKey $ ss
 
@@ -57,21 +58,21 @@ supportedTraits :: [TraitId] -> Handler [Entity Trait]
 supportedTraits _ids = runDB . select $
   from $ \(traits `InnerJoin` supporters) -> do
     on (traits ^. TraitId ==. supporters ^. SupporterImpliedId)
-    where_ (supporters ^. SupporterAssumedId `in_` (valList _ids))
+    where_ (supporters ^. SupporterAssumedId `in_` valList _ids)
     return traits
 
 deleteSupports :: [TraitId] -> Handler ()
 deleteSupports ids = runDB . delete $
-  from $ \s -> where_ (s ^. SupporterImpliedId `in_` (valList ids))
+  from $ \s -> where_ (s ^. SupporterImpliedId `in_` valList ids)
 
 deleteStruts :: [TraitId] -> Handler ()
 deleteStruts ids = runDB . delete $
-  from $ \s -> where_ (s ^. StrutTraitId `in_` (valList ids))
+  from $ \s -> where_ (s ^. StrutTraitId `in_` valList ids)
 
 deleteProofs :: [TraitId] -> Handler ()
 deleteProofs ids = do
   proofs <- runDB . select $ from $ \p -> do
-    where_ (p ^. ProofTraitId `in_` (valList ids))
+    where_ (p ^. ProofTraitId `in_` valList ids)
     return p
   let pids = valList $ map entityKey proofs
   runDB . delete $ from $ \a -> where_ (a ^. AssumptionProofId `in_` pids)
@@ -83,7 +84,7 @@ deleteConsequences traits = do
   deleteSupports ids
   deleteStruts ids
   deleteProofs ids
-  runDB . deleteCount $ from $ \t -> where_ (t ^. TraitId `in_` (valList ids))
+  runDB . deleteCount $ from $ \t -> where_ (t ^. TraitId `in_` valList ids)
 
 deleteWithConsequences :: (Key a -> Handler [Entity Trait]) -> Key a -> Handler Int64
 deleteWithConsequences finder _id = do
@@ -116,7 +117,7 @@ addSupports _id assumedIds = do
   runDB . mapM_ addSupport . nub $ manualIds ++ supportIds
   where
     ids = map entityKey
-    addSupport aid = insert $ Supporter { supporterAssumedId = aid, supporterImpliedId = _id }
+    addSupport aid = insert Supporter { supporterAssumedId = aid, supporterImpliedId = _id }
 
 getStruts :: Set TraitId -> Handler (Set TheoremId)
 getStruts ts = do

@@ -86,7 +86,7 @@ getTheoremR :: TheoremId -> Handler Html
 getTheoremR _id = do
   theorem <- runDB $ get404 _id
   converses <- theoremConverses theorem
-  properties <- theoremPrefetch $ [theorem] ++ map entityVal converses
+  properties <- theoremPrefetch $ theorem : map entityVal converses
   render (theoremTitle properties theorem) $(widgetFile "theorems/show")
 
 getDeleteTheoremR :: TheoremId -> Handler Html

@@ -22,7 +22,7 @@ theoremConsequences :: TheoremId -> Handler [Entity Trait]
 theoremConsequences _id = runDB . select $
   from $ \(traits `InnerJoin` struts) -> do
   on (traits ^. TraitId ==. struts ^. StrutTraitId)
-  where_ (struts ^. StrutTheoremId ==. (val _id))
+  where_ (struts ^. StrutTheoremId ==. val _id)
   return traits
 
 theoremDelete :: TheoremId -> Handler Int64

@@ -14,7 +14,7 @@ import Model.Revision
 
 spaceTraitMap :: SpaceId -> Set PropertyId -> Handler (TraitMap PropertyId)
 spaceTraitMap sid ps = do
-  ets <- runDB $ selectList [TraitSpaceId ==. sid, TraitPropertyId <-. (S.toList ps)] []
+  ets <- runDB $ selectList [TraitSpaceId ==. sid, TraitPropertyId <-. S.toList ps] []
   return . M.fromList . map (\(Entity tid t) -> (traitPropertyId t, (tid, traitValueId t))) $ ets
 
 spaceTraits :: SpaceId -> Handler [TraitId]

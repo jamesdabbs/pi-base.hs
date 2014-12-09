@@ -70,24 +70,24 @@ postTraitR _id = do
 getTraitR :: TraitId -> Handler Html
 getTraitR _id = do
   trait <- runDB $ get404 _id
-  case traitDeduced trait of
-    True -> do
+  if traitDeduced trait
+    then do
       derived  <- derivedTraits _id
       supports <- traitSupport _id
       (spaces, properties) <- traitPrefetch $ [Entity _id trait] ++ supports ++ derived
       struts <- traitStruts _id
       theoremProperties <- theoremPrefetch . map entityVal $ struts
       render (traitTitle spaces properties trait) $(widgetFile "traits/show_deduced")
-    False -> do
+    else do
       consequences <- traitConsequences _id
-      (spaces, properties) <- traitPrefetch $ [Entity _id trait] ++ consequences
+      (spaces, properties) <- traitPrefetch $ Entity _id trait : consequences
       render (traitTitle spaces properties trait) $(widgetFile "traits/show")
 
 getDeleteTraitR :: TraitId -> Handler Html
 getDeleteTraitR _id = do
   trait <- runDB $ get404 _id
   consequences <- traitConsequences _id
-  (spaces, properties) <- traitPrefetch $ [Entity _id trait] ++ consequences
+  (spaces, properties) <- traitPrefetch $ Entity _id trait : consequences
   render ("Delete " <> traitTitle spaces properties trait) $(widgetFile "traits/delete")
 
 postDeleteTraitR :: TraitId -> Handler Html

@@ -47,13 +47,12 @@ searchByFormula :: Text -> MatchType -> Text -> Handler Html
 searchByFormula qt _type text = do
   let mf = decodeText text
   case mf of
-    Nothing -> do
-      render "Search" $(widgetFile "search/malformed")
+    Nothing -> render "Search" $(widgetFile "search/malformed")
     Just f'' -> do
       let f' = fmap (Key . PersistInt64) f''
       spaceIds <- matches _type f'
       let total = S.size spaceIds
-      (spaces, pager) <- paged 10 [SpaceId <-. (S.toList spaceIds)] [Asc SpaceName]
+      (spaces, pager) <- paged 10 [SpaceId <-. S.toList spaceIds] [Asc SpaceName]
       f <- formulaLookup f'
       render "Search" $(widgetFile "search/results")
 
@@ -62,21 +61,19 @@ getSearchR = do
   q <- lookupGetParam "q"
   case q of
     Nothing -> render "Search" (searchShow q)
-    Just qt -> do
-      case T.uncons qt of
-        Just (':', t) -> searchByText qt t
-        Just ('?', t) -> searchByFormula qt Unknown t
-        Just ('!', t) -> searchByFormula qt No t
-        Just _ -> searchByFormula qt Yes qt
-        Nothing -> render "Search" (searchShow q)
+    Just qt -> case T.uncons qt of
+      Just (':', t) -> searchByText qt t
+      Just ('?', t) -> searchByFormula qt Unknown t
+      Just ('!', t) -> searchByFormula qt No t
+      Just _ -> searchByFormula qt Yes qt
+      Nothing -> render "Search" (searchShow q)
 
 getContributeR :: Handler Html
 getContributeR = do
   let q = "SELECT ?? FROM traits WHERE description='' AND deduced=False ORDER BY random() LIMIT 1"
   result <- runDB $ rawSql q []
   case result of
-    (Entity _id _) : _ -> do
+    Entity _id _ : _ -> do
       flash Info "We need your help! Can you supply a proof of this assertion?"
       redirect $ TraitR _id
-    _ -> do
-      error "Every assertion has a proof. That's awesome, but this endpoint has outlived its usefulness"
+    _ -> error "Every assertion has a proof. That's awesome, but this endpoint has outlived its usefulness"

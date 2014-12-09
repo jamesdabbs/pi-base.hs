@@ -53,7 +53,7 @@ revisionLink r =
     "Property" -> PropertyR . Key $ _id
     "Trait"    -> TraitR . Key $ _id
     "Theorem"  -> TheoremR . Key $ _id
-    other      -> error $ "Cannot link to revision of type " ++ (show other)
+    other      -> error $ "Cannot link to revision of type " ++ show other
 
 keyToInt64 :: Key a -> Int64
 keyToInt64 (Key (PersistInt64 i)) = i
@@ -61,7 +61,7 @@ keyToInt64 _ = error "Can't coerce key to an integer"
 
 revisionFilters :: (Revisable a) => Entity a -> [Filter Revision]
 revisionFilters (Entity _id o) =
-  [(RevisionItemClass ==. tableName o), (RevisionItemId ==. keyToInt64 _id)]
+  [RevisionItemClass ==. tableName o, RevisionItemId ==. keyToInt64 _id]
 
 revisions :: (Revisable a) => Entity a -> Handler [Entity Revision]
 revisions e = runDB $ selectList (revisionFilters e) [Desc RevisionCreatedAt]

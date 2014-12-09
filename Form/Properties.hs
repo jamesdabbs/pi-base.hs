@@ -28,7 +28,7 @@ createPropertyForm = renderBootstrap3 fLayout $ Property
   <$> areq textField (fs "Name") Nothing
   <*> pure []
   <*> areq textareaField (fs "Description") Nothing
-  <*> lift (boolean)
+  <*> lift boolean
   <*> lift (liftIO getCurrentTime)
   <*> lift (liftIO getCurrentTime)
   <*  save

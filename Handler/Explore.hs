@@ -19,8 +19,8 @@ renderTrait :: R -> Prefetch Space -> Prefetch Property -> L TheoremId -> L Trai
 renderTrait urlR ss ps struts supports (Entity _id t) = object
   [ "_id" .= _id
   , "name" .= traitTitle ss ps t
-  , "description" .= (unTextarea $ traitDescription t)
-  , "url" .= (urlR $ TraitR _id)
+  , "description" .= unTextarea (traitDescription t)
+  , "url" .= urlR (TraitR _id)
   , "assumptions" .= object
     [ "theorems" .= M.lookup _id struts
     , "traits" .= M.lookup _id supports
@@ -31,8 +31,8 @@ renderTheorem :: R -> Prefetch Property -> Entity Theorem -> Value
 renderTheorem urlR ps (Entity _id t) = object
   [ "_id" .= _id
   , "name" .= theoremTitle ps t
-  , "description" .= (unTextarea $ theoremDescription t)
-  , "url" .= (urlR $ TheoremR _id)
+  , "description" .= unTextarea (theoremDescription t)
+  , "url" .= urlR (TheoremR _id)
   ]
 
 gather :: L a -> (TraitId, a) -> L a

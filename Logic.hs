@@ -28,9 +28,8 @@ import Util (intersectionN, unionN, encodeText)
 
 -- TODO: don't hardcode this
 boolToValueId :: Bool -> TValueId
-boolToValueId v = if v
-  then (Key . PersistInt64 $ 1)
-  else (Key . PersistInt64 $ 2)
+boolToValueId v = Key . PersistInt64 $ _id
+  where _id = if v then 1 else 2
 
 
 negate :: Formula p -> Formula p
@@ -91,7 +90,7 @@ check' ts (Or sf) =
         Nothing -> (No, unionN . map snd $ subs)
 check' ts (Atom p e) = case M.lookup p ts of
   Nothing    -> (Unknown, S.empty)
-  Just (t,v) -> if v == (boolToValueId e)
+  Just (t,v) -> if v == boolToValueId e
     then (Yes, S.singleton t)
     else (No,  S.singleton t)
 
@@ -107,7 +106,7 @@ type Assumptions = (TheoremId, Set TraitId)
 type ProofData p = (p, TValueId, Assumptions)
 
 apply' :: (Ord p) => TheoremId -> Implication p -> TraitMap p -> [ProofData p]
-apply' thrm (Implication ant cons) ts = do
+apply' thrm (Implication ant cons) ts =
   case check' ts ant of
     (Yes, evidence) -> force ts (thrm, evidence) cons
     (No, _) -> []
@@ -127,7 +126,7 @@ force ts (thrm,evidence) (Or sf) =
     subs      = map (\f -> (f, check' ts f)) sf
     yes       = [f | (f, (Yes,     _)) <- subs]
     unknown   = [f | (f, (Unknown, _)) <- subs]
-    evidence' = unionN $ [ev | (_, (No, ev)) <- subs]
+    evidence' = unionN [ev | (_, (No, ev)) <- subs]
   in
     if null yes && length unknown == 1
       then force ts (thrm, evidence `S.union` evidence') (head unknown)
@@ -135,7 +134,7 @@ force ts (thrm,evidence) (Or sf) =
 
 force ts as (Atom p v) = case M.lookup p ts of
   Just _  -> [] -- Forced value is already known
-  Nothing -> [(p, (boolToValueId v), as)]
+  Nothing -> [(p, boolToValueId v, as)]
 
 -- TODO: there is a bit of a race condition here, if another request
 --   sets the trait between the getBy check and the insert.
@@ -145,10 +144,10 @@ addProof :: SpaceId -> ProofData PropertyId -> Handler (Maybe TraitId)
 addProof s (p,v,(thrm,ts)) = do
   mt <- runDB . getBy $ TraitSP s p
   case mt of
-    Just (Entity _id t) -> do
+    Just (Entity _id t) ->
       if traitValueId t == v
         then return Nothing
-        else error $ "Conflicting assertions for (" <> (show s) <> "," <> (show p) <> ")"
+        else error $ "Conflicting assertions for (" <> show s <> "," <> show p <> ")"
     Nothing -> do
       now <- liftIO getCurrentTime
       _id <- runDB . insert $ Trait
@@ -164,11 +163,11 @@ addProof s (p,v,(thrm,ts)) = do
       mapM_ (runDB . insert . Assumption pid) . S.toList $ ts
       addSupports _id ts
       addStruts _id thrm ts
-      $(logDebug) $ "Added trait " <> (encodeText _id)
+      $(logDebug) $ "Added trait " <> encodeText _id
       return $ Just _id
 
 imatch :: MatchType -> MatchType -> Implication PropertyId -> Handler (Set SpaceId)
-imatch at ct = \(Implication ant cons) -> do
+imatch at ct (Implication ant cons) = do
   a <- matches at ant
   c <- matches ct cons
   return $ a `S.intersection` c
