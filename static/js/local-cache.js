@@ -2,7 +2,7 @@ window.localCache = {}
 
 // Cache the lookup in localStorage and prefetch on future calls
 window.localCache.fetch = function(key, url, cb) {
-  if (typeof(Storage) === "undefined") {
+  if (typeof(localStorage) === "undefined" || typeof(localStorage.getItem) === "undefined") {
     $.get(url, cb);
   } else {
     var key = "localCache:" + key
