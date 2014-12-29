@@ -34,7 +34,8 @@ paginationConfig = paginationWidget $ PageWidgetConfig
 
 plural :: Int -> Text -> Text
 plural 1 x = "1 " <> x
-plural n x = (T.pack $ show n) <> " " <> x
+-- This is clearly "wrong", but works for all the cases we need
+plural n x = (T.pack $ show n) <> " " <> x <> "s"
 
 paged :: (PersistEntity e, PersistEntityBackend e ~ SqlBackend) => Int -> [Filter e]  -> [SelectOpt e] -> Handler ([Entity e], Widget)
 paged size q f = runDB $ selectPaginatedWith paginationConfig size q f
