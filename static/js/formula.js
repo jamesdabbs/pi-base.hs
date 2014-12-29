@@ -32,6 +32,12 @@ var condense = function(val, cb) {
 
   if (!val || val[0] === ":") return cb(null, val);
 
+  var modifier = "";
+  if (val[0] === "!" || val[0] === "?") {
+    modifier = val[0];
+    val = val.slice(1, val.length);
+  }
+
   try {
     parsed = JSON.parse(val);
   } catch(e) {
@@ -39,11 +45,6 @@ var condense = function(val, cb) {
     return;
   }
 
-  var modifier = "";
-  if (val[0] === "!" || val[0] === "?") {
-    modifier = val[0];
-    val = val.slice(1, val.length);
-  }
   piBase.Property.ids.done(function(ids) {
     var condenser = function(f) {
       if (f.and) {
