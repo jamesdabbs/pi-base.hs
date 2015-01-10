@@ -1,5 +1,6 @@
-<.alert.alert-info>
-  This site is under active development. Got suggestions? Get involved on <a href="https://github.com/jamesdabbs/pi-base.hs">GitHub</a>.
+<.alert.alert-success>
+  This site is under active development. Sign up for <a href="http://eepurl.com/ba_pwn">the newsletter</a> or get involved on <a href="https://github.com/jamesdabbs/pi-base.hs">GitHub</a>.
+
 
 <.jumbotron>
   <h1> Welcome to the π-Base
