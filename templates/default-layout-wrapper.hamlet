@@ -79,7 +79,8 @@ $newline never
 
       <#footer>
         <footer.container>
-            #{extraCopyright $ appExtra $ settings master} | Version #{extraBuildCommit $ appExtra $ settings master}
+          $#{ extraCopyright $ appExtra $ settings master}
+          π-Base Version #{extraBuildCommit $ appExtra $ settings master} | <a href="http://eepurl.com/ba_pwn">Subscribe for updates</a>
 
         $maybe analytics <- extraAnalytics $ appExtra $ settings master
             <script>
