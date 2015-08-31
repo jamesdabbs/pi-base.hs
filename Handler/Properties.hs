@@ -1,7 +1,6 @@
 module Handler.Properties where
 
 import Import
-import Data.Text (intercalate)
 
 import Form.Properties
 import Handler.Helpers

@@ -2,7 +2,6 @@ module Handler.Admin where
 
 import Import
 
-import Control.Monad (filterM)
 import qualified Data.Text as T
 import qualified Data.Set as S
 
@@ -14,6 +13,13 @@ import Presenter.Theorem (theoremName)
 
 #ifdef DEVELOPMENT
 import DB (flushDeductions)
+
+-- TODO: this should come from settings
+development :: Bool
+development = True
+#else
+development :: Bool
+development = False
 #endif
 
 getAdminR :: Handler Html
@@ -23,7 +29,7 @@ postExploreR :: Handler Html
 postExploreR = do
   before <- runDB $ count ([] :: [Filter Trait])
   theorems <- runDB $ selectList [] []
-  mapM_ (checkTheorem "Checking all theorems" . entityKey) theorems
+  mapM_ (void . checkTheorem "Checking all theorems" . entityKey) theorems
   after <- runDB $ count ([] :: [Filter Trait])
   flash Success $ "Explored all theorems. Found " <> (T.pack . show $ (after - before)) <> " new traits."
   redirect AdminR

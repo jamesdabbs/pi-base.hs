@@ -8,8 +8,6 @@ module Explore
 import Import
 
 import Control.Concurrent (forkIO)
-import Control.Monad (void)
-import Data.Maybe (catMaybes)
 import qualified Data.Set as S
 
 import Logic

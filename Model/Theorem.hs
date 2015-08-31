@@ -7,14 +7,14 @@ module Model.Theorem
 , theoremPrefetch
 ) where
 
-import Import hiding ((==.))
+import Import hiding ((==.), on)
 import qualified Import as I ((==.))
 
 import qualified Data.Set as S
 
 import Database.Esqueleto hiding (delete)
 
-import DB (deleteWithConsequences, prefetch, Prefetch)
+import DB (deleteWithConsequences, prefetch, Prefetch, forceKey)
 import Model.Revision
 import Util (unionN)
 
@@ -35,7 +35,7 @@ theoremDelete _id = do
   return n
 
 theoremImplication :: Theorem -> Implication PropertyId
-theoremImplication t = (Key . PersistInt64) <$> Implication (theoremAntecedent t) (theoremConsequent t)
+theoremImplication t = forceKey <$> Implication (theoremAntecedent t) (theoremConsequent t)
 
 theoremConverses :: Theorem -> Handler [Entity Theorem]
 theoremConverses t = runDB $ selectList [TheoremId <-. theoremConverseIds t] []
@@ -43,7 +43,7 @@ theoremConverses t = runDB $ selectList [TheoremId <-. theoremConverseIds t] []
 theoremRecordProperties :: TheoremId -> Theorem -> Handler ()
 theoremRecordProperties _id t = mapM_ recordProperty properties
   where
-    recordProperty p = runDB . insert $ TheoremProperty _id p
+    recordProperty p = runDB . insert_ $ TheoremProperty _id p
     properties = S.toList . implicationProperties . theoremImplication $ t
 
 theoremPrefetch :: [Theorem] -> Handler (Prefetch Property)

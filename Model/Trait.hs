@@ -7,7 +7,7 @@ module Model.Trait
 , traitPrefetch
 ) where
 
-import Import hiding ((==.))
+import Import hiding ((==.), on)
 import Data.List (nub)
 import Database.Esqueleto hiding (delete)
 
@@ -40,9 +40,9 @@ traitSupport _id = runDB . select $
     return traits
 
 traitValueBool :: Trait -> Bool
-traitValueBool t = case traitValueId t of
-  Key (PersistInt64 1) -> True
-  Key (PersistInt64 2) -> False
+traitValueBool t = case keyToValues $ traitValueId t of
+  [PersistInt64 1] -> True
+  [PersistInt64 2] -> False
   _ -> error "Can't coerce traitValueId to Bool"
 
 traitPrefetch :: [Entity Trait] -> Handler (Prefetch Space, Prefetch Property)

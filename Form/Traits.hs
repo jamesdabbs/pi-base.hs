@@ -6,8 +6,6 @@ module Form.Traits
 import Import
 import Form
 
-import Control.Applicative ((<*))
-import Data.Time (getCurrentTime)
 import Yesod.Form.Bootstrap3
 
 createTraitForm :: SpaceId -> Html -> MForm Handler (FormResult Trait, Widget)

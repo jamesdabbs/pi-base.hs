@@ -10,11 +10,11 @@ module DB
 , Prefetch
 , prefetch
 , icontains
+, forceKey
 ) where
 
-import Import hiding ((==.), (!=.), delete)
+import Import hiding ((==.), (!=.), delete, on, partition)
 
-import Control.Arrow ((&&&))
 import Database.Esqueleto
 import Data.List (partition, nub)
 import qualified Data.Map as M
@@ -87,9 +87,7 @@ deleteConsequences traits = do
   runDB . deleteCount $ from $ \t -> where_ (t ^. TraitId `in_` valList ids)
 
 deleteWithConsequences :: (Key a -> Handler [Entity Trait]) -> Key a -> Handler Int64
-deleteWithConsequences finder _id = do
-  cons <- finder _id
-  deleteConsequences cons
+deleteWithConsequences finder _id = finder _id >>= deleteConsequences
 
 derivedTraits :: TraitId -> Handler [Entity Trait]
 derivedTraits _id = runDB . select $
@@ -117,7 +115,7 @@ addSupports _id assumedIds = do
   runDB . mapM_ addSupport . nub $ manualIds ++ supportIds
   where
     ids = map entityKey
-    addSupport aid = insert Supporter { supporterAssumedId = aid, supporterImpliedId = _id }
+    addSupport aid = insert_ Supporter { supporterAssumedId = aid, supporterImpliedId = _id }
 
 getStruts :: Set TraitId -> Handler (Set TheoremId)
 getStruts ts = do
@@ -129,11 +127,11 @@ getStruts ts = do
 
 addStruts :: TraitId -> TheoremId -> Set TraitId -> Handler ()
 addStruts trait theorem assumptions = do
-  _ <- create theorem
+  runDB $ create theorem
   struts <- getStruts assumptions
-  mapM_ create . S.toList $ struts
+  runDB . mapM_ create . S.toList $ struts
   where
-    create theoremId = runDB . insert $ Strut theoremId trait
+    create theoremId = insert_ $ Strut theoremId trait
 
 flushDeductions :: Handler ()
 flushDeductions = do
@@ -143,3 +141,8 @@ flushDeductions = do
     return t
   _ <- deleteConsequences traits
   return ()
+
+forceKey :: PersistEntity rec => Int64 -> Key rec
+forceKey n = case keyFromValues [PersistInt64 n] of
+  Right key -> key
+  Left    e -> error $ T.unpack e

@@ -9,10 +9,8 @@ module Logic.Types
 
 import Prelude
 
-import Control.Applicative ((<*>))
 import Control.Monad (mzero, liftM)
 import Data.Aeson
-import Data.Functor ((<$>))
 import Data.Int (Int64)
 import Data.List (intercalate)
 import qualified Data.Set as S

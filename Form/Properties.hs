@@ -6,9 +6,6 @@ module Form.Properties
 import Import
 import Form
 
-import Control.Applicative ((<*))
-import Data.Time (getCurrentTime)
-import Data.Foldable (forM_)
 import Yesod.Form.Bootstrap3
 
 -- FIXME: query instead of hardcoding
@@ -20,7 +17,7 @@ boolean = do
     Nothing -> do
       now <- liftIO getCurrentTime
       _id <- runDB $ insert $ ValueSet "boolean" now now
-      forM_ ["True","False"] $ \i -> runDB $ insert $ TValue i _id now now
+      forM_ ["True","False"] $ \i -> runDB $ insert_ $ TValue i _id now now
       return _id
 
 createPropertyForm :: Html -> MForm Handler (FormResult Property, Widget)

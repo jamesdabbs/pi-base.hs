@@ -4,11 +4,11 @@ module Handler.Partials
 , searchHelp
 ) where
 
-import Import
+import Import hiding (find)
 
 import Data.List (find)
 
-import DB (Prefetch)
+import DB (Prefetch, forceKey)
 import Handler.Helpers (paged, preview)
 import Models
 
@@ -61,5 +61,5 @@ revisionList e = do
 
 searchHelp :: Widget
 searchHelp = do
-  let s = SpaceR . Key . PersistInt64
+  let s = SpaceR . forceKey
   $(widgetFile "search/help")

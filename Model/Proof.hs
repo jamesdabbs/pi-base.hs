@@ -3,7 +3,7 @@ module Model.Proof
 , proofTheorem
 ) where
 
-import Import hiding ((==.))
+import Import hiding ((==.), on)
 import Database.Esqueleto
 
 proofTraits :: ProofId -> Handler [Entity Trait]

@@ -13,7 +13,7 @@ import Database.Persist.Quasi
 
 import Logic.Types
 
-share [mkPersist sqlOnlySettings, mkMigrate "migrateAll"]
+share [mkPersist sqlSettings, mkMigrate "migrateAll"]
     $(persistFileWith lowerCaseSettings "config/models")
 
 type TraitMap p = Map p (TraitId, TValueId)

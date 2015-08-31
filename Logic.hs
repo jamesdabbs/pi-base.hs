@@ -12,14 +12,12 @@ module Logic
 , counterexamples
 ) where
 
-import Import hiding (negate)
+import Import hiding (negate, head)
 import Prelude (head)
 
 import qualified Data.Map as M
-import Data.Maybe (listToMaybe, catMaybes)
 import qualified Data.Set as S
 import qualified Data.Text as Text
-import Data.Time (getCurrentTime)
 
 import DB (matches', addSupports, addStruts)
 import Models
@@ -28,7 +26,9 @@ import Util (intersectionN, unionN, encodeText)
 
 -- TODO: don't hardcode this
 boolToValueId :: Bool -> TValueId
-boolToValueId v = Key . PersistInt64 $ _id
+boolToValueId v = case keyFromValues [PersistInt64 _id] of
+  Right key -> key
+  Left    e -> error $ Text.unpack e
   where _id = if v then 1 else 2
 
 
@@ -106,11 +106,11 @@ type Assumptions = (TheoremId, Set TraitId)
 type ProofData p = (p, TValueId, Assumptions)
 
 apply' :: (Ord p) => TheoremId -> Implication p -> TraitMap p -> [ProofData p]
-apply' thrm (Implication ant cons) ts =
+apply' thrm (Implication ant con) ts =
   case check' ts ant of
-    (Yes, evidence) -> force ts (thrm, evidence) cons
+    (Yes, evidence) -> force ts (thrm, evidence) con
     (No, _) -> []
-    (Unknown, _) -> case check' ts (negate cons) of
+    (Unknown, _) -> case check' ts (negate con) of
       (Yes, evidence') -> force ts (thrm, evidence') (negate ant)
       _ -> []
 
@@ -160,16 +160,16 @@ addProof s (p,v,(thrm,ts)) = do
           , traitUpdatedAt       = now
           }
       pid <- runDB . insert $ Proof _id thrm now now
-      mapM_ (runDB . insert . Assumption pid) . S.toList $ ts
+      mapM_ (runDB . insert_ . Assumption pid) . S.toList $ ts
       addSupports _id ts
       addStruts _id thrm ts
       $(logDebug) $ "Added trait " <> encodeText _id
       return $ Just _id
 
 imatch :: MatchType -> MatchType -> Implication PropertyId -> Handler (Set SpaceId)
-imatch at ct (Implication ant cons) = do
+imatch at ct (Implication ant con) = do
   a <- matches at ant
-  c <- matches ct cons
+  c <- matches ct con
   return $ a `S.intersection` c
 
 counterexamples, candidates:: Implication PropertyId -> Handler (Set SpaceId)

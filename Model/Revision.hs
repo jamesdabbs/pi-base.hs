@@ -8,14 +8,10 @@ module Model.Revision
 ) where
 
 import Import
-import Yesod.Auth (requireAuthId)
-import Yesod.Routes.Class (Route)
 
 import Data.Aeson (decode, Object)
 import Data.Aeson.Encode.Pretty (encodePretty)
-import Data.Text.Lazy (toStrict, fromStrict)
-import Data.Text.Lazy.Encoding (decodeUtf8, encodeUtf8)
-import Data.Time (getCurrentTime)
+import DB (forceKey)
 import Util (encodeText)
 
 class ToJSON a => Revisable a where
@@ -47,17 +43,19 @@ revisionPrettyBody r =
 
 revisionLink :: Revision -> Route App
 revisionLink r =
-  let _id = PersistInt64 . revisionItemId $ r
+  let _id = revisionItemId r
   in case revisionItemClass r of
-    "Space"    -> SpaceR . Key $ _id
-    "Property" -> PropertyR . Key $ _id
-    "Trait"    -> TraitR . Key $ _id
-    "Theorem"  -> TheoremR . Key $ _id
+    "Space"    -> SpaceR . forceKey $ _id
+    "Property" -> PropertyR . forceKey $ _id
+    "Trait"    -> TraitR . forceKey $ _id
+    "Theorem"  -> TheoremR . forceKey $ _id
     other      -> error $ "Cannot link to revision of type " ++ show other
 
-keyToInt64 :: Key a -> Int64
-keyToInt64 (Key (PersistInt64 i)) = i
-keyToInt64 _ = error "Can't coerce key to an integer"
+
+keyToInt64 :: PersistEntity a => Key a -> Int64
+keyToInt64 k = case keyToValues k of
+  [PersistInt64 n] -> n
+  _ -> error "Can't coerce key to a single integer"
 
 revisionFilters :: (Revisable a) => Entity a -> [Filter Revision]
 revisionFilters (Entity _id o) =

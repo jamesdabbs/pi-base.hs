@@ -1,0 +1,35 @@
+# Values formatted like "_env:ENV_VAR_NAME:default_value" can be overridden by the specified environment variable.
+# See https://github.com/yesodweb/yesod/wiki/Configuration#overriding-configuration-values-with-environment-variables
+
+static-dir:     "_env:STATIC_DIR:static"
+host:           "_env:HOST:*4" # any IPv4 host
+port:           "_env:PORT:3000"
+approot:        "_env:APPROOT:http://localhost:3000"
+ip-from-header: "_env:IP_FROM_HEADER:false"
+
+# Optional values with the following production defaults.
+# In development, they default to the inverse.
+#
+# development: false
+# detailed-logging: false
+# should-log-all: false
+# reload-templates: false
+# mutable-static: false
+# skip-combining: false
+
+env-name:             "_env:YESOD_ENV:development"
+build-commit:         "_env:BUILD_COMMIT: "
+google-client-id:     "_env:GOOGLE_CLIENT_ID: "
+google-secret-key:    "_env:GOOGLE_SECRET_KEY: "
+rollbar-access-token: "_env:ROLLBAR_ACCESS_TOKEN: "
+
+database:
+  user:     "_env:PGUSER:pi_base"
+  password: "_env:PGPASS:pi_base"
+  host:     "_env:PGHOST:localhost"
+  port:     "_env:PGPORT:5432"
+  database: "_env:PGDATABASE:pi_base_dev"
+  poolsize: "_env:PGPOOLSIZE:10"
+
+copyright: © James Dabbs 2012-2015
+analytics: UA-40474239-1

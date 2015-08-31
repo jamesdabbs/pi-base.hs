@@ -6,8 +6,6 @@ module Form.Theorems
 import Import
 import Form
 
-import Control.Applicative ((<*))
-import Data.Time (getCurrentTime)
 import Yesod.Form.Bootstrap3
 
 createTheoremForm :: Html -> MForm Handler (FormResult Theorem, Widget)

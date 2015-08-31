@@ -1,9 +1,10 @@
 module Handler.Theorems where
 
-import Import
+import Import hiding (head)
 import qualified Data.Set as S
 import Prelude (head)
 
+import DB (forceKey)
 import Explore (async, checkTheorem)
 import Form.Theorems
 import Handler.Helpers
@@ -16,7 +17,7 @@ import Presenter.Theorem
 
 searchHelp :: Widget
 searchHelp = do
-  let s = SpaceR . Key . PersistInt64
+  let s = SpaceR . forceKey
   $(widgetFile "search/help")
 
 theoremConverseCounterexamples :: Theorem -> Widget

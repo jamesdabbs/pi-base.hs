@@ -6,8 +6,6 @@ module Form.Spaces
 import Import
 import Form
 
-import Control.Applicative ((<*))
-import Data.Time (getCurrentTime)
 import Yesod.Form.Bootstrap3
 
 createSpaceForm :: Html -> MForm Handler (FormResult Space, Widget)

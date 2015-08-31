@@ -4,7 +4,7 @@ module Model.Property
 , propertyNames
 ) where
 
-import Import hiding ((==.))
+import Import hiding ((==.), on)
 import qualified Import as I ((==.))
 
 import Database.Esqueleto hiding (delete)

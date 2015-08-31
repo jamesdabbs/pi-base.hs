@@ -7,7 +7,7 @@ module Presenter.Theorem
 
 import Import
 
-import Data.List (intersperse)
+import Data.List (foldl1)
 import qualified Data.Map as M
 import qualified Data.Text as T
 
@@ -46,11 +46,11 @@ formulaNameLinked = formulaWidget linkedAtom
 
 renderTheorem :: Prefetch Property -> (Entity Property -> Bool -> Widget) -> Theorem -> Widget
 renderTheorem ps f theorem = do
-  let (Implication ant cons) = theoremImplication theorem
+  let (Implication ant con) = theoremImplication theorem
   let f' _id = f . Entity _id $ (M.!) ps _id
   [whamlet|
 $newline never
-^{formulaWidget f' ant} ⇒ ^{formulaWidget f' cons}|]
+^{formulaWidget f' ant} ⇒ ^{formulaWidget f' con}|]
 
 theoremName :: Prefetch Property -> Theorem -> Widget
 theoremName properties = renderTheorem properties $ \(Entity _ p) v ->

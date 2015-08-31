@@ -14,4 +14,4 @@ cabal.sandbox.config
 *.swp
 *.keter
 
-config/settings.yml
+config/keter.yaml

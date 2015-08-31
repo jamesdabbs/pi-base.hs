@@ -8,14 +8,12 @@ module Handler.Helpers
 , FlashClass (..)
 ) where
 
-import Import
+import Import hiding (toLower)
 
 import Data.Char (toLower)
 import qualified Data.Text as T
 
-import Database.Persist.Sql (SqlBackend)
 import Yesod.Paginator hiding (paginate)
-import Yesod.Routes.Class (Route)
 
 render :: Text -> Widget -> Handler Html
 render title w = defaultLayout $ do

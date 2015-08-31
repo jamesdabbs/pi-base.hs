@@ -3,10 +3,10 @@ module Handler.Explore
 ) where
 
 import Import
-import Yesod.Routes.Class (Route)
 
 import qualified Data.Map as M
 
+import Data.List (foldl)
 import DB (derivedTraits, Prefetch)
 import Models
 import Presenter.Theorem (theoremTitle)

@@ -1,30 +1,18 @@
 module Foundation where
 
-import Prelude
-import Yesod
-import Yesod.Static
-import Yesod.Auth
-import Yesod.Auth.BrowserId
-import Yesod.Auth.GoogleEmail2
-import Yesod.Default.Config
-import Yesod.Default.Util (addStaticContentExternal)
-import Network.HTTP.Client.Conduit (Manager, HasHttpManager (getHttpManager))
-import qualified Settings
-import Settings.Development (development)
-import qualified Database.Persist
-import Database.Persist.Sql (SqlPersistT)
-import Settings.StaticFiles
-import Settings (widgetFile, Extra (..))
-import Model
-import Text.Jasmine (minifym)
-import Text.Hamlet (hamletFile)
-import Yesod.Core.Types (Logger)
+import Import.NoFoundation
+import Database.Persist.Sql (ConnectionPool, runSqlPool)
+import Text.Hamlet          (hamletFile)
+import Text.Jasmine         (minifym)
+import Yesod.Auth.BrowserId (authBrowserId)
+import Yesod.Auth.Message   (AuthMessage (InvalidLogin))
+import Yesod.Default.Util   (addStaticContentExternal)
+import Yesod.Core.Types     (Logger)
+import qualified Yesod.Core.Unsafe as Unsafe
 
-import Control.Monad (unless)
+import Yesod.Auth.GoogleEmail2
 import Data.Aeson (encode)
-import Data.Maybe (fromMaybe)
 import qualified Data.Text as T
-import Data.Time (getCurrentTime)
 import qualified Rollbar
 import Rollbar.MonadLogger (reportErrorS)
 
@@ -34,19 +22,19 @@ import Rollbar.MonadLogger (reportErrorS)
 -- starts running, such as database connections. Every handler will have
 -- access to the data present here.
 data App = App
-    { settings :: AppConfig DefaultEnv Extra
-    , getStatic :: Static -- ^ Settings for static file serving.
-    , connPool :: Database.Persist.PersistConfigPool Settings.PersistConf -- ^ Database connection pool.
-    , httpManager :: Manager
-    , persistConfig :: Settings.PersistConf
+    { appSettings :: AppSettings
+    , appStatic :: Static -- ^ Settings for static file serving.
+    , appConnPool :: ConnectionPool -- ^ Database connection pool.
+    , appHttpManager :: Manager
     , appLogger :: Logger
     , appRollbar :: Rollbar.Settings
-    , appGoogleId :: T.Text
-    , appGoogleSecret :: T.Text
     }
 
+production :: App -> Bool
+production app = (appEnvName . appSettings $ app) == "production"
+
 instance HasHttpManager App where
-    getHttpManager = httpManager
+    getHttpManager = appHttpManager
 
 -- Set up i18n messages. See the message folder.
 mkMessage "App" "messages" "en"
@@ -106,7 +94,7 @@ handleMissing = selectRep $ do
 -- Please see the documentation for the Yesod typeclass. There are a number
 -- of settings which can be configured by overriding methods here.
 instance Yesod App where
-    approot = ApprootMaster $ appRoot . settings
+    approot = ApprootMaster $ appRoot . appSettings
 
     -- Store session data on the client in encrypted cookies,
     -- default session idle timeout is 120 minutes
@@ -130,14 +118,13 @@ instance Yesod App where
                 [ css_main_css
                 ])
 
-            unless development $ addScript $ StaticR js_rollbar_js
-
             $(combineScripts 'StaticR
               [ vendor_js_jquery_js
               , vendor_js_bootstrap_js
               , vendor_js_typeahead_js
               , vendor_js_markdown_js
               , vendor_js_underscore_js
+              , js_rollbar_js
               , js_jsonlite_js
               , js_latinize_js
               , js_local_cache_js
@@ -151,12 +138,6 @@ instance Yesod App where
             $(widgetFile "default-layout")
 
         withUrlRenderer $(hamletFile "templates/default-layout-wrapper.hamlet")
-
-    -- This is done to provide an optimization for serving static files from
-    -- a separate domain. Please see the staticRoot setting in Settings.hs
-    urlRenderOverride y (StaticR s) =
-        Just $ uncurry (joinPath y (Settings.staticRoot $ settings y)) $ renderRoute s
-    urlRenderOverride _ _ = Nothing
 
     -- The page to be redirected to when authentication is required.
     authRoute _ = Just $ AuthR LoginR
@@ -213,53 +194,69 @@ instance Yesod App where
     -- and names them based on a hash of their content. This allows
     -- expiration dates to be set far in the future without worry of
     -- users receiving stale content.
-    addStaticContent =
-        addStaticContentExternal minifym genFileName Settings.staticDir (StaticR . flip StaticRoute [])
+    addStaticContent ext mime content = do
+        master <- getYesod
+        let staticDir = appStaticDir $ appSettings master
+        addStaticContentExternal
+            minifym
+            genFileName
+            staticDir
+            (StaticR . flip StaticRoute [])
+            ext
+            mime
+            content
       where
         -- Generate a unique filename based on the content itself
-        genFileName lbs
-            | development = "autogen-" ++ base64md5 lbs
-            | otherwise   = base64md5 lbs
+        genFileName lbs = "autogen-" ++ base64md5 lbs
 
     -- Place Javascript at bottom of the body tag so the rest of the page loads first
     jsLoader _ = BottomOfBody
 
     -- What messages should be logged. The following includes all messages when
     -- in development, and warnings and errors in production.
-    shouldLog _ _source level =
-        development || level == LevelWarn || level == LevelError
+    shouldLog app _source level =
+        appShouldLogAll (appSettings app)
+            || level == LevelWarn
+            || level == LevelError
 
     makeLogger = return . appLogger
 
     errorHandler err@(InternalError e) = do
       app <- getYesod
-      unless development $ forkHandler ($logErrorS "errorHandler" . T.pack . show) $ do
-          muser <- maybeAuth
-          path <- getCurrentPath
-          let rollbarPerson (Entity uid user) =
-                 Rollbar.Person
-                   { Rollbar.id       = toPathPiece uid
-                   , Rollbar.username = Nothing
-                   , Rollbar.email    = Just $ userIdent user
-                   }
-          let rPerson = fmap rollbarPerson muser
-          reportErrorS (appRollbar app)
-                       (Rollbar.Options rPerson Nothing)
-                       (fromMaybe "errorHandler" path)
-                       ($logDebugS) e
+      if production app
+        then
+          forkHandler ($logErrorS "errorHandler" . T.pack . show) $ do
+              muser <- maybeAuth
+              path <- getCurrentPath
+              let rollbarPerson (Entity uid user) =
+                     Rollbar.Person
+                       { Rollbar.id       = toPathPiece uid
+                       , Rollbar.username = Nothing
+                       , Rollbar.email    = Just $ userIdent user
+                       }
+              let rPerson = fmap rollbarPerson muser
+              reportErrorS (appRollbar app)
+                           (Rollbar.Options rPerson Nothing)
+                           (fromMaybe "errorHandler" path)
+                           ($logDebugS) e
+        else
+          $(logError) $ "Not running Rollbar outside production"
       handleError err
     errorHandler NotFound = handleMissing
     errorHandler err = defaultErrorHandler err
 
 authGoogleEmail' :: App -> AuthPlugin App
-authGoogleEmail' app = authGoogleEmail (appGoogleId app) (appGoogleSecret app)
+authGoogleEmail' app = authGoogleEmail (appGoogleId settings) (appGoogleSecret settings)
+  where settings = appSettings app
 
 -- How to run database actions.
 instance YesodPersist App where
-    type YesodPersistBackend App = SqlPersistT
-    runDB = defaultRunDB persistConfig connPool
+    type YesodPersistBackend App = SqlBackend
+    runDB action = do
+        master <- getYesod
+        runSqlPool action $ appConnPool master
 instance YesodPersistRunner App where
-    getDBRunner = defaultGetDBRunner connPool
+    getDBRunner = defaultGetDBRunner appConnPool
 
 instance YesodAuth App where
     type AuthId App = UserId
@@ -268,6 +265,14 @@ instance YesodAuth App where
     loginDest _ = HomeR
     -- Where to send a user after logout
     logoutDest _ = HomeR
+    -- Override the above two destinations when a Referer: header is present
+    redirectToReferer _ = True
+
+    authenticate creds = runDB $ do
+        x <- getBy $ UniqueUser $ credsIdent creds
+        return $ case x of
+            Just (Entity uid _) -> Authenticated uid
+            Nothing -> UserError InvalidLogin
 
     getAuthId creds = runDB $ do
         x <- getBy $ UniqueUser $ credsIdent creds
@@ -288,22 +293,16 @@ instance YesodAuth App where
     -- You can add other plugins like BrowserID, email or OAuth here
     authPlugins app = [authBrowserId def, authGoogleEmail' app]
 
-    authHttpManager = httpManager
+    authHttpManager = getHttpManager
 
     onLogin = setMessage [shamlet|<.alert.alert-success>You are now logged in|]
+
+instance YesodAuthPersist App
 
 -- This instance is required to use forms. You can modify renderMessage to
 -- achieve customized and internationalized form validation messages.
 instance RenderMessage App FormMessage where
     renderMessage _ _ = defaultFormMessage
 
--- | Get the 'Extra' value, used to hold data from the settings.yml file.
-getExtra :: Handler Extra
-getExtra = fmap (appExtra . settings) getYesod
-
--- Note: previous versions of the scaffolding included a deliver function to
--- send emails. Unfortunately, there are too many different options for us to
--- give a reasonable default. Instead, the information is available on the
--- wiki:
---
--- https://github.com/yesodweb/yesod/wiki/Sending-email
+unsafeHandler :: App -> Handler a -> IO a
+unsafeHandler = Unsafe.fakeHandlerGetLogger appLogger
