@@ -84,3 +84,7 @@ The production site is running under [Keter](https://github.com/snoyberg/keter).
 * Configure some sort of monitoring (?)
 
 Use the keter standard `scp pi-base.keter ...:/opts/keter/incoming` to deploy.
+
+#### Building for Deployment
+
+Assuming you have a [docker machine](https://docs.docker.com/machine/) set up `docker-compose start keter` should build a keter package.

@@ -106,7 +106,7 @@ addSupports _id assumedIds = do
     where_ (trait ^. TraitId `in_` (valList . S.toList $ assumedIds))
     return trait
   let (deduced, manual) = partition (traitDeduced . entityVal) traits
-  supports <- runDB . selectDistinct $
+  supports <- runDB . select . distinct $
     from $ \(supporters) -> do
     where_ (supporters ^. SupporterImpliedId `in_` (valList . ids $ deduced))
     return supporters

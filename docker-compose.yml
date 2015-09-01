@@ -1,0 +1,13 @@
+dev:
+  build: .
+  command: "stack exec -- yesod devel"
+  ports:
+    - "3000:3000"
+  volumes:
+    - .:/app
+
+keter:
+  build: .
+  command: "stack exec -- yesod keter && echo 'Package built to pi-base.keter'"
+  volumes:
+    - .:/app
