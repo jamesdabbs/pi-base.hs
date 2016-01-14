@@ -1,0 +1,96 @@
+User sql=remote_users
+    ident Text
+    name Text Maybe
+    admin Bool
+    createdAt UTCTime default=now()
+    lastLoggedInAt UTCTime default=now()
+    UniqueUser ident
+
+Email sql=emails
+    email Text
+    userId UserId Maybe
+    verkey Text Maybe
+    UniqueEmail email
+
+Revision sql=revisions
+  itemId Int
+  itemClass Text
+  body Text
+  userId UserId
+  createdAt UTCTime
+  deletes Bool default=False
+
+ValueSet sql=value_sets
+  name Text
+  createdAt UTCTime
+  updatedAt UTCTime
+  UValueSetName name
+
+TValue sql=values
+  name Text
+  valueSetId ValueSetId
+  createdAt UTCTime
+  updatedAt UTCTime
+
+Space json sql=spaces
+  name Text
+  description Text
+  createdAt UTCTime
+  updatedAt UTCTime
+  proofOfTopology Text Maybe
+
+Property json sql=properties
+  name Text
+  aliases Text default='[]'
+  description Text
+  valueSetId ValueSetId
+  createdAt UTCTime
+  updatedAt UTCTime
+
+Trait json sql=traits
+  spaceId SpaceId
+  propertyId PropertyId
+  valueId TValueId
+  description Text
+  createdAt UTCTime
+  updatedAt UTCTime
+  deduced Bool
+  TraitSP spaceId propertyId
+
+Theorem json sql=theorems
+  antecedent Text
+  consequent Text
+  description Text
+  converseIds Text
+  createdAt UTCTime
+  updatedAt UTCTime
+
+-- This table is here simply to make it easier to
+--   execute the common "what theorems involve this
+--   property?" query
+TheoremProperty sql=theorem_properties
+  theoremId TheoremId
+  propertyId PropertyId
+
+-- Each deduced trait has a proof, which consists of
+--   a single assumed theorem (`theoremId`) and a
+--   collection of assumed traits (`Assumptions`)
+Proof sql=proofs
+  traitId TraitId
+  theoremId TheoremId
+  createdAt UTCTime
+  updatedAt UTCTime
+  UProofTrait traitId
+
+Assumption sql=assumptions
+  proofId ProofId
+  traitId TraitId
+
+-- Supporters trace the _root_ assumed traits for
+Supporter sql=supporters
+  assumedId TraitId
+  impliedId TraitId
+
+Strut sql=struts
+  theoremId TheoremId
+  traitId TraitId
