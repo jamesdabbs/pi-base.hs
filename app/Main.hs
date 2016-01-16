@@ -1,6 +1,6 @@
 module Main where
 
-import Control.Monad.Trans (lift)
+import Control.Concurrent.STM.TVar (newTVarIO)
 import Control.Monad.Trans.Either
 import Control.Monad.Trans.Reader (runReaderT)
 import Database.Persist.Postgresql (runSqlPool)
@@ -11,7 +11,7 @@ import System.Environment (lookupEnv)
 
 import Api
 import Config (mkPool, mkLogger)
-import Models (doMigrations)
+import Models (doMigrations, mkUniverse)
 import Types
 
 
@@ -23,13 +23,13 @@ env k def = do
     Just  v -> read v
 
 mkApp :: Config -> Application
-mkApp conf = serve api $ enter (Nat run) handlers
+mkApp conf = serve api $ enter (Nat runner) handlers
   where
     api :: Proxy API
     api = Proxy
 
-    run :: Action v -> EitherT ServantErr IO v
-    run a = runReaderT (runAction a) conf
+    runner :: Action v -> EitherT ServantErr IO v
+    runner a = runReaderT (runAction a) conf
 
 main :: IO ()
 main = do
@@ -37,10 +37,13 @@ main = do
   port <- env "PORT" 8081
   pool <- mkPool mode
 
-  let conf = Config { getPool = pool, getEnv = mode }
-      log  = mkLogger mode
-
+  -- TODO: better logging for this part
   runSqlPool doMigrations pool
+  universe <- runSqlPool mkUniverse pool
+  tu <- newTVarIO universe
+
+  let conf   = Config { getPool = pool, getEnv = mode, getTU = tu }
+      logger = mkLogger mode
 
   putStrLn $ "Now running on port " ++ show port
-  run port $ log $ mkApp conf
+  run port $ logger $ mkApp conf

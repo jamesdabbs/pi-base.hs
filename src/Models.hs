@@ -8,20 +8,22 @@
 
 module Models where
 
-import Control.Monad.Reader (ReaderT, asks, liftIO)
-import Data.Aeson (FromJSON)
-import Data.Text (Text)
-import Data.Time (UTCTime)
-import Database.Persist.Postgresql (SqlBackend(..), runMigration, runSqlPool)
-import Database.Persist.Quasi (lowerCaseSettings)
-import Database.Persist.TH (share, mkPersist, sqlSettings, mkMigrate, persistFileWith)
+import Control.Monad.Reader (MonadReader, ReaderT, asks, liftIO)
+import Control.Monad.IO.Class (MonadIO)
+import qualified Data.Map as M
+import Database.Persist (selectList)
+import Database.Persist.Postgresql (SqlBackend(..), runMigration, runSqlPool, SqlPersistT)
 
 import Types
-
-share [mkPersist sqlSettings, mkMigrate "migrateAll"]
-  $(persistFileWith lowerCaseSettings "config/schema")
 
 doMigrations :: ReaderT SqlBackend IO ()
 doMigrations = runMigration migrateAll
 
+runDB :: (MonadReader Config m, Monad m, MonadIO m) => SqlPersistT IO a -> m a
 runDB q = asks getPool >>= liftIO . runSqlPool q
+
+mkUniverse :: ReaderT SqlBackend IO Universe
+mkUniverse = do
+  spaces <- selectList [] []
+  let pairs = map (\s -> (s, M.empty)) spaces -- TODO
+  return $ Universe pairs

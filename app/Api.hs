@@ -10,20 +10,11 @@ module Api
   , handlers
   ) where
 
-import Control.Monad.Trans (lift)
-import Control.Monad.Trans.Either (left)
-import Data.Aeson
 import Data.Text (Text)
 import Servant
 
 import Types
-import Models
-import Actions
 import Handlers
-
-import Control.Monad.Trans.Reader (ReaderT)
-import Control.Monad.Trans.Either (EitherT)
-import Servant
 
 type API = "status" :> Get '[JSON] HomeR -- TODO: how do you actually route the root? :/
        :<|> "search"

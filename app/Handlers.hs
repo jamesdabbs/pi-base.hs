@@ -13,25 +13,23 @@ module Handlers
 
 import Control.Monad.Trans (lift)
 import Control.Monad.Trans.Either (left)
-import Control.Monad.Reader (asks, liftIO)
-import Data.Aeson (encode, decode, object, (.=))
+import Control.Monad.Reader (asks)
+import Data.Aeson (encode, object, (.=))
 import Data.Aeson.TH
-import Data.ByteString.Lazy (fromStrict)
-import Data.Maybe (fromJust)
 import Data.Text (Text)
-import Data.Text.Encoding (encodeUtf8)
 import Database.Persist
 import Servant
 
 import Types
 import Models
-import Actions (searchByText, searchByFormula)
+import Actions
 import Util
 
 data HomeR = HomeR
   { hrenvironment :: Environment
   , hrstatus :: Text
   , hrmessage :: Text
+  , hrsize :: Int
   } deriving (Show)
 $(deriveToJSON defaultOptions { fieldLabelModifier = drop 2} ''HomeR)
 
@@ -63,6 +61,8 @@ home = do
   hrenvironment <- asks getEnv
   let hrstatus  = "ok"
   let hrmessage = "running"
+  universe <- getUniverse
+  let hrsize = length $ uspaces universe
   return HomeR{..}
 
 allProperties :: Action PropertiesR
@@ -73,11 +73,12 @@ allProperties = do
 search :: Maybe Text -> Maybe SearchType -> Action SearchR
 search mq mt = do
   q <- require "`q` is required" mq
-  Just ByText -> do
-    srspaces <- searchByText q
-    return SearchR{..}
-  _ -> do
-    -- TODO: more informative failure message
-    f <- require "Could not parse formula from `q`" $ decodeText q
-    srspaces <- searchByFormula f
-    return SearchR{..}
+  case mt of
+    Just ByText -> do
+      srspaces <- searchByText q
+      return SearchR{..}
+    _ -> do
+      -- TODO: more informative failure message
+      f <- require "Could not parse formula from `q`" $ decodeText q
+      srspaces <- searchByFormula f
+      return SearchR{..}

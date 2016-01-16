@@ -21,6 +21,7 @@ library
                      , Models
                      , Types
                      , Util
+  ghc-options:         -threaded -rtsopts -with-rtsopts=-N -Wall
   build-depends:       base >= 4.7 && < 5
                      , aeson
                      , bytestring
@@ -32,6 +33,7 @@ library
                      , persistent-postgresql
                      , persistent-template
                      , servant-server
+                     , stm
                      , text
                      , time
                      , transformers

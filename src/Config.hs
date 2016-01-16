@@ -5,7 +5,7 @@ module Config
   ) where
 
 import Control.Monad.Logger                 (runNoLoggingT, runStdoutLoggingT)
-import Database.Persist.Postgresql          (ConnectionPool(..), ConnectionString,
+import Database.Persist.Postgresql          (ConnectionPool, ConnectionString,
                                              createPostgresqlPool)
 import Network.Wai.Middleware.RequestLogger (logStdoutDev, logStdout)
 import Network.Wai                          (Middleware)
