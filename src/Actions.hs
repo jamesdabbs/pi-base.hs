@@ -25,5 +25,5 @@ getUniverse = asks getTU >>= liftIO . readTVarIO
 searchUniverse :: Universe -> Formula PropertyId -> [Entity Space]
 searchUniverse u f = map fst $ filter (matches f . snd) (uspaces u)
 
-matches :: Formula PropertyId -> M.Map PropertyId Bool -> Bool
-matches f pm = True
+matches :: Formula PropertyId -> M.Map PropertyId TValueId -> Bool
+matches f pm = True -- TODO

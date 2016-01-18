@@ -51,6 +51,7 @@ executable serv
   build-depends:       base
                      , serv
                      , servant
+                     , servant-jquery
                      , servant-server
                      , aeson
                      , bytestring
@@ -58,6 +59,7 @@ executable serv
                      , mtl
                      , persistent
                      , persistent-postgresql
+                     , stm
                      , text
                      , transformers
                      , wai

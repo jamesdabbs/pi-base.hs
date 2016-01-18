@@ -11,7 +11,7 @@ module Models where
 import Control.Monad.Reader (MonadReader, ReaderT, asks, liftIO)
 import Control.Monad.IO.Class (MonadIO)
 import qualified Data.Map as M
-import Database.Persist (selectList)
+import Database.Persist
 import Database.Persist.Postgresql (SqlBackend(..), runMigration, runSqlPool, SqlPersistT)
 
 import Types
@@ -24,6 +24,14 @@ runDB q = asks getPool >>= liftIO . runSqlPool q
 
 mkUniverse :: ReaderT SqlBackend IO Universe
 mkUniverse = do
+  -- TODO: don't query out e.g. description columns
   spaces <- selectList [] []
-  let pairs = map (\s -> (s, M.empty)) spaces -- TODO
+  pairs  <- mapM traitsFor spaces
   return $ Universe pairs
+
+  where
+    traitsFor :: Entity Space -> ReaderT SqlBackend IO (Entity Space, M.Map PropertyId TValueId)
+    traitsFor s@(Entity _sid _) = do
+      traits <- selectList [TraitSpaceId ==. _sid] []
+      let pairs = M.fromList . map (\(Entity _ t) -> (traitPropertyId t, traitValueId t)) $ traits
+      return (s, pairs)

@@ -74,5 +74,5 @@ instance FromJSON a => FromJSON (Formula a) where
 
 -- TODO: this should probably just be SpaceId, and fetch details in an extra query as needed
 newtype Universe = Universe
-  { uspaces :: [(Entity Space, M.Map PropertyId Bool)]
+  { uspaces :: [(Entity Space, M.Map PropertyId TValueId)]
   }
