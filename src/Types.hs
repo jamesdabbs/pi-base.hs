@@ -19,11 +19,11 @@ import Control.Monad.IO.Class (MonadIO)
 import Control.Monad.Trans.Either (EitherT)
 import Control.Monad.Trans.Reader (ReaderT)
 import Data.Aeson
+import Data.ByteString (ByteString)
 import qualified Data.HashMap.Strict as HM
 import qualified Data.Map as M
 import Data.Text (Text)
 import Data.Time (UTCTime)
-import Database.Persist (Entity(..))
 import Database.Persist.Postgresql (ConnectionPool)
 import Database.Persist.Quasi (lowerCaseSettings)
 import Database.Persist.TH (share, mkPersist, sqlSettings, mkMigrate, persistFileWith)
@@ -72,7 +72,13 @@ instance FromJSON a => FromJSON (Formula a) where
       _ -> mzero
   parseJSON _ = mzero
 
+type Properties = M.Map PropertyId TValueId
+
 -- TODO: this should probably just be SpaceId, and fetch details in an extra query as needed
 newtype Universe = Universe
-  { uspaces :: [(Entity Space, M.Map PropertyId TValueId)]
+  { uspaces :: M.Map SpaceId Properties
   }
+
+data MatchMode = Yes | No | Unknown deriving (Eq, Show, Generic)
+
+newtype AuthToken = AuthToken ByteString

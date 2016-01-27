@@ -1,4 +1,5 @@
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE GADTs             #-}
 {-# LANGUAGE RecordWildCards   #-}
 {-# LANGUAGE TemplateHaskell   #-}
 
@@ -9,18 +10,20 @@ module Handlers
   , home
   , allProperties
   , search
+  , assertTrait
+  , showTrait
   ) where
 
-import Control.Monad.Trans (lift)
-import Control.Monad.Trans.Either (left)
-import Control.Monad.Reader (asks)
-import Data.Aeson (encode, object, (.=))
+import Base
+
+import Data.Aeson (encode)
 import Data.Aeson.TH
-import Data.Text (Text)
+import Data.ByteString.Lazy (ByteString)
+import qualified Data.Map as M
 import Database.Persist
+import Database.Persist.Sql
 import Servant
 
-import Types
 import Models
 import Actions
 import Util
@@ -43,18 +46,19 @@ data SearchR = SearchR
   }
 $(deriveToJSON defaultOptions { fieldLabelModifier = drop 2} ''SearchR)
 
-halt :: ServantErr -> Text -> Action a
-halt err msg = Action . lift . left $ err'
+halt :: ServantErr -> Action a
+halt err = Action . lift . left $ err'
   where
     err' = err
-      { errBody    = encode $ object [ "error" .= msg, "status" .= errHTTPCode err ]
+      { errBody    = encode err
       , errHeaders = [("Content-Type", "application/json")]
       }
 
-require :: Text -> Maybe a -> Action a
-require msg mval = case mval of
-  Just val -> return val
-  Nothing  -> halt err400 msg
+invalid :: ByteString -> Action a
+invalid msg = halt $ err422 { errBody = msg }
+
+require :: ByteString -> Maybe a -> Action a
+require msg mval = maybe (invalid msg) return mval
 
 home :: Action HomeR
 home = do
@@ -70,15 +74,49 @@ allProperties = do
   prproperties <- runDB $ selectList ([] :: [Filter Property]) []
   return PropertiesR{..}
 
-search :: Maybe Text -> Maybe SearchType -> Action SearchR
-search mq mt = do
-  q <- require "`q` is required" mq
-  case mt of
-    Just ByText -> do
-      srspaces <- searchByText q
-      return SearchR{..}
+search :: Text -> Maybe SearchType -> MatchMode -> Action SearchR
+search q mst mm = do
+  srspaces <- case mst of
+    Just ByText -> searchByText q
     _ -> do
       -- TODO: more informative failure message
       f <- require "Could not parse formula from `q`" $ decodeText q
-      srspaces <- searchByFormula f
-      return SearchR{..}
+      searchByFormula f mm
+  return SearchR{..}
+
+traitExists :: Universe -> SpaceId -> PropertyId -> Bool
+traitExists u sid pid = M.member pid $ attributes u sid
+
+attributes :: Universe -> SpaceId -> Properties
+attributes u sid = fromMaybe M.empty $ M.lookup sid $ uspaces u
+
+withUser :: (Entity User -> Action a) -> AuthToken -> Action a
+withUser f (AuthToken tok) = do
+  -- FIXME: proper tokens
+  us <- runDB $ selectList [UserIdent ==. decodeUtf8 tok] []
+  case us of
+    u:_ -> f u
+    _   -> halt $ err403 { errBody = "Invalid token" }
+
+assertTrait :: SpaceId -> PropertyId -> Maybe TValueId -> Maybe Text -> AuthToken -> Action Trait
+assertTrait sid pid mvid mdesc = withUser $ \user -> do
+  u <- getUniverse
+  when (traitExists u sid pid) $ invalid "Trait already exists"
+
+  vid  <- require "`value` is required" mvid
+  desc <- require "`description` is required" mdesc
+
+  -- Update universe
+  -- Update DB
+  -- Check for deductions
+  error "Not implemented"
+
+get404 :: (PersistEntity b, PersistEntityBackend b ~ SqlBackend) => Key b -> Action b
+get404 _id = do
+  found <- runDB $ get _id
+  case found of
+    Nothing -> halt err404
+    Just  r -> return r
+
+showTrait :: TraitId -> Action Trait
+showTrait = get404
