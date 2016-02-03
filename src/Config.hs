@@ -18,7 +18,7 @@ mkLogger Development = logStdoutDev
 mkLogger Production = logStdout
 
 mkPool :: Environment -> IO ConnectionPool
-mkPool Test = runNoLoggingT $ createPostgresqlPool (connStr Test) (envPool Test)
+mkPool Test = runNoLoggingT  $ createPostgresqlPool (connStr Test) (envPool Test)
 mkPool e = runStdoutLoggingT $ createPostgresqlPool (connStr e) (envPool e)
 
 envPool :: Environment -> Int
@@ -27,4 +27,5 @@ envPool Development = 1
 envPool Production = 8
 
 connStr :: Environment -> ConnectionString
-connStr _ = "host=localhost dbname=pi_base_legacy user=james port=5432"
+connStr Test = "host=localhost dbname=pi_base_legacy_test user=james port=5432"
+connStr    _ = "host=localhost dbname=pi_base_legacy user=james port=5432"

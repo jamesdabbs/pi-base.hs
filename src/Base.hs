@@ -11,5 +11,6 @@ import Data.Maybe                 as Base (fromMaybe)
 import Data.Monoid                as Base ((<>))
 import Data.Text                  as Base (Text)
 import Data.Text.Encoding         as Base (encodeUtf8, decodeUtf8)
+import Data.Time                  as Base (getCurrentTime)
 
 import Types as Base

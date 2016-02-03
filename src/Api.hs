@@ -12,17 +12,18 @@
 
 module Api
   ( API
-  , server
+  , mkApp
   ) where
 
 import Base
 
 import Control.Monad.Trans.Reader (runReaderT)
 import Control.Monad.Trans.Either (EitherT)
-import Data.Text (unpack)
+import Data.Text                  (unpack)
 import Database.Persist
+import Network.Wai                (Application)
 import Servant
-import Text.Read (readMaybe)
+import Text.Read                  (readMaybe)
 
 import Api.Combinators
 import Handlers
@@ -44,6 +45,10 @@ type API = "status" :> Get '[JSON] HomeR -- TODO: how do you actually route the 
          :> Post '[JSON] Trait
        :<|> "traits" :> Capture "trait_id" TraitId
          :> Get '[JSON] Trait
+       :<|> "spaces"
+         :> ReqBody '[JSON] Space
+         :> Authenticated
+         :> Post '[JSON] (Entity Space)
 
 
 server :: Config -> Server API
@@ -54,6 +59,7 @@ server conf = enter (Nat runner) handlers
           :<|> allProperties
           :<|> assertTrait
           :<|> showTrait
+          :<|> createSpace
 
     runner :: Action v -> EitherT ServantErr IO v
     runner a = runReaderT (runAction a) conf
@@ -90,3 +96,15 @@ instance FromText TValueId where
   fromText "true"  = Just true
   fromText "false" = Just false
   fromText       _ = Nothing
+
+
+type ExtAPI = API :<|> Raw
+
+xserver :: Config -> Server ExtAPI
+xserver conf = server conf :<|> serveDirectory "public"
+
+mkApp :: Config -> Application
+mkApp = serve xapi . xserver
+  where
+    xapi :: Proxy ExtAPI
+    xapi = Proxy

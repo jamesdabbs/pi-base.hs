@@ -1,12 +1,13 @@
-{-# LANGUAGE DeriveFunctor #-}
-{-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE DeriveFunctor              #-}
+{-# LANGUAGE DeriveGeneric              #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
-{-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE OverloadedStrings          #-}
 {-# LANGUAGE FlexibleContexts           #-}
 {-# LANGUAGE FlexibleInstances          #-}
 {-# LANGUAGE GADTs                      #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE MultiParamTypeClasses      #-}
+{-# LANGUAGE RecordWildCards            #-}
 {-# LANGUAGE TemplateHaskell            #-}
 {-# LANGUAGE TypeFamilies               #-}
 
@@ -24,6 +25,7 @@ import qualified Data.HashMap.Strict as HM
 import qualified Data.Map as M
 import Data.Text (Text)
 import Data.Time (UTCTime)
+import Database.Persist (Entity(..))
 import Database.Persist.Postgresql (ConnectionPool)
 import Database.Persist.Quasi (lowerCaseSettings)
 import Database.Persist.TH (share, mkPersist, sqlSettings, mkMigrate, persistFileWith)
@@ -81,4 +83,20 @@ newtype Universe = Universe
 
 data MatchMode = Yes | No | Unknown deriving (Eq, Show, Generic)
 
-newtype AuthToken = AuthToken ByteString
+type AuthToken = ByteString
+
+instance FromJSON Space where
+  parseJSON = withObject "space" $ \o -> do
+    spaceName        <- o .: "name"
+    spaceDescription <- o .: "description"
+    let spaceCreatedAt       = Nothing
+        spaceUpdatedAt       = Nothing
+        spaceProofOfTopology = Nothing
+    return Space{..}
+
+instance ToJSON (Entity Space) where
+  toJSON (Entity _id s) = object
+    [ "id"          .= _id
+    , "name"        .= spaceName s
+    , "description" .= spaceDescription s
+    ]

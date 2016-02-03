@@ -1,6 +1,6 @@
 {-# LANGUAGE TypeOperators #-}
 
-module Main where
+module Main (main) where
 
 import Control.Concurrent.STM.TVar (newTVarIO)
 import Database.Persist.Postgresql (runSqlPool)
@@ -10,15 +10,10 @@ import Servant
 -- import Servant.JQuery
 import System.Environment (lookupEnv)
 
-import Api
+import Api    (mkApp)
 import Config (mkPool, mkLogger)
 import Models (doMigrations, checkBooleans, mkUniverse)
 import Types
-
-type ExtAPI = API :<|> Raw
-
-xserver :: Config -> Server ExtAPI
-xserver conf = server conf :<|> serveDirectory "public"
 
 env :: Read a => String -> a -> IO a
 env k def = do
@@ -26,12 +21,6 @@ env k def = do
   return $ case mv of
     Nothing -> def
     Just  v -> read v
-
-mkApp :: Config -> Application
-mkApp = serve xapi . xserver
-  where
-    xapi :: Proxy ExtAPI
-    xapi = Proxy
 
 main :: IO ()
 main = do

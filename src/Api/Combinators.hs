@@ -90,4 +90,4 @@ instance HasServer a => HasServer (Authenticated :> a) where
   route Proxy sub request respond =
     case lookup "Authorization" (requestHeaders request) of
       Nothing  -> respond $ halt status401 $ err401 { errBody = "Authentication Required" }
-      Just tok -> route (Proxy :: Proxy a) (sub $ AuthToken tok) request respond
+      Just tok -> route (Proxy :: Proxy a) (sub tok) request respond

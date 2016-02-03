@@ -12,6 +12,7 @@ module Handlers
   , search
   , assertTrait
   , showTrait
+  , createSpace
   ) where
 
 import Base
@@ -91,7 +92,7 @@ attributes :: Universe -> SpaceId -> Properties
 attributes u sid = fromMaybe M.empty $ M.lookup sid $ uspaces u
 
 withUser :: (Entity User -> Action a) -> AuthToken -> Action a
-withUser f (AuthToken tok) = do
+withUser f tok = do
   -- FIXME: proper tokens
   us <- runDB $ selectList [UserIdent ==. decodeUtf8 tok] []
   case us of
@@ -120,3 +121,9 @@ get404 _id = do
 
 showTrait :: TraitId -> Action Trait
 showTrait = get404
+
+createSpace :: Space -> AuthToken -> Action (Entity Space)
+createSpace space = withUser $ \(Entity _ user) -> do
+  let name = userIdent user
+  _id <- runDB $ insert space
+  return $ Entity _id space

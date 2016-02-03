@@ -2,8 +2,8 @@ User sql=remote_users
     ident Text
     name Text Maybe
     admin Bool
-    createdAt UTCTime default=now()
-    lastLoggedInAt UTCTime default=now()
+    createdAt UTCTime Maybe default=now()
+    lastLoggedInAt UTCTime Maybe default=now()
     UniqueUser ident
 
 Email sql=emails
@@ -32,11 +32,11 @@ TValue sql=values
   createdAt UTCTime
   updatedAt UTCTime
 
-Space json sql=spaces
+Space sql=spaces
   name Text
   description Text
-  createdAt UTCTime
-  updatedAt UTCTime
+  createdAt UTCTime Maybe default=now()
+  updatedAt UTCTime Maybe default=now()
   proofOfTopology Text Maybe
 
 Property json sql=properties
