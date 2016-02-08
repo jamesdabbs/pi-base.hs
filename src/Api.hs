@@ -27,7 +27,7 @@ import Text.Read                  (readMaybe)
 
 import Api.Combinators
 import Handlers
-import Models (true, false)
+import Formula (true, false)
 
 
 type API = "status" :> Get '[JSON] HomeR -- TODO: how do you actually route the root? :/

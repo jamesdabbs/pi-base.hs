@@ -6,12 +6,19 @@ module Util
   ( encodeText
   , decodeText
   , err422
+  , intersectN
+  , unionN
+  , forceKey
+  , flatMapM
   ) where
 
 import Data.Aeson
 import qualified Data.ByteString.Lazy as LBS
-import Data.Text (Text)
+import Data.Int (Int64)
+import qualified Data.Set as S
+import Data.Text (Text, unpack)
 import Data.Text.Encoding (encodeUtf8, decodeUtf8)
+import Database.Persist
 import Servant (ServantErr(..))
 
 decodeText :: FromJSON a => Text -> Maybe a
@@ -33,3 +40,18 @@ err422 = ServantErr
   , errBody = ""
   , errHeaders = []
   }
+
+intersectN :: Ord a => [S.Set a] -> S.Set a
+intersectN [] = S.empty
+intersectN ls = foldl1 S.intersection ls
+
+unionN :: Ord a => [S.Set a] -> S.Set a
+unionN = foldl S.union S.empty
+
+forceKey :: PersistEntity rec => Int64 -> Key rec
+forceKey n = case keyFromValues [PersistInt64 n] of
+  Right key -> key
+  Left    e -> error $ unpack e
+
+flatMapM :: (Monad m, Traversable t) => (a -> m [b]) -> t a -> m [b]
+flatMapM f m = mapM f m >>= return . concat

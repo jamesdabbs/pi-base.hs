@@ -53,4 +53,3 @@ appSpecs = do
     (SResponse status _ body) <- postJSON "/spaces" "test@example.com" fields
     status `shouldBe` status201
     body `shouldIncludeJson` fields
-

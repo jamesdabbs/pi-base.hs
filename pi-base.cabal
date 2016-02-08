@@ -21,9 +21,12 @@ library
                      , Api.Combinators
                      , Base
                      , Config
+                     , Formula
                      , Handlers
+                     , Logic
                      , Models
                      , Types
+                     , Universe
                      , Util
   ghc-options:         -threaded -rtsopts -with-rtsopts=-N -Wall
   build-depends:       base >= 4.7 && < 5
@@ -76,7 +79,9 @@ executable pi-base
 test-suite pi-base-test
   type:                exitcode-stdio-1.0
   hs-source-dirs:      test
-  main-is:             Spec.hs
+  main-is:             Main.hs
+  other-modules:       Spec.App
+                     , Spec.Logic
   build-depends:       base
                      , aeson
                      , bytestring
@@ -86,6 +91,7 @@ test-suite pi-base-test
                      , hspec-wai
                      , hspec-wai-json
                      , http-types
+                     , mtl
                      , persistent
                      , persistent-postgresql
                      , pi-base

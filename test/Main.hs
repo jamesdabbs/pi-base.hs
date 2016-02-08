@@ -10,23 +10,24 @@ import Test.Hspec
 import Test.Hspec.Wai
 
 import Control.Concurrent.STM.TVar (newTVarIO)
-import qualified Data.Map as M
 
 import Config (mkPool)
 import Api    (mkApp)
 import Models (doMigrations)
+import qualified Universe as U
 
-import Spec.App (appSpecs)
+import Spec.App   (appSpecs)
+import Spec.Logic (logicSpecs)
 
 app :: IO Application
 app = do
-  tu   <- newTVarIO $ Universe { uspaces = M.empty }
+  tu   <- newTVarIO $ U.empty
   pool <- mkPool Test
 
   return $ mkApp $ Config
     { getEnv  = Test
     , getPool = pool
-    , getTU   = tu
+    , getUVar = tu
     }
 
 reset :: ConnectionPool -> IO ()
@@ -35,8 +36,10 @@ reset = runSqlPool $ do
   _ <- insertUnique $ User "test@example.com" (Just "James") True Nothing Nothing
   return ()
 
-spec :: Spec
-spec = do
+allSpecs :: Spec
+allSpecs = do
+  logicSpecs
+
   pool <- runIO $ mkPool Test
   runIO $ runSqlPool doMigrations pool
 
@@ -48,4 +51,4 @@ spec = do
     with app $ appSpecs
 
 main :: IO ()
-main = hspec spec
+main = hspec allSpecs

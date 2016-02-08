@@ -17,6 +17,9 @@ module Handlers
 
 import Base
 
+import Control.Concurrent.STM.TVar (modifyTVar)
+import Control.Monad.STM (atomically)
+import Control.Monad.State (execState)
 import Data.Aeson (encode)
 import Data.Aeson.TH
 import Data.ByteString.Lazy (ByteString)
@@ -27,7 +30,9 @@ import Servant
 
 import Models
 import Actions
+import qualified Logic as L
 import Util
+import qualified Universe as U
 
 data HomeR = HomeR
   { hrenvironment :: Environment
@@ -85,12 +90,6 @@ search q mst mm = do
       searchByFormula f mm
   return SearchR{..}
 
-traitExists :: Universe -> SpaceId -> PropertyId -> Bool
-traitExists u sid pid = M.member pid $ attributes u sid
-
-attributes :: Universe -> SpaceId -> Properties
-attributes u sid = fromMaybe M.empty $ M.lookup sid $ uspaces u
-
 withUser :: (Entity User -> Action a) -> AuthToken -> Action a
 withUser f tok = do
   -- FIXME: proper tokens
@@ -99,13 +98,21 @@ withUser f tok = do
     u:_ -> f u
     _   -> halt $ err403 { errBody = "Invalid token" }
 
+commit :: State Universe [Proof'] -> Action [TraitId]
+commit modfications = do
+  uvar <- asks getUVar
+  liftIO . atomically . modifyTVar uvar $ execState modifications
+  -- TODO: persist proofs to DB
+  --       what about Universe state if something fails here vvv ?
+  return []
+
 assertTrait :: SpaceId -> PropertyId -> Maybe TValueId -> Maybe Text -> AuthToken -> Action Trait
 assertTrait sid pid mvid mdesc = withUser $ \user -> do
-  u <- getUniverse
-  when (traitExists u sid pid) $ invalid "Trait already exists"
-
   vid  <- require "`value` is required" mvid
   desc <- require "`description` is required" mdesc
+
+  let trait = Trait sid pid vid desc Nothing Nothing False
+  proofs <- commit $ L.assertTrait trait
 
   -- Update universe
   -- Update DB

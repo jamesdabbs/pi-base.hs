@@ -52,8 +52,8 @@ Trait json sql=traits
   propertyId PropertyId
   valueId TValueId
   description Text
-  createdAt UTCTime
-  updatedAt UTCTime
+  createdAt UTCTime Maybe default=now()
+  updatedAt UTCTime Maybe default=now()
   deduced Bool
   TraitSP spaceId propertyId
 

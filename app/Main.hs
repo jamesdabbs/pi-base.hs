@@ -4,9 +4,7 @@ module Main (main) where
 
 import Control.Concurrent.STM.TVar (newTVarIO)
 import Database.Persist.Postgresql (runSqlPool)
-import Network.Wai
 import Network.Wai.Handler.Warp
-import Servant
 -- import Servant.JQuery
 import System.Environment (lookupEnv)
 
@@ -37,7 +35,7 @@ main = do
     mkUniverse
   tu <- newTVarIO universe
 
-  let conf   = Config { getPool = pool, getEnv = mode, getTU = tu }
+  let conf   = Config { getPool = pool, getEnv = mode, getUVar = tu }
       logger = mkLogger mode
 
   putStrLn $ "Now running on port " ++ show port

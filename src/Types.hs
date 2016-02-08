@@ -14,23 +14,24 @@
 module Types where
 
 import Control.Concurrent.STM.TVar (TVar)
-import Control.Monad (liftM, mzero)
-import Control.Monad.Reader (MonadReader)
-import Control.Monad.IO.Class (MonadIO)
-import Control.Monad.Trans.Either (EitherT)
-import Control.Monad.Trans.Reader (ReaderT)
+import Control.Monad               (liftM, mzero)
+import Control.Monad.Reader        (MonadReader)
+import Control.Monad.IO.Class      (MonadIO)
+import Control.Monad.Trans.Either  (EitherT)
+import Control.Monad.Trans.Reader  (ReaderT)
 import Data.Aeson
-import Data.ByteString (ByteString)
+import Data.ByteString             (ByteString)
 import qualified Data.HashMap.Strict as HM
-import qualified Data.Map as M
-import Data.Text (Text)
-import Data.Time (UTCTime)
-import Database.Persist (Entity(..))
+import Data.Map                    (Map)
+import Data.Set                    (Set)
+import Data.Text                   (Text)
+import Data.Time                   (UTCTime)
+import Database.Persist            (Entity(..))
 import Database.Persist.Postgresql (ConnectionPool)
-import Database.Persist.Quasi (lowerCaseSettings)
-import Database.Persist.TH (share, mkPersist, sqlSettings, mkMigrate, persistFileWith)
-import GHC.Generics (Generic)
-import Servant (ServantErr)
+import Database.Persist.Quasi      (lowerCaseSettings)
+import Database.Persist.TH         (share, mkPersist, sqlSettings, mkMigrate, persistFileWith)
+import GHC.Generics                (Generic)
+import Servant                     (ServantErr)
 
 import Util (encodeText, decodeText)
 
@@ -42,9 +43,9 @@ instance ToJSON Environment where
   toJSON = genericToJSON defaultOptions
 
 data Config = Config
-  { getEnv :: Environment
+  { getEnv  :: Environment
   , getPool :: ConnectionPool
-  , getTU :: TVar Universe
+  , getUVar :: TVar Universe
   }
 
 newtype Action a = Action
@@ -74,12 +75,15 @@ instance FromJSON a => FromJSON (Formula a) where
       _ -> mzero
   parseJSON _ = mzero
 
-type Properties = M.Map PropertyId TValueId
+type Properties = Map PropertyId TValueId
 
--- TODO: this should probably just be SpaceId, and fetch details in an extra query as needed
-newtype Universe = Universe
-  { uspaces :: M.Map SpaceId Properties
+data Universe = Universe
+  { uspaces      :: Map SpaceId Properties
+  , utheorems    :: Map TheoremId Implication
+  , urelTheorems :: Map PropertyId [TheoremId]
   }
+
+data Implication = Implication (Formula PropertyId) (Formula PropertyId)
 
 data MatchMode = Yes | No | Unknown deriving (Eq, Show, Generic)
 
@@ -100,3 +104,6 @@ instance ToJSON (Entity Space) where
     , "name"        .= spaceName s
     , "description" .= spaceDescription s
     ]
+
+-- Proved property, used theorem, assumed properties
+data Proof' = Proof' PropertyId TheoremId (Set PropertyId)
