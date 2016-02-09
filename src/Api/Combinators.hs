@@ -7,6 +7,8 @@
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE TypeOperators #-}
 
+{-# OPTIONS_GHC -fno-warn-orphans #-}
+
 module Api.Combinators
   ( RequiredParam
   , DefaultParam
@@ -17,8 +19,7 @@ import Base
 import Control.Lens            ((&), (<>~))
 import Data.Aeson              (encode)
 import Data.String.Conversions (cs)
-import Data.Typeable           (Typeable)
-import GHC.TypeLits            (Symbol, KnownSymbol, symbolVal)
+import GHC.TypeLits            (KnownSymbol, symbolVal)
 import Network.HTTP.Types      (parseQueryText, mkStatus, Status, status401)
 import Network.Wai             (rawQueryString, responseLBS, Response, requestHeaders)
 import Servant
@@ -36,7 +37,6 @@ halt stat err = succeedWith $ responseLBS stat [] $ encode err
 invalid :: Text -> RouteResult Response
 invalid msg = halt status422 $ err422 { errBody = cs msg }
 
-data RequiredParam (sym :: Symbol) a deriving Typeable
 
 instance (KnownSymbol sym, FromText a, HasServer sublayout)
       => HasServer (RequiredParam sym a :> sublayout) where
@@ -69,7 +69,6 @@ instance (KnownSymbol sym, FromText a, HasJQ sublayout)
 
 
 -- TODO: extract and de-dup these
-data DefaultParam (sym :: Symbol) a (d :: Symbol) deriving Typeable
 
 instance (KnownSymbol sym, KnownSymbol d, FromText a, HasServer sublayout)
       => HasServer (DefaultParam sym a d :> sublayout) where
@@ -103,7 +102,6 @@ instance (KnownSymbol sym, KnownSymbol d, FromText a, HasJQ sublayout)
     where str = symbolVal (Proxy :: Proxy sym)
 
 
-data Authenticated
 
 instance HasServer a => HasServer (Authenticated :> a) where
   type ServerT (Authenticated :> a) m = AuthToken -> ServerT a m

@@ -13,13 +13,14 @@ module Util
   ) where
 
 import Data.Aeson
-import qualified Data.ByteString.Lazy as LBS
-import Data.Int (Int64)
-import qualified Data.Set as S
-import Data.Text (Text, unpack)
+import Data.Int           (Int64)
+import Data.Text          (Text, unpack)
 import Data.Text.Encoding (encodeUtf8, decodeUtf8)
-import Database.Persist
-import Servant (ServantErr(..))
+import Database.Persist   (Key, PersistEntity(..), PersistValue(..), keyFromValues)
+import Servant            (ServantErr(..))
+
+import qualified Data.ByteString.Lazy as LBS
+import qualified Data.Set             as S
 
 decodeText :: FromJSON a => Text -> Maybe a
 decodeText = decode . LBS.fromStrict . encodeUtf8

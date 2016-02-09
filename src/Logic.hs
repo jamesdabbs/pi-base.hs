@@ -101,6 +101,3 @@ check ts (Or sf) =
       Nothing -> case unknown of
         Just _ -> (Unknown, S.empty)
         Nothing -> (No, unionN . map snd $ subs)
-
--- saveProof :: Proof' -> Action TraitId
--- saveProof (Proof provedId usedThrm assumedPropertyIds)= undefined

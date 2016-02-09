@@ -1,3 +1,4 @@
+{-# LANGUAGE DataKinds                  #-}
 {-# LANGUAGE DeriveFunctor              #-}
 {-# LANGUAGE DeriveGeneric              #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
@@ -26,14 +27,15 @@ import Data.Map                    (Map)
 import Data.Set                    (Set)
 import Data.Text                   (Text)
 import Data.Time                   (UTCTime)
-import Database.Persist            (Entity(..))
+import Data.Typeable               (Typeable)
 import Database.Persist.Postgresql (ConnectionPool)
 import Database.Persist.Quasi      (lowerCaseSettings)
 import Database.Persist.TH         (share, mkPersist, sqlSettings, mkMigrate, persistFileWith)
 import GHC.Generics                (Generic)
-import Servant                     (ServantErr)
+import GHC.TypeLits                (Symbol)
+import Servant                     (ServantErr, Get, Post, Put, Delete, JSON, ReqBody)
 
-import Util (encodeText, decodeText, forceKey)
+import Util (encodeText, decodeText)
 
 share [mkPersist sqlSettings, mkMigrate "migrateAll"]
   $(persistFileWith lowerCaseSettings "config/schema")
@@ -89,26 +91,22 @@ data MatchMode = Yes | No | Unknown deriving (Eq, Show, Generic)
 
 type AuthToken = ByteString
 
-instance FromJSON Space where
-  parseJSON = withObject "space" $ \o -> do
-    spaceName        <- o .: "name"
-    spaceDescription <- o .: "description"
-    let spaceCreatedAt       = Nothing
-        spaceUpdatedAt       = Nothing
-        spaceProofOfTopology = Nothing
-    return Space{..}
-
-instance FromJSON Property where
-  parseJSON = withObject "property" $ \o -> do
-    propertyName        <- o .: "name"
-    propertyDescription <- o .: "description"
-    let propertyCreatedAt  = Nothing
-        propertyUpdatedAt  = Nothing
-        propertyValueSetId = forceKey 1
-        propertyAliases    = ""
-    return Property{..}
 
 -- Proved property, used theorem, assumed properties
 data Proof' = Proof' PropertyId TheoremId (Set PropertyId)
 
 type AuthenticatedAction a = AuthToken -> Action a
+
+type GET     = Get     '[JSON]
+type POST    = Post    '[JSON]
+type PUT     = Put     '[JSON]
+type DELETE  = Delete  '[JSON]
+type Body    = ReqBody '[JSON]
+
+type Rev a = Revision
+instance ToJSON (Rev a) where
+  toJSON _ = error "Rev ToJSON"
+
+data RequiredParam (sym :: Symbol) a deriving Typeable
+data DefaultParam (sym :: Symbol) a (d :: Symbol) deriving Typeable
+data Authenticated

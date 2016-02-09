@@ -1,21 +1,40 @@
+{-# LANGUAGE FlexibleContexts  #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE GADTs             #-}
+{-# LANGUAGE TypeOperators     #-}
+
 module Handlers.Helpers
   ( halt
   , invalid
   , require
   , withUser
   , get404
+  , show
+  , index
+  , serve
+  , idFromText
   ) where
 
+import Prelude hiding (show)
+import Servant hiding (serve)
+
 import Base
-import Data.Aeson (encode)
-import Data.ByteString.Lazy (ByteString)
+import Control.Monad.Trans.Reader    (runReaderT)
+import Control.Monad.Trans.Either    (EitherT)
+import Data.Aeson                    (encode)
+import Data.ByteString.Lazy          (ByteString)
+import Data.Text                     (unpack)
 import Database.Persist
 import Database.Persist.Sql
+import Servant.Server.Internal.Enter (Enter)
+import Text.Read                     (readMaybe)
+
+-- These instances need to be defined before defining any of the sub-API types
+-- This is an _okay_ place to do that, but I don't love it ...
+import Api.Combinators ()
+
 import Models (runDB)
-import Servant
-import Util (err422)
+import Util   (err422)
 
 
 halt :: ServantErr -> Action a
@@ -46,3 +65,22 @@ get404 _id = do
   case found of
     Nothing -> halt err404
     Just  r -> return $ Entity _id r
+
+show :: (PersistEntity b, PersistEntityBackend b ~ SqlBackend) => Key b -> Action (Entity b)
+show = get404
+
+index :: (PersistEntity b, PersistEntityBackend b ~ SqlBackend) => Action [Entity b]
+index = runDB $ selectList [] []
+
+serve :: Enter typ (Action :~> EitherT ServantErr IO) ret => typ -> Config -> ret
+serve handlers conf = enter (Nat runner) handlers
+  where
+    runner :: Action v -> EitherT ServantErr IO v
+    runner action = runReaderT (runAction action) conf
+
+idFromText :: PersistEntity r => Text -> Maybe (Key r)
+idFromText p = do
+  i <- readMaybe $ unpack p
+  case keyFromValues [PersistInt64 i] of
+    Right key -> Just key
+    Left    _ -> Nothing

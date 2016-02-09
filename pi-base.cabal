@@ -19,6 +19,10 @@ library
                      , Actions
                      , Api
                      , Api.Combinators
+                     , Api.Properties
+                     , Api.Spaces
+                     , Api.Theorems
+                     , Api.Traits
                      , Base
                      , Config
                      , Formula
@@ -44,6 +48,7 @@ library
                      , persistent-postgresql
                      , persistent-template
                      , postgresql-simple
+                     , servant-jquery
                      , servant-server
                      , stm
                      , string-conversions
@@ -69,7 +74,6 @@ executable pi-base
                      , persistent
                      , persistent-postgresql
                      , servant
-                     , servant-jquery
                      , servant-server
                      , stm
                      , text

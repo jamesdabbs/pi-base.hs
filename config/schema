@@ -48,7 +48,7 @@ Property sql=properties
   createdAt UTCTime Maybe default=now()
   updatedAt UTCTime Maybe default=now()
 
-Trait json sql=traits
+Trait sql=traits
   spaceId SpaceId
   propertyId PropertyId
   valueId TValueId
@@ -58,7 +58,7 @@ Trait json sql=traits
   deduced Bool
   TraitSP spaceId propertyId
 
-Theorem json sql=theorems
+Theorem sql=theorems
   antecedent Text
   consequent Text
   description Text

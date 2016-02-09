@@ -9,3 +9,10 @@ Major goals are:
 * Tests!
 * Use Servant to generate a JS client and documentation
 * Rewrite auth system (since Persona is going away)
+
+# TODOs
+
+* Finish porting functionality (implementing the `error` calls)
+* Add a frontend
+* Figure out strategy for migration from Persona
+* Add and test error monitoring
