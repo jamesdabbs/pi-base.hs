@@ -32,6 +32,7 @@ TValue sql=values
   createdAt UTCTime
   updatedAt UTCTime
 
+-- TODO: auto-update timestamps
 Space sql=spaces
   name Text
   description Text
@@ -39,13 +40,13 @@ Space sql=spaces
   updatedAt UTCTime Maybe default=now()
   proofOfTopology Text Maybe
 
-Property json sql=properties
+Property sql=properties
   name Text
   aliases Text default='[]'
   description Text
   valueSetId ValueSetId
-  createdAt UTCTime
-  updatedAt UTCTime
+  createdAt UTCTime Maybe default=now()
+  updatedAt UTCTime Maybe default=now()
 
 Trait json sql=traits
   spaceId SpaceId

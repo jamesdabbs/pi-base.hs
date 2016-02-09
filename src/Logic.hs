@@ -1,10 +1,9 @@
 {-# LANGUAGE RecordWildCards #-}
 module Logic where
 
-import Control.Monad        (foldM)
-import Control.Monad.State  (State, gets)
+import Control.Monad.State (gets)
 import qualified Data.Map as M
-import Data.Maybe           (listToMaybe)
+import Data.Maybe (listToMaybe)
 import qualified Data.Set as S
 
 import Base
@@ -14,7 +13,7 @@ import Util (flatMapM, unionN)
 
 
 assertTrait :: Trait -> State Universe [Proof']
-assertTrait t@Trait{..} = do
+assertTrait Trait{..} = do
   found <- gets $ U.lookup traitSpaceId traitPropertyId
   case found of
     -- TODO: differentiate "already known" from "incorrect"
@@ -27,7 +26,7 @@ checkImplications :: SpaceId -> PropertyId -> State Universe [Proof']
 checkImplications sid pid = do
   rt     <- gets $ U.relevantTheorems pid
   next   <- flatMapM (applyTheorem sid) rt
-  result <- flatMapM (\(Proof' pid _ _) -> checkImplications sid pid) $ next
+  result <- flatMapM (\(Proof' p _ _) -> checkImplications sid p) $ next
   return $ next ++ result
 
 applyTheorem :: SpaceId -> (TheoremId, Implication) -> State Universe [Proof']

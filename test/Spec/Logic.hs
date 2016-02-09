@@ -13,8 +13,7 @@ import Util (forceKey)
 
 import Test.Hspec
 
-import Control.Monad.State (State, runState)
-import Data.Int (Int64)
+import Control.Monad.State (runState)
 
 runU :: State Universe a -> (a, Universe)
 runU = flip runState empty

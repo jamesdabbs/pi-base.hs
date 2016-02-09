@@ -12,10 +12,9 @@ import Prelude hiding (lookup)
 import Base
 import Formula (implicationProperties)
 
-import Control.Monad.State  (State, modify, get, gets)
-import qualified Data.Map as M
-import Data.Maybe (catMaybes)
-import qualified Data.Set as S
+import Control.Monad.State (modify, gets)
+import qualified Data.Map  as M
+import qualified Data.Set  as S
 
 -- TODO: hide fields of Universe, only use this API
 

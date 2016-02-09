@@ -33,7 +33,7 @@ import Database.Persist.TH         (share, mkPersist, sqlSettings, mkMigrate, pe
 import GHC.Generics                (Generic)
 import Servant                     (ServantErr)
 
-import Util (encodeText, decodeText)
+import Util (encodeText, decodeText, forceKey)
 
 share [mkPersist sqlSettings, mkMigrate "migrateAll"]
   $(persistFileWith lowerCaseSettings "config/schema")
@@ -98,12 +98,17 @@ instance FromJSON Space where
         spaceProofOfTopology = Nothing
     return Space{..}
 
-instance ToJSON (Entity Space) where
-  toJSON (Entity _id s) = object
-    [ "id"          .= _id
-    , "name"        .= spaceName s
-    , "description" .= spaceDescription s
-    ]
+instance FromJSON Property where
+  parseJSON = withObject "property" $ \o -> do
+    propertyName        <- o .: "name"
+    propertyDescription <- o .: "description"
+    let propertyCreatedAt  = Nothing
+        propertyUpdatedAt  = Nothing
+        propertyValueSetId = forceKey 1
+        propertyAliases    = ""
+    return Property{..}
 
 -- Proved property, used theorem, assumed properties
 data Proof' = Proof' PropertyId TheoremId (Set PropertyId)
+
+type AuthenticatedAction a = AuthToken -> Action a

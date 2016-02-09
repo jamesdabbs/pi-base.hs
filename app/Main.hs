@@ -5,6 +5,7 @@ module Main (main) where
 import Control.Concurrent.STM.TVar (newTVarIO)
 import Database.Persist.Postgresql (runSqlPool)
 import Network.Wai.Handler.Warp
+-- import Servant
 -- import Servant.JQuery
 import System.Environment (lookupEnv)
 
@@ -22,7 +23,7 @@ env k def = do
 
 main :: IO ()
 main = do
-  -- writeFile "public/js/api.js" $ jsForAPI api
+  -- writeFile "public/js/api.js" $ jsForAPI (Proxy :: Proxy API)
 
   mode <- env "ENV" Development
   port <- env "PORT" 8081

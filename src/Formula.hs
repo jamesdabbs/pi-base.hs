@@ -12,7 +12,6 @@ module Formula
   , false
   ) where
 
-import Data.Int (Int64)
 import qualified Data.Set as S
 
 import Base

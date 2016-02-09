@@ -14,7 +14,7 @@ module Api.Combinators
   ) where
 
 import Base
-
+import Control.Lens            ((&), (<>~))
 import Data.Aeson              (encode)
 import Data.String.Conversions (cs)
 import Data.Typeable           (Typeable)
@@ -22,6 +22,7 @@ import GHC.TypeLits            (Symbol, KnownSymbol, symbolVal)
 import Network.HTTP.Types      (parseQueryText, mkStatus, Status, status401)
 import Network.Wai             (rawQueryString, responseLBS, Response, requestHeaders)
 import Servant
+import Servant.JQuery
 import Servant.Server.Internal (succeedWith, RouteResult)
 
 import Util (err422)
@@ -55,6 +56,16 @@ instance (KnownSymbol sym, FromText a, HasServer sublayout)
           stop = respond . invalid
           continue val = route (Proxy :: Proxy sublayout) (subserver val) request respond
 
+instance (KnownSymbol sym, FromText a, HasJQ sublayout)
+      => HasJQ (RequiredParam sym a :> sublayout) where
+  type JQ (RequiredParam sym a :> sublayout) = JQ sublayout
+
+  jqueryFor Proxy req =
+    jqueryFor (Proxy :: Proxy sublayout) $
+      req & reqUrl.queryStr <>~ [QueryArg str Flag]
+
+    where str = symbolVal (Proxy :: Proxy sym)
+
 
 
 -- TODO: extract and de-dup these
@@ -81,6 +92,16 @@ instance (KnownSymbol sym, KnownSymbol d, FromText a, HasServer sublayout)
           stop = respond . invalid
           continue val = route (Proxy :: Proxy sublayout) (subserver val) request respond
 
+instance (KnownSymbol sym, KnownSymbol d, FromText a, HasJQ sublayout)
+      => HasJQ (DefaultParam sym a d :> sublayout) where
+  type JQ (DefaultParam sym a d :> sublayout) = JQ sublayout
+
+  jqueryFor Proxy req =
+    jqueryFor (Proxy :: Proxy sublayout) $
+      req & reqUrl.queryStr <>~ [QueryArg str Flag]
+
+    where str = symbolVal (Proxy :: Proxy sym)
+
 
 data Authenticated
 
@@ -91,3 +112,11 @@ instance HasServer a => HasServer (Authenticated :> a) where
     case lookup "Authorization" (requestHeaders request) of
       Nothing  -> respond $ halt status401 $ err401 { errBody = "Authentication Required" }
       Just tok -> route (Proxy :: Proxy a) (sub tok) request respond
+
+instance (HasJQ sublayout) => HasJQ (Authenticated :> sublayout) where
+  type JQ (Authenticated :> sublayout) = JQ sublayout
+
+  jqueryFor Proxy req =
+    jqueryFor subP (req & reqHeaders <>~ [HeaderArg "Authorization"])
+
+    where subP = Proxy :: Proxy sublayout

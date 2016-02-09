@@ -23,6 +23,8 @@ library
                      , Config
                      , Formula
                      , Handlers
+                     , Handlers.Helpers
+                     , Handlers.Types
                      , Logic
                      , Models
                      , Types
@@ -35,6 +37,7 @@ library
                      , containers
                      , either
                      , http-types
+                     , lens
                      , monad-logger
                      , mtl
                      , persistent
