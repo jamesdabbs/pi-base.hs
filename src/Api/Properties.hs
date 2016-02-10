@@ -18,13 +18,13 @@ import Servant
 import qualified Handlers.Helpers as H
 import Util (forceKey)
 
-type API = GET [Entity Property]
+type API = Paginated Property
      :<|> Body Property :> Authenticated :> POST (Entity Property)
      :<|> Capture "property_id" PropertyId
           :> ( GET (Entity Property)
+          :<|> "revisions" :> Paginated Revision
           :<|> Body Property :> Authenticated :> PUT (Entity Property)
           :<|> Authenticated :> DELETE (Entity Property)
-          :<|> "revisions" :> GET [Rev Property]
           )
 
 handlers :: Config -> Server API
@@ -33,13 +33,13 @@ handlers = H.serve $
   create :<|>
   ( \_id ->
     H.show    _id :<|>
+    revisions _id :<|>
     update    _id :<|>
-    delete    _id :<|>
-    revisions _id
+    delete    _id
   )
 
-index :: Action [Entity Property]
-index = H.index
+index :: Pager Property
+index = H.getPage []
 
 create :: Property -> AuthenticatedAction (Entity Property)
 create = error "create property"
@@ -50,8 +50,8 @@ update = error "update property"
 delete :: PropertyId -> AuthenticatedAction (Entity Property)
 delete = error "delete property"
 
-revisions :: PropertyId -> Action [Rev a]
-revisions = error "property revisions"
+revisions :: PropertyId -> Pager Revision
+revisions = H.revisions
 
 instance FromText PropertyId where
   fromText = H.idFromText
@@ -66,13 +66,12 @@ instance FromJSON Property where
         propertyAliases    = ""
     return Property{..}
 
-instance ToJSON [Entity Property] where
-  toJSON ps = object [ "properties" .= map fmt ps ]
-    where
-      fmt (Entity _id Property{..}) = object
-        [ "id"   .= _id
-        , "name" .= propertyName
-        ]
+instance ToJSON (Page Property) where
+  toJSON = pageJSON "properties" $
+    \(Entity _id Property{..}) -> object
+      [ "id"   .= _id
+      , "name" .= propertyName
+      ]
 
 instance ToJSON (Entity Property) where
   toJSON (Entity _id Property{..}) = object

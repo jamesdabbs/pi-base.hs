@@ -32,7 +32,7 @@ mkUniverse :: ReaderT SqlBackend IO Universe
 mkUniverse = do
   spaces <- selectKeysList [] []
   pairs  <- mapM traitsFor spaces
-  return $ U.empty { uspaces = M.fromList pairs } -- FIXME
+  return $ U.empty { uspaces = M.fromList pairs }
 
   where
     toKeyPair :: Entity Trait -> (PropertyId, TValueId)
@@ -48,10 +48,11 @@ checkBooleans :: ReaderT SqlBackend IO ()
 checkBooleans = do
   get true  >>= assertNamed "True"
   get false >>= assertNamed "False"
+  liftIO $ putStrLn "Booleans are present and accounted for"
   where
     assertNamed :: Text -> Maybe TValue -> ReaderT SqlBackend IO ()
     assertNamed name mv = liftIO $ case mv of
       Nothing -> error . unpack $ name <> " not found"
-      Just v -> if name == (tValueName v)
-        then putStrLn . unpack $ name <> " OK!" -- FIXME
+      Just v  -> if name == (tValueName v)
+        then return () -- putStrLn . unpack $ name <> " OK!" -- FIXME
         else error . unpack $ name <> " has the wrong id"

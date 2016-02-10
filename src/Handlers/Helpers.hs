@@ -1,6 +1,7 @@
 {-# LANGUAGE FlexibleContexts  #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE GADTs             #-}
+{-# LANGUAGE RecordWildCards   #-}
 {-# LANGUAGE TypeOperators     #-}
 
 module Handlers.Helpers
@@ -13,6 +14,8 @@ module Handlers.Helpers
   , index
   , serve
   , idFromText
+  , getPage
+  , revisions
   ) where
 
 import Prelude hiding (show)
@@ -21,7 +24,7 @@ import Servant hiding (serve)
 import Base
 import Control.Monad.Trans.Reader    (runReaderT)
 import Control.Monad.Trans.Either    (EitherT)
-import Data.Aeson                    (encode)
+import Data.Aeson
 import Data.ByteString.Lazy          (ByteString)
 import Data.Text                     (unpack)
 import Database.Persist
@@ -33,8 +36,9 @@ import Text.Read                     (readMaybe)
 -- This is an _okay_ place to do that, but I don't love it ...
 import Api.Combinators ()
 
-import Models (runDB)
-import Util   (err422)
+import Models    (runDB)
+import Revisions
+import Util      (err422)
 
 
 halt :: ServantErr -> Action a
@@ -84,3 +88,21 @@ idFromText p = do
   case keyFromValues [PersistInt64 i] of
     Right key -> Just key
     Left    _ -> Nothing
+
+getPage' :: (PersistEntity a, PersistEntityBackend a ~ SqlBackend)
+         => [Filter a] -> [SelectOpt a] -> Pager a
+getPage' filters opts mpage mper = do
+  let pageNumber    = maybe  1 (max 1)          mpage
+      pagePer       = maybe 25 (max 1 . min 50) mper
+      offset        = pagePer * (pageNumber - 1)
+      allOpts       = opts ++ [LimitTo pagePer, OffsetBy offset]
+  pageResults <- runDB $ selectList filters allOpts
+  return $ Page{..}
+
+
+getPage :: (PersistEntity a, PersistEntityBackend a ~ SqlBackend)
+         => [Filter a] -> Pager a
+getPage fs = getPage' fs []
+
+revisions :: Revisable a => Key a -> Pager Revision
+revisions key = getPage' (revisionsFor key) [Desc RevisionCreatedAt]

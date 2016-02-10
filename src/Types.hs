@@ -11,6 +11,7 @@
 {-# LANGUAGE RecordWildCards            #-}
 {-# LANGUAGE TemplateHaskell            #-}
 {-# LANGUAGE TypeFamilies               #-}
+{-# LANGUAGE TypeOperators              #-}
 
 module Types where
 
@@ -23,17 +24,19 @@ import Control.Monad.Trans.Reader  (ReaderT)
 import Data.Aeson
 import Data.ByteString             (ByteString)
 import qualified Data.HashMap.Strict as HM
+import Data.Int                    (Int64)
 import Data.Map                    (Map)
 import Data.Set                    (Set)
 import Data.Text                   (Text)
 import Data.Time                   (UTCTime)
 import Data.Typeable               (Typeable)
+import Database.Persist.Postgresql (Entity)
 import Database.Persist.Postgresql (ConnectionPool)
 import Database.Persist.Quasi      (lowerCaseSettings)
 import Database.Persist.TH         (share, mkPersist, sqlSettings, mkMigrate, persistFileWith)
 import GHC.Generics                (Generic)
 import GHC.TypeLits                (Symbol)
-import Servant                     (ServantErr, Get, Post, Put, Delete, JSON, ReqBody)
+import Servant
 
 import Util (encodeText, decodeText)
 
@@ -103,10 +106,23 @@ type PUT     = Put     '[JSON]
 type DELETE  = Delete  '[JSON]
 type Body    = ReqBody '[JSON]
 
-type Rev a = Revision
-instance ToJSON (Rev a) where
-  toJSON _ = error "Rev ToJSON"
-
 data RequiredParam (sym :: Symbol) a deriving Typeable
 data DefaultParam (sym :: Symbol) a (d :: Symbol) deriving Typeable
 data Authenticated
+
+type Paginated a = QueryParam "page" Int :> QueryParam "per_page" Int :> GET (Page a)
+type Pager a = Maybe Int -> Maybe Int -> Action (Page a)
+data Page a = Page
+  { pageResults   :: [Entity a]
+  , pageNumber    :: Int
+  , pagePer       :: Int
+  }
+
+pageJSON :: Text -> (Entity a -> Value) -> Page a -> Value
+pageJSON key fmt Page{..} = object
+  [ "page" .= object
+      [ "number" .= pageNumber
+      , "per"    .= pagePer
+      ]
+  , key .= map fmt pageResults
+  ]

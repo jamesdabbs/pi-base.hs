@@ -18,13 +18,13 @@ import Servant
 import qualified Handlers.Helpers as H
 
 
-type API = GET [Entity Trait]
+type API = Paginated Trait
       :<|> Body Trait :> Authenticated :> POST (Entity Trait)
       :<|> Capture "trait_id" TraitId
            :> ( GET (Entity Trait)
+           :<|> "revisions" :> Paginated Revision
            :<|> Body Trait :> Authenticated :> PUT (Entity Trait)
            :<|> Authenticated :> DELETE (Entity Trait)
-           :<|> "revisions" :> GET [Rev Trait]
            )
 
 handlers :: Config -> Server API
@@ -33,14 +33,14 @@ handlers = H.serve $
   create :<|>
   ( \_id ->
     H.show    _id :<|>
+    revisions _id :<|>
     update    _id :<|>
-    delete    _id :<|>
-    revisions _id
+    delete    _id
   )
 
 
-index :: Action [Entity Trait]
-index = H.index
+index :: Pager Trait
+index = H.getPage []
 
 create :: Trait -> AuthenticatedAction (Entity Trait)
 create = error "create trait"
@@ -51,8 +51,8 @@ update = error "update trait"
 delete :: TraitId -> AuthenticatedAction (Entity Trait)
 delete = error "delete trait"
 
-revisions :: TraitId -> Action [Rev a]
-revisions = error "trait revisions"
+revisions :: TraitId -> Pager Revision
+revisions = H.revisions
 
 instance FromText TraitId where
   fromText = H.idFromText
@@ -60,13 +60,12 @@ instance FromText TraitId where
 instance FromJSON Trait where
   parseJSON = error "Trait parseJSON"
 
-instance ToJSON [Entity Trait] where
-  toJSON ps = object [ "traits" .= map fmt ps ]
-    where
-      fmt (Entity _id Trait{..}) = object
-        [ "id" .= _id
-        -- TODO
-        ]
+instance ToJSON (Page Trait) where
+  toJSON = pageJSON "traits" $
+    \(Entity _id Trait{..}) -> object
+      [ "id" .= _id
+      -- TODO
+      ]
 
 instance ToJSON (Entity Trait) where
   toJSON (Entity _id Trait{..}) = object

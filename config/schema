@@ -13,7 +13,7 @@ Email sql=emails
     UniqueEmail email
 
 Revision sql=revisions
-  itemId Int
+  itemId Int64
   itemClass Text
   body Text
   userId UserId

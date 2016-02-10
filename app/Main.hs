@@ -29,7 +29,6 @@ main = do
   port <- env "PORT" 8081
   pool <- mkPool mode
 
-  -- TODO: better logging for this part
   universe <- flip runSqlPool pool $ do
     doMigrations
     checkBooleans

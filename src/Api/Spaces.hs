@@ -20,13 +20,14 @@ import qualified Handlers.Helpers as H
 
 import Models (runDB)
 
-type API = GET [Entity Space]
+
+type API = Paginated Space
       :<|> Body Space :> Authenticated :> POST (Entity Space)
       :<|> Capture "space_id" SpaceId
            :> ( GET (Entity Space)
+           :<|> "revisions" :> Paginated Revision
            :<|> Body Space :> Authenticated :> PUT (Entity Space)
            :<|> Authenticated :> DELETE (Entity Space)
-           :<|> "revisions" :> GET [Rev Space]
            )
 
 handlers :: Config -> Server API
@@ -35,13 +36,13 @@ handlers = H.serve $
   create :<|>
   ( \_id ->
     H.show    _id :<|>
+    revisions _id :<|>
     update    _id :<|>
-    delete    _id :<|>
-    revisions _id
+    delete    _id
   )
 
-index :: Action [Entity Space]
-index = H.index
+index :: Pager Space
+index = H.getPage []
 
 create :: Space -> AuthenticatedAction (Entity Space)
 create s = H.withUser $ \_ -> do
@@ -55,8 +56,8 @@ update = error "update space"
 delete :: SpaceId -> AuthenticatedAction (Entity Space)
 delete = error "delete space"
 
-revisions :: SpaceId -> Action [Rev a]
-revisions = error "space revisions"
+revisions :: SpaceId -> Pager Revision
+revisions = H.revisions
 
 instance FromText SpaceId where
   fromText = H.idFromText
@@ -70,13 +71,12 @@ instance FromJSON Space where
         spaceProofOfTopology = Nothing
     return Space{..}
 
-instance ToJSON [Entity Space] where
-  toJSON ps = object [ "spaces" .= map fmt ps ]
-    where
-      fmt (Entity _id Space{..}) = object
-        [ "id" .= _id
-        , "name" .= spaceName
-        ]
+instance ToJSON (Page Space) where
+  toJSON = pageJSON "spaces" $
+    \(Entity _id Space{..}) -> object
+      [ "id"   .= _id
+      , "name" .= spaceName
+      ]
 
 instance ToJSON (Entity Space) where
   toJSON (Entity _id Space{..}) = object

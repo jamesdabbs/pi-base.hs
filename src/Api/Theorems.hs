@@ -17,13 +17,13 @@ import Servant
 
 import qualified Handlers.Helpers as H
 
-type API = GET [Entity Theorem]
+type API = Paginated Theorem
       :<|> Body Theorem :> Authenticated :> POST (Entity Theorem)
       :<|> Capture "theorem_id" TheoremId
            :> ( GET (Entity Theorem)
+           :<|> "revisions" :> Paginated Revision
            :<|> Body Theorem :> Authenticated :> PUT (Entity Theorem)
            :<|> Authenticated :> DELETE (Entity Theorem)
-           :<|> "revisions" :> GET [Rev Theorem]
            )
 
 handlers :: Config -> Server API
@@ -32,13 +32,13 @@ handlers = H.serve $
   create :<|>
   ( \_id ->
     H.show    _id :<|>
+    revisions _id :<|>
     update    _id :<|>
-    delete    _id :<|>
-    revisions _id
+    delete    _id
   )
 
-index :: Action [Entity Theorem]
-index = H.index
+index :: Pager Theorem
+index = H.getPage []
 
 create :: Theorem -> AuthenticatedAction (Entity Theorem)
 create = error "create theorem"
@@ -49,8 +49,8 @@ update = error "update theorem"
 delete :: TheoremId -> AuthenticatedAction (Entity Theorem)
 delete = error "delete theorem"
 
-revisions :: TheoremId -> Action [Rev a]
-revisions = error "theorem revisions"
+revisions :: TheoremId -> Pager Revision
+revisions = H.revisions
 
 instance FromText TheoremId where
   fromText = H.idFromText
@@ -58,13 +58,12 @@ instance FromText TheoremId where
 instance FromJSON Theorem where
   parseJSON = error "Theorem parseJSON"
 
-instance ToJSON [Entity Theorem] where
-  toJSON ps = object [ "spaces" .= map fmt ps ]
-    where
-      fmt (Entity _id Theorem{..}) = object
-        [ "id" .= _id
-        -- TODO
-        ]
+instance ToJSON (Page Theorem) where
+  toJSON = pageJSON "theorems" $
+    \(Entity _id Theorem{..}) -> object
+      [ "id" .= _id
+      -- TODO
+      ]
 
 instance ToJSON (Entity Theorem) where
   toJSON (Entity _id Theorem{..}) = object

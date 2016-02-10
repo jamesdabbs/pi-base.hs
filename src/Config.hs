@@ -18,8 +18,10 @@ mkLogger Development = logStdoutDev
 mkLogger Production = logStdout
 
 mkPool :: Environment -> IO ConnectionPool
-mkPool Test = runNoLoggingT  $ createPostgresqlPool (connStr Test) (envPool Test)
-mkPool e = runStdoutLoggingT $ createPostgresqlPool (connStr e) (envPool e)
+mkPool e = case e of
+  Test        ->     runNoLoggingT $ createPostgresqlPool (connStr e) (envPool e)
+  Development ->     runNoLoggingT $ createPostgresqlPool (connStr e) (envPool e)
+  _           -> runStdoutLoggingT $ createPostgresqlPool (connStr e) (envPool e)
 
 envPool :: Environment -> Int
 envPool Test = 1
