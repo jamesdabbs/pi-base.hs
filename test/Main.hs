@@ -48,6 +48,7 @@ allSpecs = do
 
   c <- runIO $ config
   let pool = getPool c
+  -- TODO: grok runIO vs beforeAll
   runIO $ runSqlPool doMigrations pool
 
 
@@ -56,9 +57,8 @@ allSpecs = do
       n <- flip runSqlPool pool $ count ([] :: [Filter Space])
       n `shouldBe` (0 :: Int)
 
-    with app $ appSpecs
-
-    actionSpecs c
+    with app appSpecs
+    with (return c) actionSpecs
 
 main :: IO ()
 main = hspec allSpecs

@@ -12,6 +12,7 @@ Major goals are:
 
 # TODOs
 
+* Serialize JSON types from database. Move off persistent?
 * Finish porting functionality (implementing the `error` calls)
 * Add a frontend
 * Figure out strategy for migration from Persona

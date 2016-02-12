@@ -40,31 +40,32 @@ lookupDB s p = do
     Nothing -> Nothing
     Just (Entity _ tr) -> Just $ traitValueId tr
 
-actionSpecs :: Config -> H.Spec
-actionSpecs c = do
-  let
-    run a = do
-      er <- runEitherT $ runReaderT (runAction a) c
-      case er of
-        Left err -> error $ show err
-        Right v  -> return v
+run :: Action a -> Config -> IO a
+run a c = do
+  er <- runEitherT $ runReaderT (runAction a) c
+  case er of
+    Left err -> error $ show err
+    Right v  -> return v
 
-  it "can persist to the database" $ do
-    rs <- run $ do
-      p <- property
-      q <- property
-      r <- property
+yields :: (Show a, Eq a) => Action a -> a -> Action ()
+yields action result = do
+  real <- action
+  liftIO $ shouldBe real result
 
-      s <- space
+actionSpecs :: H.SpecWith Config
+actionSpecs = do
+  it "can persist to the database" $ run $ do
+    p <- property
+    q <- property
+    r <- property
 
-      _ <- assertTheorem $ t p =>. t q
-      _ <- assertTheorem $ t q =>. f r
-      _ <- assertTrait   $ s |= p
+    s <- space
 
-      -- TODO: figure out how to lift assertions to here
-      r1 <- lookupU  s p
-      r2 <- lookupDB s p
-      r3 <- lookupU  s r
-      r4 <- lookupDB s r
-      return (r1, r2, r3, r4)
-    rs `shouldBe` (Just true, Just true, Just false, Just false)
+    _ <- assertTheorem $ t p =>. t q
+    _ <- assertTheorem $ t q =>. f r
+    _ <- assertTrait   $ s |= p
+
+    lookupU  s p `yields` Just true
+    lookupDB s p `yields` Just true
+    lookupU  s r `yields` Just false
+    lookupDB s r `yields` Just false
