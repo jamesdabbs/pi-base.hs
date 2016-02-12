@@ -19,6 +19,7 @@ import qualified Database.Persist as DB
 import qualified Handlers.Helpers as H
 
 import Models (runDB)
+import Revisions (saveRevision)
 
 
 type API = Paginated Space
@@ -45,10 +46,11 @@ index :: Pager Space
 index = H.getPage []
 
 create :: Space -> AuthenticatedAction (Entity Space)
-create s = H.withUser $ \_ -> do
+create s = H.withUser $ \user -> do
   _id <- runDB $ DB.insert s
-  -- TODO: record user / revision
-  return $ Entity _id s
+  let space = Entity _id s
+  saveRevision user space
+  return space
 
 update :: SpaceId -> Space -> AuthenticatedAction (Entity Space)
 update = error "update space"
@@ -64,11 +66,9 @@ instance FromText SpaceId where
 
 instance FromJSON Space where
   parseJSON = withObject "space" $ \o -> do
-    spaceName        <- o .: "name"
-    spaceDescription <- o .: "description"
-    let spaceCreatedAt       = Nothing
-        spaceUpdatedAt       = Nothing
-        spaceProofOfTopology = Nothing
+    spaceName            <- o .:  "name"
+    spaceDescription     <- o .:  "description"
+    spaceProofOfTopology <- o .:? "proof_of_topology"
     return Space{..}
 
 instance ToJSON (Page Space) where

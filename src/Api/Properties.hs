@@ -13,10 +13,13 @@ module Api.Properties
 
 import Base
 import Data.Aeson
+import qualified Database.Persist as DB
 import Servant
 
 import qualified Handlers.Helpers as H
-import Util (forceKey)
+import Models (runDB)
+import Revisions (saveRevision)
+import Util (toSqlKey)
 
 type API = Paginated Property
      :<|> Body Property :> Authenticated :> POST (Entity Property)
@@ -42,7 +45,11 @@ index :: Pager Property
 index = H.getPage []
 
 create :: Property -> AuthenticatedAction (Entity Property)
-create = error "create property"
+create p = H.withUser $ \user -> do
+  _id <- runDB $ DB.insert p
+  let prop = Entity _id p
+  saveRevision user prop
+  return prop
 
 update :: PropertyId -> Property -> AuthenticatedAction (Entity Property)
 update = error "update property"
@@ -60,9 +67,7 @@ instance FromJSON Property where
   parseJSON = withObject "property" $ \o -> do
     propertyName        <- o .: "name"
     propertyDescription <- o .: "description"
-    let propertyCreatedAt  = Nothing
-        propertyUpdatedAt  = Nothing
-        propertyValueSetId = forceKey 1
+    let propertyValueSetId = toSqlKey 1
         propertyAliases    = ""
     return Property{..}
 

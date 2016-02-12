@@ -15,7 +15,7 @@
 
 module Types where
 
-import Control.Concurrent.STM.TVar (TVar)
+import Control.Concurrent.MVar     (MVar)
 import Control.Monad               (liftM, mzero)
 import Control.Monad.Reader        (MonadReader)
 import Control.Monad.IO.Class      (MonadIO)
@@ -50,7 +50,7 @@ instance ToJSON Environment where
 data Config = Config
   { getEnv  :: Environment
   , getPool :: ConnectionPool
-  , getUVar :: TVar Universe
+  , getUVar :: MVar Universe
   }
 
 newtype Action a = Action
@@ -62,7 +62,7 @@ data SearchType = ByFormula | ByText deriving (Eq, Show, Generic)
 data Formula a = Atom a Bool
                | And  [Formula a]
                | Or   [Formula a]
-               deriving (Eq,Functor)
+               deriving (Show, Eq,Functor)
 
 instance ToJSON a => ToJSON (Formula a) where
   toJSON (Atom p v) = object [encodeText p .= v]
@@ -86,17 +86,25 @@ data Universe = Universe
   { uspaces      :: Map SpaceId Properties
   , utheorems    :: Map TheoremId Implication
   , urelTheorems :: Map PropertyId [TheoremId]
-  }
+  } deriving Show
 
-data Implication = Implication (Formula PropertyId) (Formula PropertyId)
+data Implication = Implication (Formula PropertyId) (Formula PropertyId) Text deriving Show
+
+instance ToJSON Implication where
+  toJSON (Implication a c d) = object
+    [ "antecedent"  .= a
+    , "consequent"  .= c
+    , "description" .= d
+    ]
 
 data MatchMode = Yes | No | Unknown deriving (Eq, Show, Generic)
 
 type AuthToken = ByteString
 
-
--- Proved property, used theorem, assumed properties
-data Proof' = Proof' PropertyId TheoremId (Set PropertyId)
+-- TheoremId = Nothing indicates that this proof would depend on a
+--   particular newly added theorem, which should be clear from context
+data Proof' = Proof' Trait TheoremId (Set PropertyId)
+type Deductions = [Proof']
 
 type AuthenticatedAction a = AuthToken -> Action a
 

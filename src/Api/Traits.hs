@@ -13,9 +13,14 @@ module Api.Traits
 
 import Base
 import Data.Aeson
+import Database.Persist (getBy)
 import Servant
 
+import Actions (assertTrait)
 import qualified Handlers.Helpers as H
+import qualified Logic as L
+import Models (runDB)
+import Revisions (saveRevision)
 
 
 type API = Paginated Trait
@@ -43,7 +48,11 @@ index :: Pager Trait
 index = H.getPage []
 
 create :: Trait -> AuthenticatedAction (Entity Trait)
-create = error "create trait"
+create t@Trait{..} = H.withUser $ \user -> do
+  -- TODO: what happens on e.g. a database failure?
+  et <- assertTrait t
+  saveRevision user et
+  return et
 
 update :: TraitId -> Trait -> AuthenticatedAction (Entity Trait)
 update = error "update trait"

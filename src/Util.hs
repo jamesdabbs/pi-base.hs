@@ -5,19 +5,20 @@
 module Util
   ( encodeText
   , decodeText
+  , eitherDecodeText
   , err422
   , intersectN
   , unionN
-  , forceKey
   , flatMapM
+  , toSqlKey
+  , fromSqlKey
   ) where
 
 import Data.Aeson
-import Data.Int           (Int64)
-import Data.Text          (Text, unpack)
-import Data.Text.Encoding (encodeUtf8, decodeUtf8)
-import Database.Persist   (Key, PersistEntity(..), PersistValue(..), keyFromValues)
-import Servant            (ServantErr(..))
+import Data.Text            (Text)
+import Data.Text.Encoding   (encodeUtf8, decodeUtf8)
+import Database.Persist.Sql (toSqlKey, fromSqlKey)
+import Servant              (ServantErr(..))
 
 import qualified Data.ByteString.Lazy as LBS
 import qualified Data.Set             as S
@@ -27,6 +28,9 @@ decodeText = decode . LBS.fromStrict . encodeUtf8
 
 encodeText :: ToJSON a => a -> Text
 encodeText = decodeUtf8 . LBS.toStrict . encode
+
+eitherDecodeText :: FromJSON a => Text -> Either String a
+eitherDecodeText = eitherDecode . LBS.fromStrict . encodeUtf8
 
 instance ToJSON ServantErr where
   toJSON err = object
@@ -48,11 +52,6 @@ intersectN ls = foldl1 S.intersection ls
 
 unionN :: Ord a => [S.Set a] -> S.Set a
 unionN = foldl S.union S.empty
-
-forceKey :: PersistEntity rec => Int64 -> Key rec
-forceKey n = case keyFromValues [PersistInt64 n] of
-  Right key -> key
-  Left    e -> error $ unpack e
 
 flatMapM :: (Monad m, Traversable t) => (a -> m [b]) -> t a -> m [b]
 flatMapM f m = mapM f m >>= return . concat

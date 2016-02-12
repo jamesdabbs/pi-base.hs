@@ -1,23 +1,23 @@
 User sql=remote_users
-    ident Text
-    name Text Maybe
-    admin Bool
-    createdAt UTCTime Maybe default=now()
-    lastLoggedInAt UTCTime Maybe default=now()
-    UniqueUser ident
+  ident Text
+  name Text Maybe
+  admin Bool
+  createdAt UTCTime Maybe default=now()
+  lastLoggedInAt UTCTime Maybe default=now()
+  UniqueUser ident
 
 Email sql=emails
-    email Text
-    userId UserId Maybe
-    verkey Text Maybe
-    UniqueEmail email
+  email Text
+  userId UserId Maybe
+  verkey Text Maybe
+  UniqueEmail email
 
 Revision sql=revisions
   itemId Int64
   itemClass Text
   body Text
   userId UserId
-  createdAt UTCTime
+  createdAt UTCTime Maybe default=now()
   deletes Bool default=False
 
 ValueSet sql=value_sets
@@ -32,12 +32,9 @@ TValue sql=values
   createdAt UTCTime
   updatedAt UTCTime
 
--- TODO: auto-update timestamps
 Space sql=spaces
   name Text
   description Text
-  createdAt UTCTime Maybe default=now()
-  updatedAt UTCTime Maybe default=now()
   proofOfTopology Text Maybe
 
 Property sql=properties
@@ -45,16 +42,12 @@ Property sql=properties
   aliases Text default='[]'
   description Text
   valueSetId ValueSetId
-  createdAt UTCTime Maybe default=now()
-  updatedAt UTCTime Maybe default=now()
 
 Trait sql=traits
   spaceId SpaceId
   propertyId PropertyId
   valueId TValueId
   description Text
-  createdAt UTCTime Maybe default=now()
-  updatedAt UTCTime Maybe default=now()
   deduced Bool
   TraitSP spaceId propertyId
 
@@ -63,8 +56,6 @@ Theorem sql=theorems
   consequent Text
   description Text
   converseIds Text
-  createdAt UTCTime
-  updatedAt UTCTime
 
 -- This table is here simply to make it easier to
 --   execute the common "what theorems involve this
@@ -79,8 +70,7 @@ TheoremProperty sql=theorem_properties
 Proof sql=proofs
   traitId TraitId
   theoremId TheoremId
-  createdAt UTCTime
-  updatedAt UTCTime
+  createdAt UTCTime Maybe default=now()
   UProofTrait traitId
 
 Assumption sql=assumptions

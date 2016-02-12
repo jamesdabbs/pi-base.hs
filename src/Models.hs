@@ -13,7 +13,7 @@ module Models where
 import Base
 import qualified Universe as U
 
-import Control.Monad.Reader   (MonadReader, ReaderT)
+import Control.Monad.Reader   (MonadReader)
 import Control.Monad.IO.Class (MonadIO)
 import qualified Data.Map as M
 import Data.Text (unpack)

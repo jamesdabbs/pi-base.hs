@@ -2,7 +2,7 @@
 
 module Main (main) where
 
-import Control.Concurrent.STM.TVar (newTVarIO)
+import Control.Concurrent.MVar (newMVar)
 import Database.Persist.Postgresql (runSqlPool)
 import Network.Wai.Handler.Warp
 -- import Servant
@@ -33,7 +33,7 @@ main = do
     doMigrations
     checkBooleans
     mkUniverse
-  tu <- newTVarIO universe
+  tu <- newMVar universe
 
   let conf   = Config { getPool = pool, getEnv = mode, getUVar = tu }
       logger = mkLogger mode

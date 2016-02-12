@@ -54,7 +54,7 @@ server c =  Spaces.handlers     c
        :<|> serveDirectory "public"
        where
          handlers = H.serve $
-           search
+                search
 
 
 instance FromText SearchType where
@@ -74,4 +74,7 @@ instance FromText TValueId where
   fromText       _ = Nothing
 
 mkApp :: Config -> Application
-mkApp = serve (Proxy :: Proxy API) . server
+mkApp = serve proxy . xserver
+  where
+    proxy     = Proxy :: Proxy (API :<|> Raw)
+    xserver c = server c :<|> serveDirectory "public"

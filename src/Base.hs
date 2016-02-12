@@ -2,12 +2,12 @@ module Base
   ( module Base
   ) where
 
-import Control.Monad              as Base (forM_, unless, when)
+import Control.Monad              as Base (forM, forM_, unless, when, void)
 import Control.Monad.IO.Class     as Base (liftIO)
 import Control.Monad.State        as Base (State)
 import Control.Monad.Trans        as Base (lift)
-import Control.Monad.Trans.Either as Base (left)
-import Control.Monad.Reader       as Base (asks)
+import Control.Monad.Trans.Either as Base (left, runEitherT)
+import Control.Monad.Reader       as Base (ReaderT, ask, asks, runReaderT)
 import Data.Int                   as Base (Int64)
 import Data.Map                   as Base (Map)
 import Data.Maybe                 as Base (fromMaybe)

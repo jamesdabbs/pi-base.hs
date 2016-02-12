@@ -22,7 +22,6 @@ import Prelude hiding (show)
 import Servant hiding (serve)
 
 import Base
-import Control.Monad.Trans.Reader    (runReaderT)
 import Control.Monad.Trans.Either    (EitherT)
 import Data.Aeson
 import Data.ByteString.Lazy          (ByteString)

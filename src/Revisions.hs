@@ -1,3 +1,4 @@
+{-# LANGUAGE FlexibleContexts     #-}
 {-# LANGUAGE FlexibleInstances    #-}
 {-# LANGUAGE OverloadedStrings    #-}
 {-# LANGUAGE RecordWildCards      #-}
@@ -8,14 +9,18 @@
 module Revisions
   ( Revisable
   , revisionsFor
+  , saveRevision
   ) where
 
 import Base
+import Models (runDB)
+import Util (fromSqlKey, encodeText)
 
 import Data.Aeson
 import Database.Persist
+import Database.Persist.Sql
 
-class PersistEntity a => Revisable a where
+class (PersistEntity a, ToBackendKey SqlBackend a) => Revisable a where
   revisionClassName :: Key a -> Text
 
 instance Revisable Property where
@@ -42,10 +47,18 @@ instance ToJSON (Page Revision) where
 instance ToJSON Revision where
   toJSON = error "ToJSON Revision"
 
-idToInt :: PersistEntity a => Key a -> Int64
-idToInt k = case keyToValues k of
-  [PersistInt64 n] -> n
-  _ -> error "Can't coerce key to a single integer"
-
 revisionsFor :: Revisable a => Key a -> [Filter Revision]
-revisionsFor _id = [RevisionItemId ==. idToInt _id, RevisionItemClass ==. revisionClassName _id]
+revisionsFor _id = [RevisionItemId ==. fromSqlKey _id, RevisionItemClass ==. revisionClassName _id]
+
+saveRevision :: Revisable a => Entity User -> Entity a -> Action ()
+saveRevision (Entity userId _) obj@(Entity _id _) =
+  void . runDB . insert $ Revision
+    { revisionItemId    = fromSqlKey _id
+    , revisionItemClass = revisionClassName _id
+    -- FIXME: the ToJSON instances for these objects have changed,
+    --   but the revision bodies need to be backwards compatible
+    , revisionBody      = ""
+    , revisionUserId    = userId
+    , revisionCreatedAt = Nothing
+    , revisionDeletes   = False
+    }

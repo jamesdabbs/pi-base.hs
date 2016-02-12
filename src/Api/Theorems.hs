@@ -15,7 +15,9 @@ import Base
 import Data.Aeson
 import Servant
 
+import Actions (assertTheorem)
 import qualified Handlers.Helpers as H
+import Revisions (saveRevision)
 
 type API = Paginated Theorem
       :<|> Body Theorem :> Authenticated :> POST (Entity Theorem)
@@ -41,7 +43,10 @@ index :: Pager Theorem
 index = H.getPage []
 
 create :: Theorem -> AuthenticatedAction (Entity Theorem)
-create = error "create theorem"
+create t = H.withUser $ \user -> do
+  error "Not implemented: theorem create"
+  -- saveRevision user et
+  -- return et
 
 update :: TheoremId -> Theorem -> AuthenticatedAction (Entity Theorem)
 update = error "update theorem"

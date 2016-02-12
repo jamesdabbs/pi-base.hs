@@ -1,5 +1,13 @@
-{-# LANGUAGE RecordWildCards #-}
-module Logic where
+{-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE RecordWildCards   #-}
+
+module Logic
+  ( assertTrait'
+  , assertTheorem'
+  , check
+  , search
+  , provisional
+  ) where
 
 import Control.Monad.State (gets)
 import qualified Data.Map as M
@@ -9,11 +17,23 @@ import qualified Data.Set as S
 import Base
 import Formula (neg, true, false)
 import qualified Universe as U
-import Util (flatMapM, unionN)
+import Util (flatMapM, unionN, toSqlKey)
 
+provisional :: TheoremId
+provisional = toSqlKey (-1)
 
-assertTrait :: Trait -> State Universe [Proof']
-assertTrait Trait{..} = do
+search :: Formula PropertyId -> MatchMode -> Universe -> [SpaceId]
+search f mode = map fst . filter matches . M.toList . uspaces
+  where
+    matches (_,props) = mode == (fst $ check props f)
+
+counterexamples :: Implication -> Universe -> [SpaceId]
+counterexamples (Implication ant con _) = search f Yes
+  where
+    f = And [ant, neg con]
+
+assertTrait' :: Trait -> State Universe Deductions
+assertTrait' Trait{..} = do
   found <- gets $ U.lookup traitSpaceId traitPropertyId
   case found of
     -- TODO: differentiate "already known" from "incorrect"
@@ -22,15 +42,27 @@ assertTrait Trait{..} = do
       U.insertTrait traitSpaceId traitPropertyId traitValueId
       checkImplications traitSpaceId traitPropertyId
 
-checkImplications :: SpaceId -> PropertyId -> State Universe [Proof']
+assertTheorem' :: Implication -> State Universe Deductions
+assertTheorem' i@(Implication ant con _) = do
+  cxs <- gets $ counterexamples i
+  if null cxs
+     then do
+       U.insertTheorem provisional i
+       -- TODO: can tighten this query up
+       unknowns <- gets $ search (Or [ant, con]) Unknown
+       let apply s = applyTheorem s (provisional, i)
+       flatMapM apply unknowns
+     else return []
+
+checkImplications :: SpaceId -> PropertyId -> State Universe Deductions
 checkImplications sid pid = do
   rt     <- gets $ U.relevantTheorems pid
   next   <- flatMapM (applyTheorem sid) rt
-  result <- flatMapM (\(Proof' p _ _) -> checkImplications sid p) $ next
+  result <- flatMapM (\(Proof' t _ _) -> checkImplications sid $ traitPropertyId t) $ next
   return $ next ++ result
 
-applyTheorem :: SpaceId -> (TheoremId, Implication) -> State Universe [Proof']
-applyTheorem sid (tid, (Implication ant con)) = do
+applyTheorem :: SpaceId -> (TheoremId, Implication) -> State Universe Deductions
+applyTheorem sid (tid, (Implication ant con _)) = do
   props <- gets $ U.attributes sid
   case check props ant of
     (No, _)         -> return []
@@ -48,7 +80,8 @@ applyTheorem sid (tid, (Implication ant con)) = do
          else do
            let tv = if v then true else false
            U.insertTrait sid pid tv
-           return [Proof' pid tid evidence]
+           let trait = Trait sid pid tv "" True
+           return [Proof' trait tid evidence]
 
     force (And sf) evidence = flatMapM (flip force evidence) sf
     force (Or  sf) evidence = do
@@ -65,12 +98,10 @@ filterMatch :: MatchMode -> [(MatchMode, a)] -> Maybe a
 filterMatch t pairs = listToMaybe [ts | (m, ts) <- pairs, m == t]
 
 tValToBool :: TValueId -> Bool
-tValToBool tv =
-  if tv == true
-     then True
-     else if tv == false
-             then False
-                  else error "Can't coerce TVal to Bool"
+tValToBool tv
+  | tv == true  = True
+  | tv == false = False
+  | otherwise   = error "Can't coerce TVal to Bool"
 
 -- TODO: should be able to clean this up
 check :: Properties -> Formula PropertyId -> (MatchMode, Set PropertyId)

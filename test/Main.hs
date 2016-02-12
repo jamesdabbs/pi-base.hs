@@ -9,26 +9,32 @@ import Network.Wai                 (Application)
 import Test.Hspec
 import Test.Hspec.Wai
 
-import Control.Concurrent.STM.TVar (newTVarIO)
+import Control.Concurrent.MVar (newMVar)
 
 import Config (mkPool)
 import Api    (mkApp)
 import Models (doMigrations)
 import qualified Universe as U
 
-import Spec.App   (appSpecs)
-import Spec.Logic (logicSpecs)
+import Spec.Action (actionSpecs)
+import Spec.App    (appSpecs)
+import Spec.Logic  (logicSpecs)
 
-app :: IO Application
-app = do
-  tu   <- newTVarIO $ U.empty
+config :: IO Config
+config = do
+  tu   <- newMVar $ U.empty
   pool <- mkPool Test
 
-  return $ mkApp $ Config
+  return $ Config
     { getEnv  = Test
     , getPool = pool
     , getUVar = tu
     }
+
+app :: IO Application
+app = do
+  c <- config
+  return $ mkApp c
 
 reset :: ConnectionPool -> IO ()
 reset = runSqlPool $ do
@@ -40,8 +46,10 @@ allSpecs :: Spec
 allSpecs = do
   logicSpecs
 
-  pool <- runIO $ mkPool Test
+  c <- runIO $ config
+  let pool = getPool c
   runIO $ runSqlPool doMigrations pool
+
 
   before (reset pool) $ do
     it "resets between specs" $ do
@@ -49,6 +57,8 @@ allSpecs = do
       n `shouldBe` (0 :: Int)
 
     with app $ appSpecs
+
+    actionSpecs c
 
 main :: IO ()
 main = hspec allSpecs

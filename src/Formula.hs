@@ -8,6 +8,7 @@ module Formula
   , (||.)
   , (=>.)
   , (~.)
+  , (|=)
   , true
   , false
   ) where
@@ -15,11 +16,11 @@ module Formula
 import qualified Data.Set as S
 
 import Base
-import Util (unionN, forceKey)
+import Util (unionN, toSqlKey)
 
 true, false :: TValueId
-true  = forceKey 1
-false = forceKey 2
+true  = toSqlKey 1
+false = toSqlKey 2
 
 neg :: Formula a -> Formula a
 neg (Atom p True)  = Atom p False
@@ -33,15 +34,19 @@ formulaProperties (And  sf ) = unionN . map formulaProperties $ sf
 formulaProperties (Or   sf ) = unionN . map formulaProperties $ sf
 
 implicationProperties :: Implication -> Set PropertyId
-implicationProperties (Implication a c) =
+implicationProperties (Implication a c _) =
   formulaProperties a `S.union` formulaProperties c
 
 
 -- The following helpers are primarily intended to allow more expressive specs
 --   and probably shouldn't be used in application code
 
+fromBool :: Bool -> TValueId
+fromBool True = true
+fromBool    _ = false
+
 (==.) :: Int64 -> Bool -> Formula PropertyId
-(==.) p v = Atom (forceKey p) v
+(==.) p v = Atom (toSqlKey p) v
 
 (&&.) :: Formula a -> Formula a -> Formula a
 (&&.) f (And sf) = And (f:sf)
@@ -54,9 +59,10 @@ implicationProperties (Implication a c) =
 (||.) f1 f2 = Or [f1, f2]
 
 (~.) :: (Int64, Int64) -> Bool -> Trait
-(~.) (sid,pid) tf = Trait (forceKey sid) (forceKey pid) tv "" Nothing Nothing False
-  where
-    tv = if tf then true else false
+(~.) (sid,pid) tf = Trait (toSqlKey sid) (toSqlKey pid) (fromBool tf) "" False
 
 (=>.) :: Formula PropertyId -> Formula PropertyId -> Implication
-(=>.) = Implication
+(=>.) a c = Implication a c ""
+
+(|=) :: SpaceId -> PropertyId -> Trait
+(|=) s p = Trait s p true "" False
