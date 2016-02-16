@@ -18,4 +18,5 @@ import Data.Text.Encoding         as Base (encodeUtf8, decodeUtf8)
 import Data.Time                  as Base (getCurrentTime)
 import Database.Persist           as Base (Entity(..), Key)
 
-import Types as Base
+import Types    as Base
+import Universe as Base (Universe)

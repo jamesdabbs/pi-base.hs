@@ -15,15 +15,15 @@ module Api
   , mkApp
   ) where
 
-import Base
+import Api.Base
 
 import Data.Aeson
 import Network.Wai (Application)
 import Servant
 
-import Formula (true, false)
-import Handlers
-import qualified Handlers.Helpers as H
+import Api.Search
+import qualified Api.Helpers as H
+import Models (true, false)
 
 import qualified Api.Spaces     as Spaces
 import qualified Api.Properties as Properties

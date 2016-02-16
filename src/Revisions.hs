@@ -10,11 +10,12 @@ module Revisions
   ( Revisable
   , revisionsFor
   , saveRevision
+  , logDeletion
   ) where
 
 import Base
 import Models (runDB)
-import Util (fromSqlKey, encodeText)
+import Pager (pageJSON)
 
 import Data.Aeson
 import Database.Persist
@@ -62,3 +63,6 @@ saveRevision (Entity userId _) obj@(Entity _id _) =
     , revisionCreatedAt = Nothing
     , revisionDeletes   = False
     }
+
+logDeletion :: Revisable a => Entity User -> Entity a -> Action ()
+logDeletion = error "logDeletion"

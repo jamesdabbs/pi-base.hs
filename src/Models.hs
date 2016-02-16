@@ -19,8 +19,11 @@ import qualified Data.Map as M
 import Data.Text (unpack)
 import Database.Persist
 import Database.Persist.Postgresql (SqlBackend(..), runMigration, runSqlPool, SqlPersistT)
+import Util (toSqlKey)
 
-import Formula (true, false)
+true, false :: TValueId
+true  = toSqlKey 1
+false = toSqlKey 2
 
 doMigrations :: ReaderT SqlBackend IO ()
 doMigrations = runMigration migrateAll
@@ -28,17 +31,17 @@ doMigrations = runMigration migrateAll
 runDB :: (MonadReader Config m, Monad m, MonadIO m) => SqlPersistT IO a -> m a
 runDB q = asks getPool >>= liftIO . runSqlPool q
 
-mkUniverse :: ReaderT SqlBackend IO Universe
+mkUniverse :: ReaderT SqlBackend IO U.Universe
 mkUniverse = do
   spaces <- selectKeysList [] []
   pairs  <- mapM traitsFor spaces
-  return $ U.empty { uspaces = M.fromList pairs }
+  return $ U.fromPairs pairs
 
   where
     toKeyPair :: Entity Trait -> (PropertyId, TValueId)
     toKeyPair (Entity _ Trait{..}) = (traitPropertyId, traitValueId)
 
-    traitsFor :: SpaceId -> ReaderT SqlBackend IO (SpaceId, Properties)
+    traitsFor :: SpaceId -> ReaderT SqlBackend IO (SpaceId, U.Properties)
     traitsFor _sid = do
       traits <- selectList [TraitSpaceId ==. _sid] []
       let pairs = M.fromList . map toKeyPair $ traits

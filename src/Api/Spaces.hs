@@ -11,16 +11,13 @@ module Api.Spaces
   , handlers
   ) where
 
-import Base
+import Prelude hiding (show)
+
+import Api.Base
+import Api.Helpers
 import Data.Aeson
-import Servant
 
-import qualified Database.Persist as DB
-import qualified Handlers.Helpers as H
-
-import Models (runDB)
-import Revisions (saveRevision)
-
+import qualified Models.Space as Space
 
 type API = Paginated Space
       :<|> Body Space :> Authenticated :> POST (Entity Space)
@@ -32,37 +29,18 @@ type API = Paginated Space
            )
 
 handlers :: Config -> Server API
-handlers = H.serve $
-  index  :<|>
-  create :<|>
+handlers = serve $
+  getPage [] :<|>
+  withUser . Space.create :<|>
   ( \_id ->
-    H.show    _id :<|>
+    get404    _id :<|>
     revisions _id :<|>
-    update    _id :<|>
-    delete    _id
+    withUser . Space.update _id :<|>
+    (withUser $ Space.delete _id)
   )
 
-index :: Pager Space
-index = H.getPage []
-
-create :: Space -> AuthenticatedAction (Entity Space)
-create s = H.withUser $ \user -> do
-  _id <- runDB $ DB.insert s
-  let space = Entity _id s
-  saveRevision user space
-  return space
-
-update :: SpaceId -> Space -> AuthenticatedAction (Entity Space)
-update = error "update space"
-
-delete :: SpaceId -> AuthenticatedAction (Entity Space)
-delete = error "delete space"
-
-revisions :: SpaceId -> Pager Revision
-revisions = H.revisions
-
 instance FromText SpaceId where
-  fromText = H.idFromText
+  fromText = idFromText
 
 instance FromJSON Space where
   parseJSON = withObject "space" $ \o -> do
@@ -85,4 +63,3 @@ instance ToJSON (Entity Space) where
     , "description"       .= spaceDescription
     , "proof_of_topology" .= spaceProofOfTopology
     ]
-

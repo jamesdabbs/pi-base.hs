@@ -11,14 +11,11 @@ module Api.Properties
   , handlers
   ) where
 
-import Base
+import Api.Base
 import Data.Aeson
-import qualified Database.Persist as DB
-import Servant
+import qualified Models.Property as Property
 
-import qualified Handlers.Helpers as H
-import Models (runDB)
-import Revisions (saveRevision)
+import Api.Helpers
 import Util (toSqlKey)
 
 type API = Paginated Property
@@ -31,44 +28,25 @@ type API = Paginated Property
           )
 
 handlers :: Config -> Server API
-handlers = H.serve $
-  index  :<|>
-  create :<|>
+handlers = serve $
+  getPage [] :<|>
+  withUser . Property.create :<|>
   ( \_id ->
-    H.show    _id :<|>
+    get404    _id :<|>
     revisions _id :<|>
-    update    _id :<|>
-    delete    _id
+    withUser . Property.update _id :<|>
+    (withUser $ Property.delete _id)
   )
 
-index :: Pager Property
-index = H.getPage []
-
-create :: Property -> AuthenticatedAction (Entity Property)
-create p = H.withUser $ \user -> do
-  _id <- runDB $ DB.insert p
-  let prop = Entity _id p
-  saveRevision user prop
-  return prop
-
-update :: PropertyId -> Property -> AuthenticatedAction (Entity Property)
-update = error "update property"
-
-delete :: PropertyId -> AuthenticatedAction (Entity Property)
-delete = error "delete property"
-
-revisions :: PropertyId -> Pager Revision
-revisions = H.revisions
-
 instance FromText PropertyId where
-  fromText = H.idFromText
+  fromText = idFromText
 
 instance FromJSON Property where
   parseJSON = withObject "property" $ \o -> do
     propertyName        <- o .: "name"
     propertyDescription <- o .: "description"
     let propertyValueSetId = toSqlKey 1
-        propertyAliases    = ""
+        propertyAliases    = []
     return Property{..}
 
 instance ToJSON (Page Property) where
@@ -84,4 +62,3 @@ instance ToJSON (Entity Property) where
     , "name"              .= propertyName
     , "description"       .= propertyDescription
     ]
-

@@ -9,20 +9,20 @@ import Prelude hiding (lookup)
 
 import Base
 import Actions (getUniverse, assertTrait, assertTheorem)
-import Formula
-import Models (runDB)
+import Models (runDB, true, false)
 import Universe
 import Util (toSqlKey)
 
 import Database.Persist (insert, getBy)
 import Test.Hspec
 import qualified Test.Hspec as H
+import Spec.Helpers
 
 space :: Action SpaceId
 space = runDB . insert $ Space "" "" Nothing
 
 property :: Action PropertyId
-property = runDB . insert $ Property "" "" "" (toSqlKey 1)
+property = runDB . insert $ Property "" [] "" (toSqlKey 1)
 
 t,f :: PropertyId -> Formula PropertyId
 t p = Atom p True

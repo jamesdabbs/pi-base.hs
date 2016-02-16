@@ -11,17 +11,11 @@ module Api.Traits
   , handlers
   ) where
 
-import Base
+import Api.Base
+import Api.Helpers
 import Data.Aeson
-import Database.Persist (getBy)
-import Servant
 
-import Actions (assertTrait)
-import qualified Handlers.Helpers as H
-import qualified Logic as L
-import Models (runDB)
-import Revisions (saveRevision)
-
+import qualified Models.Trait as Trait
 
 type API = Paginated Trait
       :<|> Body Trait :> Authenticated :> POST (Entity Trait)
@@ -33,38 +27,18 @@ type API = Paginated Trait
            )
 
 handlers :: Config -> Server API
-handlers = H.serve $
-  index  :<|>
-  create :<|>
+handlers = serve $
+  getPage [] :<|>
+  withUser . Trait.create :<|>
   ( \_id ->
-    H.show    _id :<|>
+    get404    _id :<|>
     revisions _id :<|>
-    update    _id :<|>
-    delete    _id
+    withUser . Trait.update _id :<|>
+    (withUser $ Trait.delete _id)
   )
 
-
-index :: Pager Trait
-index = H.getPage []
-
-create :: Trait -> AuthenticatedAction (Entity Trait)
-create t@Trait{..} = H.withUser $ \user -> do
-  -- TODO: what happens on e.g. a database failure?
-  et <- assertTrait t
-  saveRevision user et
-  return et
-
-update :: TraitId -> Trait -> AuthenticatedAction (Entity Trait)
-update = error "update trait"
-
-delete :: TraitId -> AuthenticatedAction (Entity Trait)
-delete = error "delete trait"
-
-revisions :: TraitId -> Pager Revision
-revisions = H.revisions
-
 instance FromText TraitId where
-  fromText = H.idFromText
+  fromText = idFromText
 
 instance FromJSON Trait where
   parseJSON = error "Trait parseJSON"

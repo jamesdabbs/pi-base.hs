@@ -1,6 +1,8 @@
 {-# LANGUAGE RecordWildCards   #-}
 module Universe
-  ( empty
+  ( Universe
+  , Properties
+  , empty
   , attributes
   , contains
   , insertTrait
@@ -9,19 +11,28 @@ module Universe
   , relevantTheorems
   , moveTheorem
   , table
+  , fromPairs
+  , toPairs
   ) where
 
 import Prelude hiding (lookup)
-import Base
-import Formula (implicationProperties)
+import Models.Types
+import Formula (Implication(..), implicationProperties)
 import Util (encodeText)
 
-import Control.Monad.State (modify, gets)
+import Control.Monad.State (State, modify, gets)
 import qualified Data.Map  as M
+import Data.Maybe (fromMaybe)
 import qualified Data.Set  as S
 import qualified Data.Text as T
 
--- TODO: hide fields of Universe, only use this API
+type Properties = M.Map PropertyId TValueId
+
+data Universe = Universe
+  { uspaces      :: M.Map SpaceId Properties
+  , utheorems    :: M.Map TheoremId (Implication PropertyId)
+  , urelTheorems :: M.Map PropertyId [TheoremId]
+  } deriving Show
 
 empty :: Universe
 empty = Universe M.empty M.empty M.empty
@@ -35,7 +46,7 @@ contains sid pid = M.member pid . attributes sid
 attributes :: SpaceId -> Universe -> Properties
 attributes sid = fromMaybe M.empty . M.lookup sid . uspaces
 
-relevantTheorems :: PropertyId -> Universe -> [(TheoremId, Implication)]
+relevantTheorems :: PropertyId -> Universe -> [(TheoremId, Implication PropertyId)]
 relevantTheorems pid u = z $ map withImplication theoremIds
   where
     theoremIds = M.findWithDefault [] pid $ urelTheorems u
@@ -54,7 +65,7 @@ insertTrait s key t = modify $ \u -> u { uspaces = M.alter add s $ uspaces u }
       Nothing -> M.fromList [(key,t)]
       Just ps -> M.insert key t ps
 
-insertTheorem :: TheoremId -> Implication -> State Universe ()
+insertTheorem :: TheoremId -> Implication PropertyId -> State Universe ()
 insertTheorem tid i = do
   thrmLk <- gets utheorems
   propLk <- gets urelTheorems
@@ -63,7 +74,7 @@ insertTheorem tid i = do
       relThrms = foldl addTid propLk $ S.toList $ implicationProperties i
   modify $ \u -> u { utheorems = theorems, urelTheorems = relThrms }
   where
-    addTid :: Map PropertyId [TheoremId] -> PropertyId -> Map PropertyId [TheoremId]
+    addTid :: M.Map PropertyId [TheoremId] -> PropertyId -> M.Map PropertyId [TheoremId]
     addTid m p = M.insertWith (++) p [tid] m
 
 replace :: Eq a => a -> a -> [a] -> [a]
@@ -84,3 +95,9 @@ table :: Universe -> String
 table Universe{..} = "Implications\n===\n" ++ implications
   where
     implications = unlines . map (T.unpack . encodeText) $ M.assocs utheorems
+
+fromPairs :: [(SpaceId, Properties)] -> Universe
+fromPairs ps = empty { uspaces = M.fromList ps }
+
+toPairs :: Universe -> [(SpaceId, Properties)]
+toPairs = M.toList . uspaces

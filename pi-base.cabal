@@ -15,22 +15,28 @@ cabal-version:       >=1.10
 
 library
   hs-source-dirs:      src
-  exposed-modules:     Lib
-                     , Actions
+  exposed-modules:     Actions
                      , Api
                      , Api.Combinators
+                     , Api.Helpers
                      , Api.Properties
+                     , Api.Search
                      , Api.Spaces
                      , Api.Theorems
                      , Api.Traits
+                     , Api.Types
                      , Base
                      , Config
                      , Formula
-                     , Handlers
-                     , Handlers.Helpers
-                     , Handlers.Types
                      , Logic
                      , Models
+                     , Models.Property
+                     , Models.Space
+                     , Models.Theorem
+                     , Models.Trait
+                     , Models.Types
+                     , Pager
+                     , Revisions
                      , Types
                      , Universe
                      , Util
@@ -39,6 +45,7 @@ library
                      , aeson
                      , bytestring
                      , containers
+                     , digestive-functors
                      , either
                      , http-types
                      , lens
@@ -88,6 +95,8 @@ test-suite pi-base-test
   hs-source-dirs:      test
   main-is:             Main.hs
   other-modules:       Spec.App
+                     , Spec.Action
+                     , Spec.Helpers
                      , Spec.Logic
   build-depends:       base
                      , aeson

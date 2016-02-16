@@ -2,20 +2,22 @@
 {-# LANGUAGE GADTs             #-}
 {-# LANGUAGE RecordWildCards   #-}
 
-module Handlers
-  ( module Handlers.Types
+module Api.Search
+  ( SearchR(..)
   , search
   ) where
 
-import Base
+import Api.Base
 import qualified Data.ByteString.Lazy.Char8 as LBS
 
 import Actions
 import Util
 
-import Handlers.Helpers
-import Handlers.Types
+import Api.Helpers
 
+data SearchR = SearchR
+  { srspaces :: [Entity Space]
+  }
 
 search :: Text -> Maybe SearchType -> MatchMode -> Action SearchR
 search q mst mm = do

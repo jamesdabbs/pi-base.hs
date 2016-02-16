@@ -42,12 +42,12 @@ assertTrait t = commit (assertTrait' t) $ \u ps -> do
   _id <- insert t
   return (u, ps, Entity _id t)
 
-assertTheorem :: Implication -> Action (Entity Theorem)
+assertTheorem :: Implication PropertyId -> Action (Entity Theorem)
 assertTheorem i@(Implication ant con desc) = commit (assertTheorem' i) $ \u ps -> do
-  let t = Theorem (encodeText ant) (encodeText con) desc ""
+  let t = Theorem ant con desc []
   _id <- insert t
-  let replace p@(Proof' tr th as) = if th == provisional then (Proof' tr provisional as) else p
-      ps' = map replace ps
+  let replace' p@(Proof' tr th as) = if th == provisional then (Proof' tr provisional as) else p
+      ps' = map replace' ps
       u'  = moveTheorem provisional _id u
   return (u', ps', Entity _id t)
 

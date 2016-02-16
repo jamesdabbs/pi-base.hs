@@ -4,13 +4,12 @@
 {-# LANGUAGE RecordWildCards   #-}
 {-# LANGUAGE TypeOperators     #-}
 
-module Handlers.Helpers
+module Api.Helpers
   ( halt
   , invalid
   , require
   , withUser
   , get404
-  , show
   , index
   , serve
   , idFromText
@@ -18,7 +17,6 @@ module Handlers.Helpers
   , revisions
   ) where
 
-import Prelude hiding (show)
 import Servant hiding (serve)
 
 import Base
@@ -68,9 +66,6 @@ get404 _id = do
   case found of
     Nothing -> halt err404
     Just  r -> return $ Entity _id r
-
-show :: (PersistEntity b, PersistEntityBackend b ~ SqlBackend) => Key b -> Action (Entity b)
-show = get404
 
 index :: (PersistEntity b, PersistEntityBackend b ~ SqlBackend) => Action [Entity b]
 index = runDB $ selectList [] []

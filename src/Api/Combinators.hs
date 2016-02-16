@@ -15,6 +15,7 @@ module Api.Combinators
   , Authenticated
   ) where
 
+import Api.Types
 import Base
 import Control.Lens            ((&), (<>~))
 import Data.Aeson              (encode)

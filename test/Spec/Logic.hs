@@ -6,12 +6,13 @@ module Spec.Logic
 import Prelude hiding (lookup)
 
 import Base
-import Formula
 import Logic
+import Models (true)
 import Universe
 import Util (toSqlKey)
 
 import Test.Hspec
+import Spec.Helpers
 
 import Control.Monad.State (runState)
 
@@ -21,7 +22,7 @@ runU = flip runState empty
 check' :: Universe -> Int64 -> Int64 -> Maybe TValueId
 check' u s p = lookup (toSqlKey s) (toSqlKey p) u
 
-insertTheorem' :: Int64 -> Implication -> State Universe ()
+insertTheorem' :: Int64 -> Implication PropertyId -> State Universe ()
 insertTheorem' = insertTheorem . toSqlKey
 
 logicSpecs :: Spec

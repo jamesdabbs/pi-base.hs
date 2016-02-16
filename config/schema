@@ -39,7 +39,7 @@ Space sql=spaces
 
 Property sql=properties
   name Text
-  aliases Text default='[]'
+  aliases [Text] default='[]'
   description Text
   valueSetId ValueSetId
 
@@ -52,10 +52,10 @@ Trait sql=traits
   TraitSP spaceId propertyId
 
 Theorem sql=theorems
-  antecedent Text
-  consequent Text
+  antecedent (Formula (Key Property))
+  consequent (Formula (Key Property))
   description Text
-  converseIds Text
+  converseIds [TheoremId] default='[]'
 
 -- This table is here simply to make it easier to
 --   execute the common "what theorems involve this

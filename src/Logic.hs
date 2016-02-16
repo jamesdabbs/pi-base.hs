@@ -15,7 +15,8 @@ import Data.Maybe (listToMaybe)
 import qualified Data.Set as S
 
 import Base
-import Formula (neg, true, false)
+import Formula (neg)
+import Models (true, false)
 import qualified Universe as U
 import Util (flatMapM, unionN, toSqlKey)
 
@@ -23,11 +24,11 @@ provisional :: TheoremId
 provisional = toSqlKey (-1)
 
 search :: Formula PropertyId -> MatchMode -> Universe -> [SpaceId]
-search f mode = map fst . filter matches . M.toList . uspaces
+search f mode = map fst . filter matches . U.toPairs
   where
     matches (_,props) = mode == (fst $ check props f)
 
-counterexamples :: Implication -> Universe -> [SpaceId]
+counterexamples :: Implication PropertyId -> Universe -> [SpaceId]
 counterexamples (Implication ant con _) = search f Yes
   where
     f = And [ant, neg con]
@@ -42,7 +43,7 @@ assertTrait' Trait{..} = do
       U.insertTrait traitSpaceId traitPropertyId traitValueId
       checkImplications traitSpaceId traitPropertyId
 
-assertTheorem' :: Implication -> State Universe Deductions
+assertTheorem' :: Implication PropertyId -> State Universe Deductions
 assertTheorem' i@(Implication ant con _) = do
   cxs <- gets $ counterexamples i
   if null cxs
@@ -61,7 +62,7 @@ checkImplications sid pid = do
   result <- flatMapM (\(Proof' t _ _) -> checkImplications sid $ traitPropertyId t) $ next
   return $ next ++ result
 
-applyTheorem :: SpaceId -> (TheoremId, Implication) -> State Universe Deductions
+applyTheorem :: SpaceId -> (TheoremId, Implication PropertyId) -> State Universe Deductions
 applyTheorem sid (tid, (Implication ant con _)) = do
   props <- gets $ U.attributes sid
   case check props ant of
@@ -72,7 +73,7 @@ applyTheorem sid (tid, (Implication ant con _)) = do
       _ -> return []
 
   where
-    force :: Formula PropertyId -> Set PropertyId -> State Universe [Proof']
+    force :: Formula PropertyId -> Set PropertyId -> State U.Universe [Proof']
     force (Atom pid v) evidence = do
       present <- gets $ U.contains sid pid
       if present
@@ -104,7 +105,7 @@ tValToBool tv
   | otherwise   = error "Can't coerce TVal to Bool"
 
 -- TODO: should be able to clean this up
-check :: Properties -> Formula PropertyId -> (MatchMode, Set PropertyId)
+check :: U.Properties -> Formula PropertyId -> (MatchMode, Set PropertyId)
 check ts (Atom p e) = case M.lookup p ts of
   Nothing -> (Unknown, S.empty)
   Just tv -> if e == tValToBool tv

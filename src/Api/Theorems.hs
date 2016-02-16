@@ -11,13 +11,11 @@ module Api.Theorems
   , handlers
   ) where
 
-import Base
+import Api.Base
+import Api.Helpers
 import Data.Aeson
-import Servant
 
-import Actions (assertTheorem)
-import qualified Handlers.Helpers as H
-import Revisions (saveRevision)
+import qualified Models.Theorem as Theorem
 
 type API = Paginated Theorem
       :<|> Body Theorem :> Authenticated :> POST (Entity Theorem)
@@ -29,36 +27,18 @@ type API = Paginated Theorem
            )
 
 handlers :: Config -> Server API
-handlers = H.serve $
-  index  :<|>
-  create :<|>
+handlers = serve $
+  getPage [] :<|>
+  withUser . Theorem.create :<|>
   ( \_id ->
-    H.show    _id :<|>
+    get404    _id :<|>
     revisions _id :<|>
-    update    _id :<|>
-    delete    _id
+    withUser . Theorem.update _id :<|>
+    (withUser $ Theorem.delete _id)
   )
 
-index :: Pager Theorem
-index = H.getPage []
-
-create :: Theorem -> AuthenticatedAction (Entity Theorem)
-create t = H.withUser $ \user -> do
-  error "Not implemented: theorem create"
-  -- saveRevision user et
-  -- return et
-
-update :: TheoremId -> Theorem -> AuthenticatedAction (Entity Theorem)
-update = error "update theorem"
-
-delete :: TheoremId -> AuthenticatedAction (Entity Theorem)
-delete = error "delete theorem"
-
-revisions :: TheoremId -> Pager Revision
-revisions = H.revisions
-
 instance FromText TheoremId where
-  fromText = H.idFromText
+  fromText = idFromText
 
 instance FromJSON Theorem where
   parseJSON = error "Theorem parseJSON"
@@ -66,14 +46,16 @@ instance FromJSON Theorem where
 instance ToJSON (Page Theorem) where
   toJSON = pageJSON "theorems" $
     \(Entity _id Theorem{..}) -> object
-      [ "id" .= _id
-      -- TODO
+      [ "id"          .= _id
+      , "antecedent"  .= theoremAntecedent
+      , "consequent"  .= theoremConsequent
       ]
 
 instance ToJSON (Entity Theorem) where
   toJSON (Entity _id Theorem{..}) = object
-    [ "id"                .= _id
-    , "description"       .= theoremDescription
-    -- TODO
+    [ "id"          .= _id
+    , "antecedent"  .= theoremAntecedent
+    , "consequent"  .= theoremConsequent
+    , "description" .= theoremDescription
     ]
 
