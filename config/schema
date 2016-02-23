@@ -1,10 +1,17 @@
-User sql=remote_users
-  ident Text
-  name Text Maybe
-  admin Bool
-  createdAt UTCTime Maybe default=now()
+User json sql=remote_users
+  ident          Text
+  name           Text Maybe
+  admin          Bool
+  createdAt      UTCTime Maybe default=now()
   lastLoggedInAt UTCTime Maybe default=now()
   UniqueUser ident
+
+Session sql=sessions
+  userId   UserId
+  startAt  UTCTime Maybe default=now()
+  expireAt UTCTime Maybe
+  token    Text
+  UniqueToken token
 
 Email sql=emails
   email Text

@@ -52,9 +52,11 @@ import Universe
 data Environment = Development | Test | Production deriving (Eq, Show, Read, Generic)
 
 data Config = Config
-  { getEnv  :: Environment
-  , getPool :: ConnectionPool
+  { getEnv  :: !Environment
+  , getPool :: !ConnectionPool
   , getUVar :: MVar Universe
+  , smtpUsername :: !String
+  , smtpPassword :: !String
   }
 
 newtype Action a = Action
@@ -72,7 +74,7 @@ type AuthToken = ByteString
 data Proof' = Proof' Trait TheoremId (Set PropertyId)
 type Deductions = [Proof']
 
-type AuthenticatedAction a = AuthToken -> Action a
+type AuthenticatedAction a = Entity User -> Action a
 
 type Pager a = Maybe Int -> Maybe Int -> Action (Page a)
 data Page a = Page

@@ -19,6 +19,7 @@ import Api.Types
 import Base
 import Control.Lens            ((&), (<>~))
 import Data.Aeson              (encode)
+import qualified Data.ByteString.Char8 as BS
 import Data.String.Conversions (cs)
 import GHC.TypeLits            (KnownSymbol, symbolVal)
 import Network.HTTP.Types      (parseQueryText, mkStatus, Status, status401)
@@ -27,16 +28,17 @@ import Servant
 import Servant.JQuery
 import Servant.Server.Internal (succeedWith, RouteResult)
 
-import Util (err422)
+import Api.Base (unsafeRunA)
+import Actions  (getUserByToken)
+import Util     (err422)
 
-status422 :: Status
-status422 = mkStatus 422 "Invalid"
-
-halt :: Status -> ServantErr -> RouteResult Response
-halt stat err = succeedWith $ responseLBS stat [] $ encode err
+halt :: ServantErr -> RouteResult Response
+halt e = succeedWith $ responseLBS stat [] $ encode e
+  where
+    stat = mkStatus (errHTTPCode e) (BS.pack $ errReasonPhrase e)
 
 invalid :: Text -> RouteResult Response
-invalid msg = halt status422 $ err422 { errBody = cs msg }
+invalid msg = halt $ err422 { errBody = cs msg }
 
 
 instance (KnownSymbol sym, FromText a, HasServer sublayout)
@@ -103,14 +105,15 @@ instance (KnownSymbol sym, KnownSymbol d, FromText a, HasJQ sublayout)
     where str = symbolVal (Proxy :: Proxy sym)
 
 
-
 instance HasServer a => HasServer (Authenticated :> a) where
-  type ServerT (Authenticated :> a) m = AuthToken -> ServerT a m
+  type ServerT (Authenticated :> a) m = Entity User -> ServerT a m
 
-  route Proxy sub request respond =
-    case lookup "Authorization" (requestHeaders request) of
-      Nothing  -> respond $ halt status401 $ err401 { errBody = "Authentication Required" }
-      Just tok -> route (Proxy :: Proxy a) (sub tok) request respond
+  route Proxy sub request respond = do
+    let token = lookup "Authorization" (requestHeaders request)
+    result <- unsafeRunA $ getUserByToken token
+    case result of
+      Left err -> respond $ halt err
+      Right user -> route (Proxy :: Proxy a) (sub user) request respond
 
 instance (HasJQ sublayout) => HasJQ (Authenticated :> sublayout) where
   type JQ (Authenticated :> sublayout) = JQ sublayout

@@ -11,9 +11,7 @@ Major goals are:
 * Rewrite auth system (since Persona is going away)
 
 # TODOs
-
-* Serialize JSON types from database. Move off persistent?
+* Space index / show frontend
+* Search frontend
 * Finish porting functionality (implementing the `error` calls)
-* Add a frontend
-* Figure out strategy for migration from Persona
 * Add and test error monitoring

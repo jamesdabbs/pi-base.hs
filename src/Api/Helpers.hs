@@ -19,8 +19,7 @@ module Api.Helpers
 
 import Servant hiding (serve)
 
-import Base
-import Control.Monad.Trans.Either    (EitherT)
+import Api.Base
 import Data.Aeson
 import Data.ByteString.Lazy          (ByteString)
 import Data.Text                     (unpack)
@@ -33,18 +32,10 @@ import Text.Read                     (readMaybe)
 -- This is an _okay_ place to do that, but I don't love it ...
 import Api.Combinators ()
 
+import Api.Base  (runA)
 import Models    (runDB)
 import Revisions
 import Util      (err422)
-
-
-halt :: ServantErr -> Action a
-halt err = Action . lift . left $ err'
-  where
-    err' = err
-      { errBody    = encode err
-      , errHeaders = [("Content-Type", "application/json")]
-      }
 
 invalid :: ByteString -> Action a
 invalid msg = halt $ err422 { errBody = msg }
@@ -52,13 +43,14 @@ invalid msg = halt $ err422 { errBody = msg }
 require :: ByteString -> Maybe a -> Action a
 require msg mval = maybe (invalid msg) return mval
 
-withUser :: (Entity User -> Action a) -> AuthToken -> Action a
-withUser f tok = do
-  -- FIXME: proper tokens
-  us <- runDB $ selectList [UserIdent ==. decodeUtf8 tok] []
-  case us of
-    u:_ -> f u
-    _   -> halt $ err403 { errBody = "Invalid token" }
+withUser :: (Entity User -> Action a) -> Entity User -> Action a
+withUser a = a
+-- withUser f tok = do
+--   -- FIXME: proper tokens
+--   us <- runDB $ selectList [UserIdent ==. decodeUtf8 tok] []
+--   case us of
+--     u:_ -> f u
+--     _   -> halt $ err403 { errBody = "Invalid token" }
 
 get404 :: (PersistEntity b, PersistEntityBackend b ~ SqlBackend) => Key b -> Action (Entity b)
 get404 _id = do
@@ -74,7 +66,7 @@ serve :: Enter typ (Action :~> EitherT ServantErr IO) ret => typ -> Config -> re
 serve handlers conf = enter (Nat runner) handlers
   where
     runner :: Action v -> EitherT ServantErr IO v
-    runner action = runReaderT (runAction action) conf
+    runner = runA conf
 
 idFromText :: PersistEntity r => Text -> Maybe (Key r)
 idFromText p = do
