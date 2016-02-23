@@ -52,8 +52,9 @@ instance FromJSON Space where
 instance ToJSON (Page Space) where
   toJSON = pageJSON "spaces" $
     \(Entity _id Space{..}) -> object
-      [ "id"   .= _id
-      , "name" .= spaceName
+      [ "id"          .= _id
+      , "name"        .= spaceName
+      , "description" .= spaceDescription
       ]
 
 instance ToJSON (Entity Space) where

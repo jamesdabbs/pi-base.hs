@@ -1,0 +1,9 @@
+{
+  "name": "Pi-Base",
+  "description": "Pi-Base re-write v5bazillion",
+  "image": "heroku/cedar:14",
+  "addons": [
+      "heroku-postgresql",
+      "sendgrid:starter"
+  ]
+}

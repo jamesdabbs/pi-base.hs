@@ -22,7 +22,7 @@ import Data.Aeson              (encode)
 import qualified Data.ByteString.Char8 as BS
 import Data.String.Conversions (cs)
 import GHC.TypeLits            (KnownSymbol, symbolVal)
-import Network.HTTP.Types      (parseQueryText, mkStatus, Status, status401)
+import Network.HTTP.Types      (parseQueryText, mkStatus)
 import Network.Wai             (rawQueryString, responseLBS, Response, requestHeaders)
 import Servant
 import Servant.JQuery

@@ -13,7 +13,6 @@ module Api.Types
   , PUT
   , DELETE
   , Body
-  , Update
   ) where
 
 import Data.Typeable (Typeable)
@@ -32,5 +31,3 @@ type POST    = Post    '[JSON]
 type PUT     = Put     '[JSON]
 type DELETE  = Delete  '[JSON]
 type Body    = ReqBody '[JSON]
-
-newtype Update a = Update a

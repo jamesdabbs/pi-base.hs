@@ -6,10 +6,10 @@ module Main (main) where
 
 import Base
 
-import Control.Concurrent.MVar (newMVar)
+import Control.Concurrent.MVar     (newMVar)
+import Configuration.Dotenv        (loadFile)
 import Database.Persist.Postgresql (runSqlPool)
-import Configuration.Dotenv (loadFile)
-import Network.Wai.Handler.Warp (run)
+import Network.Wai.Handler.Warp    (run)
 import Network.Wai.Middleware.Cors (cors, CorsResourcePolicy(..), simpleCorsResourcePolicy,
                                     simpleMethods, simpleHeaders)
 -- import Servant
@@ -17,15 +17,15 @@ import Network.Wai.Middleware.Cors (cors, CorsResourcePolicy(..), simpleCorsReso
 import System.Environment (lookupEnv)
 
 import Api    (mkApp)
-import Config (mkPool, mkLogger, putConf)
+import Config (mkPool, mkLogger, putConf, defaultDatabaseUrl)
 import Models (doMigrations, checkBooleans, mkUniverse)
 
-env :: Read a => String -> a -> IO a
+env :: String -> String -> IO String
 env k def = do
   mv <- lookupEnv k
   return $ case mv of
     Nothing -> def
-    Just  v -> read v
+    Just  v -> v
 
 reqEnv :: String -> IO String
 reqEnv k = do
@@ -34,15 +34,21 @@ reqEnv k = do
     Nothing -> error $ "ENV['" ++ k ++ "'] not set"
     Just  v -> return v
 
+corsPolicy :: CorsResourcePolicy
+corsPolicy = simpleCorsResourcePolicy
+  { corsMethods        = simpleMethods ++ ["PUT", "DELETE"]
+  , corsRequestHeaders = simpleHeaders ++ ["Authorization"]
+  }
+
 main :: IO ()
 main = do
   -- writeFile "public/js/api.js" $ jsForAPI (Proxy :: Proxy API)
 
-  getEnv <- env "ENV" Development
+  getEnv <- read <$> env "ENV" "Development"
   unless (getEnv == Production) $ loadFile True "/data/src/pbr/.env"
 
-  getPort <- env "PORT" 8081
-  getPool <- mkPool getEnv
+  getPort <- read <$> env "PORT" "8081"
+  getPool <- env "DATABASE_URL" (defaultDatabaseUrl getEnv) >>= mkPool getEnv
 
   smtpUsername <- reqEnv "SMTP_USERNAME"
   smtpPassword <- reqEnv "SMTP_PASSWORD"
@@ -55,10 +61,6 @@ main = do
 
   let conf   = Config {..}
       logger = mkLogger getEnv
-      corsPolicy = simpleCorsResourcePolicy
-        { corsMethods = simpleMethods ++ ["PUT", "DELETE"]
-        , corsRequestHeaders = simpleHeaders ++ ["Authorization"]
-        }
 
   putConf conf
 

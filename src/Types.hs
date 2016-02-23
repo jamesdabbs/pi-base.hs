@@ -81,5 +81,7 @@ data Page a = Page
   { pageResults   :: [Entity a]
   , pageNumber    :: Int
   , pagePer       :: Int
+  , pageItemCount :: Int
+  , pagePageCount :: Int
   }
 

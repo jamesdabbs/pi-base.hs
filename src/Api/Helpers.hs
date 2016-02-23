@@ -20,7 +20,6 @@ module Api.Helpers
 import Servant hiding (serve)
 
 import Api.Base
-import Data.Aeson
 import Data.ByteString.Lazy          (ByteString)
 import Data.Text                     (unpack)
 import Database.Persist
@@ -32,7 +31,6 @@ import Text.Read                     (readMaybe)
 -- This is an _okay_ place to do that, but I don't love it ...
 import Api.Combinators ()
 
-import Api.Base  (runA)
 import Models    (runDB)
 import Revisions
 import Util      (err422)
@@ -82,7 +80,9 @@ getPage' filters opts mpage mper = do
       pagePer       = maybe 25 (max 1 . min 50) mper
       offset        = pagePer * (pageNumber - 1)
       allOpts       = opts ++ [LimitTo pagePer, OffsetBy offset]
-  pageResults <- runDB $ selectList filters allOpts
+  pageResults   <- runDB $ selectList filters allOpts
+  pageItemCount <- runDB $ count filters
+  let pagePageCount = (quot pageItemCount pagePer) + 1
   return $ Page{..}
 
 

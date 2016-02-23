@@ -17,6 +17,7 @@ library
   hs-source-dirs:      src
   exposed-modules:     Actions
                      , Api
+                     , Api.Base
                      , Api.Combinators
                      , Api.Helpers
                      , Api.Properties
@@ -46,8 +47,8 @@ library
                      , bytestring
                      , containers
                      , digestive-functors
-                     , dotenv
                      , either
+                     , heroku
                      , http-types
                      , lens
                      , mime-mail
@@ -80,6 +81,7 @@ executable pi-base
                      , aeson
                      , bytestring
                      , containers
+                     , dotenv
                      , either
                      , mtl
                      , persistent

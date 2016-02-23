@@ -1,0 +1,27 @@
+web:
+  build: .
+  command: '/app/user/pi-base'
+  working_dir: /app/user
+  environment:
+    PORT: 3000
+    DATABASE_URL: 'postgres://postgres:@herokuPostgresql:5432/postgres'
+  ports:
+    - '3000:3000'
+  links:
+    - herokuPostgresql
+shell:
+  build: .
+  command: bash
+  working_dir: /app/user
+  environment:
+    PORT: 3000
+    DATABASE_URL: 'postgres://postgres:@herokuPostgresql:5432/postgres'
+  ports:
+    - '3000:3000'
+  links:
+    - herokuPostgresql
+  volumes:
+    - '.:/app/user'
+herokuPostgresql:
+  image: postgres
+

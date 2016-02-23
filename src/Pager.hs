@@ -15,6 +15,8 @@ pageJSON key fmt Page{..} = object
   [ "page" .= object
       [ "number" .= pageNumber
       , "per"    .= pagePer
+      , "items"  .= pageItemCount
+      , "pages"  .= pagePageCount
       ]
   , key .= map fmt pageResults
   ]
