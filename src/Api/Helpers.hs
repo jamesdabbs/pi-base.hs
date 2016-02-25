@@ -11,13 +11,12 @@ module Api.Helpers
   , withUser
   , get404
   , index
-  , serve
   , idFromText
   , getPage
   , revisions
   ) where
 
-import Servant hiding (serve)
+import Servant
 
 import Api.Base
 import Data.ByteString.Lazy          (ByteString)
@@ -41,6 +40,9 @@ invalid msg = halt $ err422 { errBody = msg }
 require :: ByteString -> Maybe a -> Action a
 require msg mval = maybe (invalid msg) return mval
 
+requireUser :: Handler User
+requireUser = error "requireUser"
+
 withUser :: (Entity User -> Action a) -> Entity User -> Action a
 withUser a = a
 -- withUser f tok = do
@@ -59,12 +61,6 @@ get404 _id = do
 
 index :: (PersistEntity b, PersistEntityBackend b ~ SqlBackend) => Action [Entity b]
 index = runDB $ selectList [] []
-
-serve :: Enter typ (Action :~> EitherT ServantErr IO) ret => typ -> Config -> ret
-serve handlers conf = enter (Nat runner) handlers
-  where
-    runner :: Action v -> EitherT ServantErr IO v
-    runner = runA conf
 
 idFromText :: PersistEntity r => Text -> Maybe (Key r)
 idFromText p = do

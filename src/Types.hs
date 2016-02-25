@@ -60,7 +60,7 @@ data Config = Config
   }
 
 newtype Action a = Action
-  { runAction :: ReaderT Config (EitherT ServantErr IO) a
+  { unAction :: ReaderT Config (EitherT ServantErr IO) a
   } deriving (Applicative, Functor, Monad, MonadIO, MonadReader Config)
 
 data SearchType = ByFormula | ByText deriving (Eq, Show, Generic)
@@ -84,4 +84,3 @@ data Page a = Page
   , pageItemCount :: Int
   , pagePageCount :: Int
   }
-

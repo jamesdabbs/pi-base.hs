@@ -26,8 +26,8 @@ type API = Paginated Trait
            :<|> Authenticated :> DELETE (Entity Trait)
            )
 
-handlers :: Config -> Server API
-handlers = serve $
+handlers :: ServerT API Action
+handlers =
   getPage [] :<|>
   withUser . Trait.create :<|>
   ( \_id ->

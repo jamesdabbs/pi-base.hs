@@ -20,10 +20,10 @@ import Api.Base
 import Data.Aeson
 import Network.Wai (Application)
 import Servant
+import Servant.Server.Internal.Enter (Enter)
 
 import Actions (sendLoginEmail, EmailAddress, Host, showAuth, expireSession)
 import Api.Search
-import qualified Api.Helpers as H
 import Models (true, false)
 
 import qualified Api.Spaces     as Spaces
@@ -53,20 +53,22 @@ type API =
          :> GET SearchR
       ) :<|> Raw
 
+hserve :: Enter typ (Action :~> EitherT ServantErr IO) ret => typ -> Config -> ret
+hserve handlers conf = enter (Nat $ runAction conf) handlers
+
 server :: Config -> Server API
-server c =
-         (  Spaces.handlers     c
-       :<|> Properties.handlers c
-       :<|> Theorems.handlers   c
-       :<|> Traits.handlers     c
-       :<|> handlers            c
-       ) :<|> serveDirectory "public"
+server c = hserve -- TODO: clean this up
+         (  Spaces.handlers
+       :<|> Properties.handlers
+       :<|> Theorems.handlers
+       :<|> Traits.handlers
+       :<|> handlers
+       ) c :<|> serveDirectory "public"
        where
-         handlers = H.serve
-              $ sendLoginEmail
-           :<|> showAuth
-           :<|> expireSession
-           :<|> search
+         handlers = sendLoginEmail
+               :<|> showAuth
+               :<|> expireSession
+               :<|> search
 
 instance FromText SearchType where
   fromText "properties" = Just ByFormula

@@ -26,8 +26,8 @@ type API = Paginated Theorem
            :<|> Authenticated :> DELETE (Entity Theorem)
            )
 
-handlers :: Config -> Server API
-handlers = serve $
+handlers :: ServerT API Action
+handlers =
   getPage [] :<|>
   withUser . Theorem.create :<|>
   ( \_id ->

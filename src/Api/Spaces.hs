@@ -28,8 +28,8 @@ type API = Paginated Space
            :<|> Authenticated :> DELETE (Entity Space)
            )
 
-handlers :: Config -> Server API
-handlers = serve $
+handlers :: ServerT API Action
+handlers =
   getPage [] :<|>
   withUser . Space.create :<|>
   ( \_id ->

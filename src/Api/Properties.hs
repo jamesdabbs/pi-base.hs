@@ -27,8 +27,8 @@ type API = Paginated Property
           :<|> Authenticated :> DELETE (Entity Property)
           )
 
-handlers :: Config -> Server API
-handlers = serve $
+handlers :: ServerT API Action
+handlers =
   getPage [] :<|>
   withUser . Property.create :<|>
   ( \_id ->

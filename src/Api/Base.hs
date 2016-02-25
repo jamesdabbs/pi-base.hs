@@ -14,13 +14,13 @@ import Pager  (pageJSON)
 import Data.Aeson (encode)
 import Servant as Api.Base hiding (serve)
 
-runA :: Config -> Action v -> EitherT ServantErr IO v
-runA conf action = runReaderT (runAction action) conf
+runAction :: Config -> Action v -> EitherT ServantErr IO v
+runAction conf action = runReaderT (unAction action) conf
 
-unsafeRunA :: Action v -> IO (Either ServantErr v)
-unsafeRunA action = runEitherT $ do
+unsafeRunAction :: Action v -> IO (Either ServantErr v)
+unsafeRunAction action = runEitherT $ do
   conf <- lift $ getConf
-  runA conf action
+  runAction conf action
 
 halt :: ServantErr -> Action a
 halt err = Action . lift . left $ err'

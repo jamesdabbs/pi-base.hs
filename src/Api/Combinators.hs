@@ -2,6 +2,7 @@
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE ScopedTypeVariables  #-}
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE TypeFamilies #-}
@@ -28,7 +29,7 @@ import Servant
 import Servant.JQuery
 import Servant.Server.Internal (succeedWith, RouteResult)
 
-import Api.Base (unsafeRunA)
+import Api.Base (unsafeRunAction)
 import Actions  (getUserByToken)
 import Util     (err422)
 
@@ -110,7 +111,7 @@ instance HasServer a => HasServer (Authenticated :> a) where
 
   route Proxy sub request respond = do
     let token = lookup "Authorization" (requestHeaders request)
-    result <- unsafeRunA $ getUserByToken token
+    result <- unsafeRunAction $ getUserByToken token
     case result of
       Left err -> respond $ halt err
       Right user -> route (Proxy :: Proxy a) (sub user) request respond
@@ -122,3 +123,11 @@ instance (HasJQ sublayout) => HasJQ (Authenticated :> sublayout) where
     jqueryFor subP (req & reqHeaders <>~ [HeaderArg "Authorization"])
 
     where subP = Proxy :: Proxy sublayout
+
+instance HasServer a => HasServer (WithHandlerContext :> a) where
+  type ServerT (WithHandlerContext:> a) m = HandlerContext -> ServerT a m
+
+  route Proxy sub req res = do
+    let requestAuthHeader = BS.unpack <$> lookup "Authorization" (requestHeaders req)
+        requestUser       = Nothing
+    route (Proxy :: Proxy a) (sub HandlerContext{..}) req res
