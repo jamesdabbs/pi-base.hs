@@ -26,16 +26,14 @@ type API = Paginated Theorem
            :<|> Authenticated :> DELETE (Entity Theorem)
            )
 
-handlers :: ServerT API Action
-handlers =
-  getPage [] :<|>
-  withUser . Theorem.create :<|>
-  ( \_id ->
-    get404    _id :<|>
-    revisions _id :<|>
-    withUser . Theorem.update _id :<|>
-    (withUser $ Theorem.delete _id)
-  )
+handlers :: ServerT API Handler
+handlers = getPage []
+      :<|> withUser . Theorem.create
+      :<|> ( \_id -> get404 _id
+                :<|> revisions _id
+                :<|> withUser . Theorem.update _id
+                :<|> (withUser $ Theorem.delete _id)
+           )
 
 instance FromText TheoremId where
   fromText = idFromText

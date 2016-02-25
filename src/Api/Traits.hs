@@ -26,16 +26,14 @@ type API = Paginated Trait
            :<|> Authenticated :> DELETE (Entity Trait)
            )
 
-handlers :: ServerT API Action
-handlers =
-  getPage [] :<|>
-  withUser . Trait.create :<|>
-  ( \_id ->
-    get404    _id :<|>
-    revisions _id :<|>
-    withUser . Trait.update _id :<|>
-    (withUser $ Trait.delete _id)
-  )
+handlers :: ServerT API Handler
+handlers = getPage []
+      :<|> withUser . Trait.create
+      :<|> ( \_id -> get404 _id
+                :<|> revisions _id
+                :<|> withUser . Trait.update _id
+                :<|> (withUser $ Trait.delete _id)
+           )
 
 instance FromText TraitId where
   fromText = idFromText

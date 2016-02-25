@@ -109,6 +109,10 @@ instance (KnownSymbol sym, KnownSymbol d, FromText a, HasJQ sublayout)
 instance HasServer a => HasServer (Authenticated :> a) where
   type ServerT (Authenticated :> a) m = Entity User -> ServerT a m
 
+  -- TODO: this isn't strictly necessary, since we have access to request context
+  --   in each handler, but it's nice to have type-level declarations (and
+  --   enforcement) of which endpoints require authentication. What's a good way
+  --   to unify those approaches?
   route Proxy sub request respond = do
     let token = lookup "Authorization" (requestHeaders request)
     result <- unsafeRunAction $ getUserByToken token
@@ -128,6 +132,6 @@ instance HasServer a => HasServer (WithHandlerContext :> a) where
   type ServerT (WithHandlerContext:> a) m = HandlerContext -> ServerT a m
 
   route Proxy sub req res = do
-    let requestAuthHeader = BS.unpack <$> lookup "Authorization" (requestHeaders req)
+    let requestAuthHeader = lookup "Authorization" (requestHeaders req)
         requestUser       = Nothing
     route (Proxy :: Proxy a) (sub HandlerContext{..}) req res

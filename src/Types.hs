@@ -25,7 +25,6 @@ module Types
   , Deductions
   -- Action
   , Action(..)
-  , Pager
   , Page(..)
   , SearchType(..)
   , AuthenticatedAction
@@ -76,7 +75,6 @@ type Deductions = [Proof']
 
 type AuthenticatedAction a = Entity User -> Action a
 
-type Pager a = Maybe Int -> Maybe Int -> Action (Page a)
 data Page a = Page
   { pageResults   :: [Entity a]
   , pageNumber    :: Int

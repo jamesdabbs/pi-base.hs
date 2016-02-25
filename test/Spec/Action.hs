@@ -42,7 +42,7 @@ lookupDB s p = do
 
 run :: Action a -> Config -> IO a
 run a c = do
-  er <- runEitherT $ runReaderT (runAction a) c
+  er <- runEitherT $ runReaderT (unAction a) c
   case er of
     Left err -> error $ show err
     Right v  -> return v

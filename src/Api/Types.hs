@@ -17,6 +17,7 @@ module Api.Types
   , PUT
   , DELETE
   , Body
+  , Pager
   ) where
 
 import Data.Typeable (Typeable)
@@ -27,13 +28,13 @@ import Base
 import Types
 
 data HandlerContext = HandlerContext
-  { requestAuthHeader :: Maybe String
+  { requestAuthHeader :: Maybe AuthToken
   , requestUser       :: Maybe (Entity User)
   }
 
 newtype Handler a = Handler
   { unHandler :: StateT HandlerContext Action a
-  } deriving (Functor, Applicative, Monad, MonadReader Config)
+  } deriving (Functor, Applicative, Monad, MonadIO, MonadReader Config, MonadState HandlerContext)
 
 data RequiredParam (sym :: Symbol) a deriving Typeable
 data DefaultParam  (sym :: Symbol) a (d :: Symbol) deriving Typeable
@@ -46,3 +47,5 @@ type POST    = Post    '[JSON]
 type PUT     = Put     '[JSON]
 type DELETE  = Delete  '[JSON]
 type Body    = ReqBody '[JSON]
+
+type Pager a = Maybe Int -> Maybe Int -> Handler (Page a)

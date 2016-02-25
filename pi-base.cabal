@@ -48,6 +48,7 @@ library
                      , containers
                      , digestive-functors
                      , either
+                     , exceptions
                      , heroku
                      , http-types
                      , lens

@@ -27,16 +27,14 @@ type API = Paginated Property
           :<|> Authenticated :> DELETE (Entity Property)
           )
 
-handlers :: ServerT API Action
-handlers =
-  getPage [] :<|>
-  withUser . Property.create :<|>
-  ( \_id ->
-    get404    _id :<|>
-    revisions _id :<|>
-    withUser . Property.update _id :<|>
-    (withUser $ Property.delete _id)
-  )
+handlers :: ServerT API Handler
+handlers = getPage []
+      :<|> withUser . Property.create
+      :<|> ( \_id -> get404 _id
+                :<|> revisions _id
+                :<|> withUser . Property.update _id
+                :<|> (withUser $ Property.delete _id)
+           )
 
 instance FromText PropertyId where
   fromText = idFromText

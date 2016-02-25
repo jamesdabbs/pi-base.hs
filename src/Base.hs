@@ -3,12 +3,12 @@ module Base
   ) where
 
 import Control.Monad              as Base (forM, forM_, unless, when, void)
-import Control.Monad.IO.Class     as Base (liftIO)
-import Control.Monad.State        as Base (State)
+import Control.Monad.IO.Class     as Base (MonadIO, liftIO)
+import Control.Monad.Reader       as Base (MonadReader, ReaderT, ask, asks, runReaderT)
+import Control.Monad.State        as Base (MonadState, State)
 import Control.Monad.Trans        as Base (lift)
 import Control.Monad.Trans.Either as Base (EitherT, left, runEitherT)
-import Control.Monad.Trans.State  as Base (StateT)
-import Control.Monad.Reader       as Base (MonadReader, ReaderT, ask, asks, runReaderT)
+import Control.Monad.Trans.State  as Base (StateT, evalStateT, runStateT)
 import Data.Int                   as Base (Int64)
 import Data.Map                   as Base (Map)
 import Data.Maybe                 as Base (fromMaybe)

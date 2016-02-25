@@ -13,13 +13,12 @@ module Actions
   , EmailAddress
   , Host
   , getUserByToken
-  , showAuth
   , expireSession
   ) where
 
 import Api.Base
 
-import Control.Monad.State (runState)
+import Control.Monad.State (runState, gets)
 import Control.Concurrent.MVar (readMVar, modifyMVar)
 import qualified Data.UUID as UUID
 import qualified Data.UUID.V4 as UUID
@@ -104,9 +103,9 @@ createSession uid = do
   _ <- runDB $ insert $ Session uid Nothing Nothing token
   return token
 
-sendLoginEmail :: Maybe EmailAddress -> Maybe Host -> Action ()
+sendLoginEmail :: Maybe EmailAddress -> Maybe Host -> Handler ()
 sendLoginEmail Nothing _ = return ()
-sendLoginEmail (Just addr) mhost = do
+sendLoginEmail (Just addr) mhost = actionToHandler $ do
   muser <- runDB . getBy . UniqueUser $ addr
   case muser of
     Nothing -> return ()
@@ -122,23 +121,41 @@ sendLoginEmail (Just addr) mhost = do
 
 -- TODO: any concern of timing attacks? Lockout mechanism?
 getUserByToken :: Maybe AuthToken -> Action (Entity User)
-getUserByToken mtoken = case mtoken of
+getUserByToken mtoken = do
+  (Entity _ session) <- getSessionForToken mtoken
+  let _id = sessionUserId session
+  muser <- runDB $ get _id
+  case muser of
+    Nothing -> halt err404
+    Just u  -> return $ Entity _id u
+
+sessionExpired :: Entity Session -> Action Bool
+sessionExpired (Entity _ s) = do
+  case sessionExpireAt s of
+    Nothing -> return False
+    Just ex -> do
+      now <- liftIO getCurrentTime
+      return $ now > ex
+
+getSessionForToken :: Maybe AuthToken -> Action (Entity Session)
+getSessionForToken mtoken = case mtoken of
   Nothing  -> halt $ err401 { errBody = "No token provided" }
   Just tok -> do
     -- TODO: verify that we _do_ start with `bearer `
     msession <- runDB . getBy . UniqueToken . T.drop 7 . decodeUtf8 $ tok
     case msession of
       Nothing -> halt $ err403 { errBody = "Forbidden" }
-      Just (Entity _ session) -> do
-        let _id = sessionUserId session
-        muser <- runDB $ get _id
-        case muser of
-          Nothing -> halt err404
-          Just u  -> return $ Entity _id u
+      Just es -> do
+        expired <- sessionExpired es
+        if expired
+           then halt $ err403 { errBody = "Forbidden" }
+           else return es
 
-showAuth :: AuthenticatedAction (Entity User)
-showAuth = return
+expireSessionForToken :: Maybe AuthToken -> Action ()
+expireSessionForToken mt = do
+  (Entity _id _) <- getSessionForToken mt
+  now <- liftIO getCurrentTime
+  runDB $ update _id [ SessionExpireAt =. (Just now) ]
 
-expireSession :: AuthenticatedAction ()
-expireSession _ = do
-  liftIO $ putStrLn "TODO: need to be able to determine _which_ session to expire, if there are multiples"
+expireSession :: Entity User -> Handler ()
+expireSession _ = gets requestAuthHeader >>= actionToHandler . expireSessionForToken

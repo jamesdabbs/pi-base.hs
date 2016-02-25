@@ -52,7 +52,7 @@ confRef :: IORef (Maybe Config)
 {-# NOINLINE confRef #-}
 confRef = unsafePerformIO $ newIORef Nothing
 
-putConf :: Config -> IO ()
+putConf :: Config -> IO Config
 putConf c = do
   mc <- readIORef confRef
   case mc of
@@ -61,6 +61,7 @@ putConf c = do
       Production -> error "Refusing to overwrite global Config cache"
       _          -> putStrLn "*** WARNING: overwriting global Config cache"
   writeIORef confRef $ Just c
+  return c
 
 -- This assumes that `putConf` has been called previously (as it is on app boot)
 getConf :: IO Config

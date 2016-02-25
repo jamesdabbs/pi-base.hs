@@ -20,9 +20,9 @@ import Api.Base
 import Data.Aeson
 import Network.Wai (Application)
 import Servant
-import Servant.Server.Internal.Enter (Enter)
 
-import Actions (sendLoginEmail, EmailAddress, Host, showAuth, expireSession)
+import Actions (sendLoginEmail, EmailAddress, Host, expireSession)
+import Api.Helpers (requireUser)
 import Api.Search
 import Models (true, false)
 
@@ -51,22 +51,20 @@ type API =
          :> QueryParam "type" SearchType
          :> DefaultParam "mode" MatchMode "yes" -- TODO: needs a better param name?
          :> GET SearchR
-      ) :<|> Raw
+      )
 
-hserve :: Enter typ (Action :~> EitherT ServantErr IO) ret => typ -> Config -> ret
-hserve handlers conf = enter (Nat $ runAction conf) handlers
+hserve :: ServerT API Handler -> Config -> HandlerContext -> Server API
+hserve handlers conf ctx = enter (Nat $ runHandler conf ctx) handlers
 
-server :: Config -> Server API
-server c = hserve -- TODO: clean this up
-         (  Spaces.handlers
+server :: Config -> HandlerContext -> Server API
+server = hserve $ Spaces.handlers
        :<|> Properties.handlers
        :<|> Theorems.handlers
        :<|> Traits.handlers
        :<|> handlers
-       ) c :<|> serveDirectory "public"
        where
          handlers = sendLoginEmail
-               :<|> showAuth
+               :<|> const requireUser
                :<|> expireSession
                :<|> search
 
@@ -86,8 +84,10 @@ instance FromText TValueId where
   fromText "false" = Just false
   fromText       _ = Nothing
 
+type XAPI = (WithHandlerContext :> API) :<|> Raw
+
 mkApp :: Config -> Application
 mkApp = serve proxy . xserver
   where
-    proxy     = Proxy :: Proxy (API :<|> Raw)
+    proxy     = Proxy :: Proxy XAPI
     xserver c = server c :<|> serveDirectory "public"

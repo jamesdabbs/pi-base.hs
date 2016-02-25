@@ -11,7 +11,7 @@ import Test.Hspec.Wai
 
 import Control.Concurrent.MVar (newMVar)
 
-import Config (mkPool)
+import Config (mkPool, defaultDatabaseUrl, putConf)
 import Api    (mkApp)
 import Models (doMigrations)
 import qualified Universe as U
@@ -23,12 +23,14 @@ import Spec.Logic  (logicSpecs)
 config :: IO Config
 config = do
   tu   <- newMVar $ U.empty
-  pool <- mkPool Test
+  pool <- mkPool Test (defaultDatabaseUrl Test)
 
-  return $ Config
+  putConf $ Config
     { getEnv  = Test
     , getPool = pool
     , getUVar = tu
+    , smtpUsername = "smtpUsername"
+    , smtpPassword = "smtpPassword"
     }
 
 app :: IO Application

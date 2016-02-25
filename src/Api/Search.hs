@@ -19,8 +19,8 @@ data SearchR = SearchR
   { srspaces :: [Entity Space]
   }
 
-search :: Text -> Maybe SearchType -> MatchMode -> Action SearchR
-search q mst mm = do
+search :: Text -> Maybe SearchType -> MatchMode -> Handler SearchR
+search q mst mm = actionToHandler $ do
   srspaces <- case mst of
     Just ByText -> searchByText q
     _ -> case eitherDecodeText q of

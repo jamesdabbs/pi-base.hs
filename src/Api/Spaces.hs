@@ -28,16 +28,14 @@ type API = Paginated Space
            :<|> Authenticated :> DELETE (Entity Space)
            )
 
-handlers :: ServerT API Action
-handlers =
-  getPage [] :<|>
-  withUser . Space.create :<|>
-  ( \_id ->
-    get404    _id :<|>
-    revisions _id :<|>
-    withUser . Space.update _id :<|>
-    (withUser $ Space.delete _id)
-  )
+handlers :: ServerT API Handler
+handlers = getPage []
+      :<|> withUser . Space.create
+      :<|> ( \_id -> get404 _id
+                :<|> revisions _id
+                :<|> withUser . Space.update _id
+                :<|> (withUser $ Space.delete _id)
+           )
 
 instance FromText SpaceId where
   fromText = idFromText
