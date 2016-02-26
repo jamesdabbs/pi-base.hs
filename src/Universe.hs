@@ -1,3 +1,4 @@
+{-# LANGUAGE FlexibleContexts  #-}
 {-# LANGUAGE RecordWildCards   #-}
 module Universe
   ( Universe
@@ -18,9 +19,11 @@ module Universe
 import Prelude hiding (lookup)
 import Models.Types
 import Formula (Implication(..), implicationProperties)
-import Util (encodeText)
+import Util (encodeText, fromSqlKey)
 
 import Control.Monad.State (State, modify, gets)
+import Data.Aeson
+import Data.Int (Int64)
 import qualified Data.Map  as M
 import Data.Maybe (fromMaybe)
 import qualified Data.Set  as S
@@ -33,6 +36,20 @@ data Universe = Universe
   , utheorems    :: M.Map TheoremId (Implication PropertyId)
   , urelTheorems :: M.Map PropertyId [TheoremId]
   } deriving Show
+
+instance ToJSON Universe where
+  toJSON u = object . map fmtSpace . M.toList $ uspaces u
+    where
+      ts :: Int64 -> T.Text
+      ts = T.pack . show
+      fmtSpace (sid, props) = (ts $ fromSqlKey sid, object . map fmtProp $ M.toList props)
+      fmtProp  (pid, vid)   = (ts $ fromSqlKey pid, Bool $ toBool vid)
+
+toBool :: TValueId -> Bool
+toBool v -- FIXME! this clearly isn't the place for this
+  | fromSqlKey v == 1 = True
+  | fromSqlKey v == 2 = False
+  | otherwise  = error "no mapping to boolean"
 
 empty :: Universe
 empty = Universe M.empty M.empty M.empty

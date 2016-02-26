@@ -9,6 +9,7 @@ import Base
 import Control.Concurrent.MVar     (newMVar)
 import Configuration.Dotenv        (loadFile)
 import Database.Persist.Postgresql (runSqlPool)
+import Network.Wai                 (Request)
 import Network.Wai.Handler.Warp    (run)
 import Network.Wai.Middleware.Cors (cors, CorsResourcePolicy(..), simpleCorsResourcePolicy,
                                     simpleMethods, simpleHeaders)
@@ -34,8 +35,8 @@ reqEnv k = do
     Nothing -> error $ "ENV['" ++ k ++ "'] not set"
     Just  v -> return v
 
-corsPolicy :: CorsResourcePolicy
-corsPolicy = simpleCorsResourcePolicy
+corsPolicy :: Request -> Maybe CorsResourcePolicy
+corsPolicy _ = Just simpleCorsResourcePolicy
   { corsMethods        = simpleMethods ++ ["PUT", "DELETE"]
   , corsRequestHeaders = simpleHeaders ++ ["Authorization"]
   }
@@ -59,10 +60,7 @@ main = do
     mkUniverse
   getUVar <- newMVar universe
 
-  let conf   = Config {..}
-      logger = mkLogger getEnv
-
-  putConf conf
+  conf <- putConf $ Config{..}
 
   putStrLn $ "Now running on port " ++ show getPort
-  run getPort $ logger $ cors (const $ Just corsPolicy) $ mkApp conf
+  run getPort . mkLogger getEnv . cors corsPolicy $ mkApp conf

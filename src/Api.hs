@@ -21,7 +21,7 @@ import Data.Aeson
 import Network.Wai (Application)
 import Servant
 
-import Actions (sendLoginEmail, EmailAddress, Host, expireSession)
+import Actions (sendLoginEmail, EmailAddress, Host, expireSession, getUniverse)
 import Api.Helpers (requireUser)
 import Api.Search
 import Models (true, false)
@@ -46,6 +46,7 @@ type API =
          :> POST ()
       :<|> "auth" :> Authenticated :> GET (Entity User)
       :<|> "logout" :> Authenticated :> DELETE ()
+      :<|> "universe" :> GET Universe
       :<|> "search"
          :> RequiredParam "q" Text
          :> QueryParam "type" SearchType
@@ -66,6 +67,7 @@ server = hserve $ Spaces.handlers
          handlers = sendLoginEmail
                :<|> const requireUser
                :<|> expireSession
+               :<|> actionToHandler getUniverse
                :<|> search
 
 instance FromText SearchType where
