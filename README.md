@@ -2,6 +2,8 @@
 
 See the live site at [topology.jdabbs.com](http://topology.jdabbs.com).
 
+_*N.B.* There is a [rewrite in progress](https://github.com/jamesdabbs/pi-base.hs/tree/rewrite) - aimed at splitting out a Servant-based API from a more robust and featureful React frontend, and being in a position to support new auth schemes after Persona shuts down. Progress is halting, but the new version will certainly land by November (as that's end of life for Persona)._
+
 ### Contributing
 
 I would _love_ bug reports and feature requests. Feel free to submit those in the [GitHub issues](https://github.com/jamesdabbs/pi-base.hs/issues).
