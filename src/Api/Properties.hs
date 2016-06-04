@@ -18,7 +18,7 @@ import qualified Models.Property as Property
 import Api.Helpers
 import Util (toSqlKey)
 
-type API = Paginated Property
+type API = GET [Entity Property]
      :<|> Body Property :> Authenticated :> POST (Entity Property)
      :<|> Capture "property_id" PropertyId
           :> ( GET (Entity Property)
@@ -28,7 +28,7 @@ type API = Paginated Property
           )
 
 handlers :: ServerT API Handler
-handlers = getPage []
+handlers = index
       :<|> withUser . Property.create
       :<|> ( \_id -> get404 _id
                 :<|> revisions _id

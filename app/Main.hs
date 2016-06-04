@@ -39,6 +39,7 @@ corsPolicy :: Request -> Maybe CorsResourcePolicy
 corsPolicy _ = Just simpleCorsResourcePolicy
   { corsMethods        = simpleMethods ++ ["PUT", "DELETE"]
   , corsRequestHeaders = simpleHeaders ++ ["Authorization"]
+  , corsOrigins        = Just ([ "http://localhost:8080", "http://localhost:9876" ], True)
   }
 
 main :: IO ()

@@ -11,6 +11,7 @@ module Api.Helpers
   , requireUser
   , withUser -- TODO: remove? Change to maybeUser?
   , get404
+  , getBy404
   , index
   , idFromText
   , getPage
@@ -59,15 +60,24 @@ withUser a u = do
   modify (setUser u)
   actionToHandler $ a u
 
-get404 :: (PersistEntity b, PersistEntityBackend b ~ SqlBackend) => Key b -> Handler (Entity b)
+get404 :: (PersistEntity b, PersistEntityBackend b ~ SqlBackend) =>
+          Key b -> Handler (Entity b)
 get404 _id = actionToHandler $ do
   found <- runDB $ get _id
   case found of
     Nothing -> halt err404
     Just  r -> return $ Entity _id r
 
-index :: (PersistEntity b, PersistEntityBackend b ~ SqlBackend) => Action [Entity b]
-index = runDB $ selectList [] []
+getBy404 :: (PersistEntity b, PersistEntityBackend b ~ SqlBackend) =>
+          Unique b -> Handler (Entity b)
+getBy404 k = actionToHandler $ do
+  found <- runDB $ getBy k
+  case found of
+    Nothing -> halt err404
+    Just r  -> return r
+
+index :: (PersistEntity b, PersistEntityBackend b ~ SqlBackend) => Handler [Entity b]
+index = actionToHandler . runDB $ selectList [] []
 
 idFromText :: PersistEntity r => Text -> Maybe (Key r)
 idFromText p = do

@@ -22,7 +22,7 @@ import Network.Wai (Application)
 import Servant
 
 import Actions (sendLoginEmail, EmailAddress, Host, expireSession, getUniverse)
-import Api.Helpers (requireUser)
+import Api.Helpers (requireUser, getBy404)
 import Api.Search
 import Models (true, false)
 
@@ -36,7 +36,8 @@ instance ToJSON SearchR where
   toJSON SearchR{..} = toJSON srspaces
 
 type API =
-        (  "spaces"     :> Spaces.API
+        (  "spaces" :> Capture "space_id" SpaceId :> "properties" :> Capture "property_id" PropertyId :> GET (Entity Trait)
+      :<|> "spaces"     :> Spaces.API
       :<|> "properties" :> Properties.API
       :<|> "theorems"   :> Theorems.API
       :<|> "traits"     :> Traits.API
@@ -58,7 +59,8 @@ hserve :: ServerT API Handler -> Config -> HandlerContext -> Server API
 hserve handlers conf ctx = enter (Nat $ runHandler conf ctx) handlers
 
 server :: Config -> HandlerContext -> Server API
-server = hserve $ Spaces.handlers
+server = hserve $ (\s p -> getBy404 $ TraitSP s p)
+       :<|> Spaces.handlers
        :<|> Properties.handlers
        :<|> Theorems.handlers
        :<|> Traits.handlers

@@ -19,7 +19,7 @@ import Data.Aeson
 
 import qualified Models.Space as Space
 
-type API = Paginated Space
+type API = GET [Entity Space]
       :<|> Body Space :> Authenticated :> POST (Entity Space)
       :<|> Capture "space_id" SpaceId
            :> ( GET (Entity Space)
@@ -29,7 +29,7 @@ type API = Paginated Space
            )
 
 handlers :: ServerT API Handler
-handlers = getPage []
+handlers = index
       :<|> withUser . Space.create
       :<|> ( \_id -> get404 _id
                 :<|> revisions _id
